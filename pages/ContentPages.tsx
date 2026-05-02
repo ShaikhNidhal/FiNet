@@ -351,12 +351,12 @@ export const TransactionsPage: React.FC = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Review & Reconcile</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">FiNet has automatically categorized new transactions. Review the suggestions and approve to reconcile your books.</p>
+        <div className="premium-card space-y-4">
+            <h2 className="text-xl font-semibold mb-4 text-white font-outfit font-bold">Review & Reconcile</h2>
+            <p className="text-slate-400 mb-6">FiNet has automatically categorized new transactions. Review the suggestions and approve to reconcile your books.</p>
             <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-slate-500 dark:text-slate-400">
-                    <thead className="text-xs text-slate-700 dark:text-slate-300 uppercase bg-slate-50 dark:bg-slate-700">
+                <table className="w-full text-sm text-left text-slate-400">
+                    <thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700">
                         <tr>
                             <th scope="col" className="px-6 py-3">Date</th>
                             <th scope="col" className="px-6 py-3">Description</th>
@@ -594,15 +594,15 @@ export const WorkflowsPage: React.FC = () => {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Accounts Payable</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">Review and approve upcoming bills.</p>
+            <div className="premium-card space-y-4">
+                <h2 className="text-xl font-semibold mb-4 text-white font-outfit font-bold">Accounts Payable</h2>
+                <p className="text-slate-400 mb-6">Review and approve upcoming bills.</p>
                 <div className="space-y-4">
                     {dataContext.apBills.map((bill, index) => (
                         <div key={index} className="p-4 border dark:border-slate-700 rounded-lg flex justify-between items-center">
                             <div>
                                 <p className="font-semibold text-slate-800 dark:text-slate-200">{bill.vendor}</p>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Due: {bill.due}</p>
+                                <p className="text-sm text-slate-400">Due: {bill.due}</p>
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-rose-600">${bill.amount.toFixed(2)}</p>
@@ -612,15 +612,15 @@ export const WorkflowsPage: React.FC = () => {
                     ))}
                 </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Accounts Receivable</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">Track outstanding invoices.</p>
+            <div className="premium-card space-y-4">
+                <h2 className="text-xl font-semibold mb-4 text-white font-outfit font-bold">Accounts Receivable</h2>
+                <p className="text-slate-400 mb-6">Track outstanding invoices.</p>
                 <div className="space-y-4">
                     {dataContext.arInvoices.map((invoice, index) => (
                         <div key={index} className="p-4 border dark:border-slate-700 rounded-lg flex justify-between items-center">
                             <div>
                                 <p className="font-semibold text-slate-800 dark:text-slate-200">{invoice.customer}</p>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">{invoice.due}</p>
+                                <p className="text-sm text-slate-400">{invoice.due}</p>
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-emerald-600">${invoice.amount.toFixed(2)}</p>
@@ -635,21 +635,21 @@ export const WorkflowsPage: React.FC = () => {
 };
 
 export const BudgetingPage: React.FC = () => (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Budget vs. Actuals</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6">Track your spending against your budget in real-time. FiNet flags categories that are over budget.</p>
+    <div className="premium-card space-y-4">
+        <h2 className="text-xl font-semibold mb-4 text-white font-outfit font-bold">Budget vs. Actuals</h2>
+        <p className="text-slate-400 mb-6">Track your spending against your budget in real-time. FiNet flags categories that are over budget.</p>
         <div className="space-y-6">
-            <div><div className="flex justify-between mb-1"><span className="text-base font-medium text-slate-700 dark:text-slate-300">Marketing</span><span className="text-sm font-medium text-slate-700 dark:text-slate-300">$10,500 / $10,000 <span className="text-rose-500 font-bold">(105%)</span></span></div><div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4"><div className="bg-rose-500 h-4 rounded-full" style={{ width: '100%' }}></div></div></div>
-            <div><div className="flex justify-between mb-1"><span className="text-base font-medium text-slate-700 dark:text-slate-300">Software & Subscriptions</span><span className="text-sm font-medium text-slate-700 dark:text-slate-300">$1,800 / $2,000 (90%)</span></div><div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4"><div className="bg-amber-500 h-4 rounded-full" style={{ width: '90%' }}></div></div></div>
-            <div><div className="flex justify-between mb-1"><span className="text-base font-medium text-slate-700 dark:text-slate-300">Cloud & Hosting</span><span className="text-sm font-medium text-slate-700 dark:text-slate-300">$600 / $1,000 (60%)</span></div><div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4"><div className="bg-emerald-500 h-4 rounded-full" style={{ width: '60%' }}></div></div></div>
+            <div><div className="flex justify-between mb-1"><span className="text-base font-medium text-slate-200 font-semibold">Marketing</span><span className="text-sm font-medium text-slate-200 font-semibold">$10,500 / $10,000 <span className="text-rose-500 font-bold">(105%)</span></span></div><div className="w-full bg-slate-800 rounded-full h-4"><div className="bg-rose-500 h-4 rounded-full" style={{ width: '100%' }}></div></div></div>
+            <div><div className="flex justify-between mb-1"><span className="text-base font-medium text-slate-200 font-semibold">Software & Subscriptions</span><span className="text-sm font-medium text-slate-200 font-semibold">$1,800 / $2,000 (90%)</span></div><div className="w-full bg-slate-800 rounded-full h-4"><div className="bg-amber-500 h-4 rounded-full" style={{ width: '90%' }}></div></div></div>
+            <div><div className="flex justify-between mb-1"><span className="text-base font-medium text-slate-200 font-semibold">Cloud & Hosting</span><span className="text-sm font-medium text-slate-200 font-semibold">$600 / $1,000 (60%)</span></div><div className="w-full bg-slate-800 rounded-full h-4"><div className="bg-emerald-500 h-4 rounded-full" style={{ width: '60%' }}></div></div></div>
         </div>
     </div>
 );
 
 export const IntegrationsPage: React.FC = () => (
     <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto">
-        <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Seamless Integrations</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6">Connect your favorite business tools to create a single source of truth for your financial data.</p>
+        <h2 className="text-xl font-semibold mb-4 text-white font-outfit font-bold">Seamless Integrations</h2>
+        <p className="text-slate-400 mb-6">Connect your favorite business tools to create a single source of truth for your financial data.</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
             <div className="p-6 border dark:border-slate-700 rounded-lg flex flex-col items-center justify-center"><img src="https://picsum.photos/seed/payroll/64" className="rounded-full mb-3" alt="Payroll Icon" /><p className="font-semibold text-slate-800 dark:text-slate-200">Payroll Systems</p><button className="mt-2 text-sm text-[var(--color-primary)] font-semibold">Connect</button></div>
             <div className="p-6 border dark:border-slate-700 rounded-lg flex flex-col items-center justify-center"><img src="https://picsum.photos/seed/crm/64" className="rounded-full mb-3" alt="CRM Icon" /><p className="font-semibold text-slate-800 dark:text-slate-200">CRM Platforms</p><button className="mt-2 text-sm text-[var(--color-primary)] font-semibold">Connect</button></div>
@@ -665,16 +665,16 @@ export const SettingsPage: React.FC = () => {
 
     return (
         <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto space-y-8">
-            <div><h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">Settings</h2><p className="text-slate-500 dark:text-slate-400 mt-1">Customize your FiNet workspace.</p></div>
+            <div><h2 className="text-xl font-semibold text-white font-outfit font-bold">Settings</h2><p className="text-slate-400 mt-1">Customize your FiNet workspace.</p></div>
             <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
                 <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Appearance</h3>
                 <div className="mt-4 flex items-center space-x-4">
-                    <span className="text-slate-600 dark:text-slate-400">Light</span>
+                    <span className="text-slate-400">Light</span>
                     <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} className="sr-only peer" />
                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-300 dark:peer-focus:ring-[var(--color-primary-hover)] rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-[var(--color-primary)]"></div>
                     </label>
-                    <span className="text-slate-600 dark:text-slate-400">Dark</span>
+                    <span className="text-slate-400">Dark</span>
                 </div>
             </div>
             <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
@@ -716,7 +716,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
             </div>
             
-             <div className="border-t border-slate-200 dark:border-slate-700 pt-6"><h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Multi-Currency</h3><p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage finances across different currencies.</p><div className="mt-4 space-y-4"><label className="block"><span className="text-slate-700 dark:text-slate-300">Base Currency</span><select className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"><option>USD - United States Dollar</option><option>EUR - Euro</option><option>GBP - British Pound</option></select></label></div></div>
+             <div className="border-t border-slate-200 dark:border-slate-700 pt-6"><h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Multi-Currency</h3><p className="text-sm text-slate-400 mt-1">Manage finances across different currencies.</p><div className="mt-4 space-y-4"><label className="block"><span className="text-slate-200 font-semibold">Base Currency</span><select className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"><option>USD - United States Dollar</option><option>EUR - Euro</option><option>GBP - British Pound</option></select></label></div></div>
         </div>
     );
 };
@@ -724,7 +724,7 @@ export const SettingsPage: React.FC = () => {
 
 // The following are simple placeholder pages.
 export const ExpenseManagementPage: React.FC = () => (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">Expense Reports</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Submit New Report</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-500 dark:text-slate-400"><thead className="text-xs text-slate-700 dark:text-slate-300 uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Report ID</th><th scope="col" className="px-6 py-3">Submitted By</th><th scope="col" className="px-6 py-3">Amount</th><th scope="col" className="px-6 py-3">Status</th><th scope="col" className="px-6 py-3 text-center">Action</th></tr></thead><tbody>
+    <div className="premium-card space-y-4"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-white font-outfit font-bold">Expense Reports</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Submit New Report</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-400"><thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Report ID</th><th scope="col" className="px-6 py-3">Submitted By</th><th scope="col" className="px-6 py-3">Amount</th><th scope="col" className="px-6 py-3">Status</th><th scope="col" className="px-6 py-3 text-center">Action</th></tr></thead><tbody>
         <tr className="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
             <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">ER-2025-003</td><td className="px-6 py-4">Alice Johnson</td><td className="px-6 py-4">$450.50</td><td className="px-6 py-4"><span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 text-xs font-medium px-2.5 py-0.5 rounded-full">Approved</span></td><td className="px-6 py-4 text-center"><a href="#" className="font-medium text-[var(--color-primary)] hover:underline">View</a></td>
         </tr>
@@ -735,7 +735,7 @@ export const ExpenseManagementPage: React.FC = () => (
 );
 
 export const InventoryPage: React.FC = () => (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">Inventory Management</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Add New Item</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-500 dark:text-slate-400"><thead className="text-xs text-slate-700 dark:text-slate-300 uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Item Name</th><th scope="col" className="px-6 py-3">SKU</th><th scope="col" className="px-6 py-3">Stock Level</th><th scope="col" className="px-6 py-3">Reorder Point</th><th scope="col" className="px-6 py-3">Value</th></tr></thead><tbody>
+    <div className="premium-card space-y-4"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-white font-outfit font-bold">Inventory Management</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Add New Item</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-400"><thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Item Name</th><th scope="col" className="px-6 py-3">SKU</th><th scope="col" className="px-6 py-3">Stock Level</th><th scope="col" className="px-6 py-3">Reorder Point</th><th scope="col" className="px-6 py-3">Value</th></tr></thead><tbody>
         <tr className="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
             <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">Pro Widget</td><td className="px-6 py-4">PW-001</td><td className="px-6 py-4 font-semibold">150 units</td><td className="px-6 py-4">100</td><td className="px-6 py-4">$7,500.00</td>
         </tr>
@@ -746,14 +746,14 @@ export const InventoryPage: React.FC = () => (
 );
 
 export const ProjectsPage: React.FC = () => (
-    <div><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">Project-Based Accounting</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">New Project</button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow"><h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">Website Redesign</h3><p className="text-sm text-slate-500 dark:text-slate-400 mb-4">ClientCorp</p><div className="space-y-2 text-sm"><div className="flex justify-between"><span>Budget:</span><span className="font-semibold">$20,000</span></div><div className="flex justify-between"><span>Invoiced:</span><span className="font-semibold">$15,000</span></div><div className="flex justify-between pt-2 border-t dark:border-slate-700"><span>Profitability:</span><span className="font-bold text-emerald-500">45%</span></div></div></div>
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow"><h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">Q3 Marketing Campaign</h3><p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Global Solutions Ltd.</p><div className="space-y-2 text-sm"><div className="flex justify-between"><span>Budget:</span><span className="font-semibold">$50,000</span></div><div className="flex justify-between"><span>Invoiced:</span><span className="font-semibold">$50,000</span></div><div className="flex justify-between pt-2 border-t dark:border-slate-700"><span>Profitability:</span><span className="font-bold text-rose-500">-5%</span></div></div></div>
+    <div><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-white font-outfit font-bold">Project-Based Accounting</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">New Project</button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="premium-card space-y-4"><h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">Website Redesign</h3><p className="text-sm text-slate-400 mb-4">ClientCorp</p><div className="space-y-2 text-sm"><div className="flex justify-between"><span>Budget:</span><span className="font-semibold">$20,000</span></div><div className="flex justify-between"><span>Invoiced:</span><span className="font-semibold">$15,000</span></div><div className="flex justify-between pt-2 border-t dark:border-slate-700"><span>Profitability:</span><span className="font-bold text-emerald-500">45%</span></div></div></div>
+        <div className="premium-card space-y-4"><h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">Q3 Marketing Campaign</h3><p className="text-sm text-slate-400 mb-4">Global Solutions Ltd.</p><div className="space-y-2 text-sm"><div className="flex justify-between"><span>Budget:</span><span className="font-semibold">$50,000</span></div><div className="flex justify-between"><span>Invoiced:</span><span className="font-semibold">$50,000</span></div><div className="flex justify-between pt-2 border-t dark:border-slate-700"><span>Profitability:</span><span className="font-bold text-rose-500">-5%</span></div></div></div>
     </div></div>
 );
 
 export const FixedAssetsPage: React.FC = () => (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">Fixed Asset Register</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Add New Asset</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-500 dark:text-slate-400"><thead className="text-xs text-slate-700 dark:text-slate-300 uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Asset</th><th scope="col" className="px-6 py-3">Acquisition Date</th><th scope="col" className="px-6 py-3">Cost</th><th scope="col" className="px-6 py-3">Depreciation</th><th scope="col" className="px-6 py-3">Book Value</th></tr></thead><tbody>
+    <div className="premium-card space-y-4"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-white font-outfit font-bold">Fixed Asset Register</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Add New Asset</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-400"><thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Asset</th><th scope="col" className="px-6 py-3">Acquisition Date</th><th scope="col" className="px-6 py-3">Cost</th><th scope="col" className="px-6 py-3">Depreciation</th><th scope="col" className="px-6 py-3">Book Value</th></tr></thead><tbody>
         <tr className="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
             <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">MacBook Pro 16"</td><td className="px-6 py-4">2024-01-15</td><td className="px-6 py-4">$2,500.00</td><td className="px-6 py-4">($416.67)</td><td className="px-6 py-4 font-semibold">$2,083.33</td>
         </tr>
@@ -761,14 +761,14 @@ export const FixedAssetsPage: React.FC = () => (
 );
 
 export const TaxCenterPage: React.FC = () => (
-    <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto"><h2 className="text-xl font-semibold mb-2 text-slate-700 dark:text-slate-200">Tax Center</h2><p className="text-slate-500 dark:text-slate-400 mb-6">Stay on top of your tax obligations with AI-powered estimates and reports.</p><div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg text-center"><h3 className="text-slate-500 dark:text-slate-400 font-medium">Estimated Q3 Tax Due</h3><p className="text-4xl font-bold text-[var(--color-primary)] mt-2">$8,540.00</p><p className="text-xs text-slate-400 mt-1">Due: Sep 15, 2025</p></div>
+    <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto"><h2 className="text-xl font-semibold mb-2 text-white font-outfit font-bold">Tax Center</h2><p className="text-slate-400 mb-6">Stay on top of your tax obligations with AI-powered estimates and reports.</p><div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg text-center"><h3 className="text-slate-400 font-medium">Estimated Q3 Tax Due</h3><p className="text-4xl font-bold text-[var(--color-primary)] mt-2">$8,540.00</p><p className="text-xs text-slate-400 mt-1">Due: Sep 15, 2025</p></div>
         <div className="p-6 flex flex-col justify-center"><h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Tax-Ready Reports</h3><div className="space-y-2"><button className="w-full text-left bg-slate-100 dark:bg-slate-700 p-3 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 transition">Generate P&L for Tax</button><button className="w-full text-left bg-slate-100 dark:bg-slate-700 p-3 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 transition">Export Expense Report</button></div></div>
     </div></div>
 );
 
 export const PayrollPage: React.FC = () => (
-    <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto"><div className="text-center"><h2 className="text-xl font-semibold mb-2 text-slate-700 dark:text-slate-200">Run Payroll</h2><p className="text-slate-500 dark:text-slate-400 mb-6">Process payroll in minutes with our fully integrated system.</p></div><div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg mb-6"><div className="flex justify-between items-center"><h3 className="font-medium text-slate-600 dark:text-slate-300">Next Pay Run: <span className="font-bold text-slate-800 dark:text-slate-100">Jul 1 - Jul 15</span></h3><p className="text-slate-600 dark:text-slate-300">Pay Date: <span className="font-bold text-slate-800 dark:text-slate-100">Jul 20, 2025</span></p></div></div><div className="text-center"><p className="text-slate-500 dark:text-slate-400">Total Payroll Cost</p><p className="text-5xl font-extrabold text-slate-800 dark:text-slate-100 my-2">$45,820.50</p><button className="w-full max-w-xs mx-auto bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-300 text-lg">Run Payroll</button></div></div>
+    <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto"><div className="text-center"><h2 className="text-xl font-semibold mb-2 text-white font-outfit font-bold">Run Payroll</h2><p className="text-slate-400 mb-6">Process payroll in minutes with our fully integrated system.</p></div><div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg mb-6"><div className="flex justify-between items-center"><h3 className="font-medium text-slate-600 dark:text-slate-300">Next Pay Run: <span className="font-bold text-slate-800 dark:text-slate-100">Jul 1 - Jul 15</span></h3><p className="text-slate-600 dark:text-slate-300">Pay Date: <span className="font-bold text-slate-800 dark:text-slate-100">Jul 20, 2025</span></p></div></div><div className="text-center"><p className="text-slate-400">Total Payroll Cost</p><p className="text-5xl font-extrabold text-slate-800 dark:text-slate-100 my-2">$45,820.50</p><button className="w-full max-w-xs mx-auto bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-300 text-lg">Run Payroll</button></div></div>
 );
 
 export const ReconciliationPage: React.FC = () => {
