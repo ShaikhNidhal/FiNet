@@ -344,45 +344,166 @@ const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> 
 );
 
 export const TransactionsPage: React.FC = () => {
-    const dataContext = useContext(DataContext) as DataContextType;
+    const transactions = [
+        { date: '2026-05-14', description: 'Client Payment - InTech', category: 'Revenue', gl: '4000', amount: 72000, status: 'posted', anomaly: null },
+        { date: '2026-05-12', description: 'Interest Income', category: 'Interest', gl: '4500', amount: 2100, status: 'posted', anomaly: null },
+        { date: '2026-05-10', description: 'Marketing Campaign - Meta Ads', category: 'Marketing', gl: '6100', amount: -15000, status: 'posted', anomaly: null },
+        { date: '2026-05-07', description: 'Business Meals - Client Dinner', category: 'Meals & Entertainment', gl: '6400', amount: -5200, status: 'posted', anomaly: 'High' },
+        { date: '2026-05-03', description: 'Payroll - Engineering Team', category: 'Salaries', gl: '6600', amount: -92000, status: 'posted', anomaly: null },
+        { date: '2026-05-02', description: 'AWS Cloud Services', category: 'Software & SaaS', gl: '6200', amount: -9100, status: 'posted', anomaly: null },
+        { date: '2026-05-01', description: 'Client Payment - Acme Corp Q2', category: 'Revenue', gl: '4000', amount: 145000, status: 'posted', anomaly: null },
+        { date: '2026-04-30', description: 'Cash Transfer - Suspicious', category: 'Transfers', gl: '9000', amount: -45000, status: 'pending', anomaly: 'Critical' },
+        { date: '2026-04-25', description: 'Utilities', category: 'Utilities', gl: '6250', amount: -2300, status: 'posted', anomaly: null },
+        { date: '2026-04-15', description: 'License Revenue - SaaS Product', category: 'Revenue', gl: '4100', amount: 45000, status: 'posted', anomaly: null },
+        { date: '2026-04-10', description: 'Vendor Payment - Contractor A', category: 'Professional Services', gl: '6300', amount: -24000, status: 'posted', anomaly: null },
+        { date: '2026-04-05', description: 'Server Infrastructure', category: 'Software & SaaS', gl: '6200', amount: -7200, status: 'posted', anomaly: null },
+        { date: '2026-04-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
+        { date: '2026-04-01', description: 'Client Payment - TechVision LLC', category: 'Revenue', gl: '4000', amount: 138000, status: 'posted', anomaly: null },
+        { date: '2026-03-25', description: 'Duplicate Payment - Vendor B', category: 'Professional Services', gl: '6300', amount: -12000, status: 'pending', anomaly: 'Critical' },
+        { date: '2026-03-20', description: 'Office Equipment', category: 'Equipment', gl: '1500', amount: -13400, status: 'posted', anomaly: null },
+        { date: '2026-03-15', description: 'Vendor Payment - IT Services', category: 'Professional Services', gl: '6300', amount: -18000, status: 'posted', anomaly: null },
+        { date: '2026-03-08', description: 'Consulting Revenue - Beta Co', category: 'Revenue', gl: '4000', amount: 38000, status: 'posted', anomaly: null },
+        { date: '2026-03-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
+        { date: '2026-03-01', description: 'Client Payment - MegaCorp', category: 'Revenue', gl: '4000', amount: 230000, status: 'posted', anomaly: null },
+        { date: '2026-02-28', description: 'Q1 Tax Payment', category: 'Taxes', gl: '2600', amount: -35000, status: 'posted', anomaly: null },
+        { date: '2026-02-20', description: 'Google Workspace', category: 'Software & SaaS', gl: '6200', amount: -850, status: 'posted', anomaly: null },
+        { date: '2026-02-14', description: 'Insurance Premium - Annual', category: 'Insurance', gl: '6400', amount: -9000, status: 'posted', anomaly: null },
+        { date: '2026-02-10', description: 'Office Lease - Downtown HQ', category: 'Rent & Facilities', gl: '6700', amount: -12000, status: 'posted', anomaly: null },
+        { date: '2026-02-01', description: 'Client Payment - SpringBoard', category: 'Revenue', gl: '4000', amount: 88000, status: 'posted', anomaly: null },
+        { date: '2026-01-25', description: 'Office Supplies - Staples', category: 'Office Supplies', gl: '6100', amount: -425, status: 'posted', anomaly: null },
+        { date: '2026-01-20', description: 'Marketing Campaign - LinkedIn', category: 'Marketing', gl: '6100', amount: -12000, status: 'posted', anomaly: null },
+        { date: '2026-01-15', description: 'Travel Expenses - Sales Conference', category: 'Travel', gl: '6700', amount: -9000, status: 'posted', anomaly: null },
+        { date: '2026-01-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
+        { date: '2026-01-01', description: 'Client Payment - Globex Inc', category: 'Revenue', gl: '4000', amount: 62000, status: 'posted', anomaly: null },
+    ];
 
-    const handleApprove = (indexToRemove: number) => {
-        dataContext.setTransactions(prev => prev.filter((_, index) => index !== indexToRemove));
-    };
+    const spendCategories = [
+        { name: 'Salaries', amount: '$1,387,000', percent: '45.8%', fill: '90%' },
+        { name: 'Revenue', amount: '$1,593,100', percent: '44.5%', fill: '88%' },
+        { name: 'Professional Services', amount: '$65,500', percent: '2.4%', fill: '5%' },
+        { name: 'Taxes', amount: '$65,000', percent: '1.8%', fill: '4%' },
+        { name: 'Marketing', amount: '$59,000', percent: '1.7%', fill: '3.5%' },
+        { name: 'Transfers', amount: '$45,000', percent: '1.2%', fill: '2.5%' },
+        { name: 'Software & SaaS', amount: '$43,500', percent: '1.1%', fill: '2%' },
+        { name: 'Rent & Facilities', amount: '$24,000', percent: '0.7%', fill: '1%' },
+    ];
 
     return (
-        <div className="premium-card space-y-4">
-            <h2 className="text-xl font-semibold mb-4 text-white font-outfit font-bold">Review & Reconcile</h2>
-            <p className="text-slate-400 mb-6">FiNet has automatically categorized new transactions. Review the suggestions and approve to reconcile your books.</p>
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-slate-400">
-                    <thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">Date</th>
-                            <th scope="col" className="px-6 py-3">Description</th>
-                            <th scope="col" className="px-6 py-3">Amount</th>
-                            <th scope="col" className="px-6 py-3">FiNet Suggested Category</th>
-                            <th scope="col" className="px-6 py-3 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {dataContext.transactions.map((tx, index) => (
-                            <tr key={index} className="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
-                                <td className="px-6 py-4">{tx.date}</td>
-                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{tx.description}</td>
-                                <td className={`px-6 py-4 font-semibold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                    {tx.type === 'expense' ? '-' : ''}${Math.abs(tx.amount).toFixed(2)}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="bg-[var(--color-primary-light)] text-[var(--color-primary)] text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">{tx.category}</span>
-                                </td>
-                                <td className="px-6 py-4 text-center">
-                                    <button onClick={() => handleApprove(index)} className="font-medium text-emerald-600 hover:underline">Approve</button>
-                                </td>
+        <div className="space-y-6 animate-in fade-in duration-700 max-w-6xl">
+            {/* Header */}
+            <div>
+                <h2 className="text-xl font-bold font-outfit text-white">Transaction Ledger</h2>
+                <p className="text-slate-500 text-sm mt-1">Full audit trail with AI categorization and anomaly scoring</p>
+            </div>
+
+            {/* Top KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="premium-card p-6 flex items-center gap-4">
+                    <div className="w-1 h-12 bg-emerald-500 rounded-full"></div>
+                    <div>
+                        <p className="text-2xl font-black text-white">$1,593,100</p>
+                        <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
+                            <span className="text-emerald-500">↗</span> Total Credits
+                        </p>
+                    </div>
+                </div>
+                <div className="premium-card p-6 flex items-center gap-4">
+                    <div className="w-1 h-12 bg-rose-500 rounded-full"></div>
+                    <div>
+                        <p className="text-2xl font-black text-white">$1,954,900</p>
+                        <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
+                            <span className="text-rose-500">↘</span> Total Debits
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="relative w-full md:w-96">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-500">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" className="w-full bg-slate-900 border border-slate-800 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block pl-10 p-2.5 text-white placeholder-slate-500" placeholder="Search transactions..." />
+                </div>
+                <div className="flex gap-4 w-full md:w-auto">
+                    <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
+                        <option>All Types</option>
+                        <option>Income</option>
+                        <option>Expense</option>
+                    </select>
+                    <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
+                        <option>All Categories</option>
+                        <option>Revenue</option>
+                        <option>Salaries</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Data Table */}
+            <div className="premium-card p-0 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left text-slate-400">
+                        <thead className="text-[10px] text-slate-500 uppercase font-bold border-b border-slate-800 tracking-wider">
+                            <tr>
+                                <th scope="col" className="px-6 py-4">DATE</th>
+                                <th scope="col" className="px-6 py-4">DESCRIPTION</th>
+                                <th scope="col" className="px-6 py-4">CATEGORY</th>
+                                <th scope="col" className="px-6 py-4">GL CODE</th>
+                                <th scope="col" className="px-6 py-4 text-right">AMOUNT</th>
+                                <th scope="col" className="px-6 py-4 text-center">STATUS</th>
+                                <th scope="col" className="px-6 py-4 text-center">ANOMALY</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/50">
+                            {transactions.map((tx, index) => (
+                                <tr key={index} className="hover:bg-slate-800/50 transition-colors">
+                                    <td className="px-6 py-3 whitespace-nowrap">{tx.date}</td>
+                                    <td className="px-6 py-3 font-semibold text-slate-200">{tx.description}</td>
+                                    <td className="px-6 py-3">{tx.category}</td>
+                                    <td className="px-6 py-3 text-slate-500">{tx.gl}</td>
+                                    <td className={`px-6 py-3 text-right font-bold ${tx.amount > 0 ? 'text-emerald-500' : 'text-white'}`}>
+                                        {tx.amount > 0 ? '+' : ''}{tx.amount < 0 ? '-' : ''}${Math.abs(tx.amount).toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-3 text-center">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${tx.status === 'posted' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
+                                            {tx.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-3">
+                                        {tx.anomaly ? (
+                                            <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-rose-500">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                {tx.anomaly}
+                                            </div>
+                                        ) : (
+                                            <div className="text-slate-600 text-center">—</div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Spend by Category Footer */}
+            <div className="premium-card p-6">
+                <h3 className="text-sm font-bold font-outfit mb-4 text-white">Spend by Category</h3>
+                <div className="space-y-3">
+                    {spendCategories.map((cat, idx) => (
+                        <div key={idx} className="flex items-center text-xs">
+                            <span className="w-40 text-slate-400 truncate">{cat.name}</span>
+                            <div className="flex-1 mx-4 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-sky-500 rounded-full" style={{ width: cat.fill }}></div>
+                            </div>
+                            <div className="w-32 flex justify-between font-medium">
+                                <span className="text-slate-200">{cat.amount}</span>
+                                <span className="text-slate-500">{cat.percent}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
