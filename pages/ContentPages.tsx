@@ -344,6 +344,10 @@ const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> 
 );
 
 export const TransactionsPage: React.FC = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [typeFilter, setTypeFilter] = useState('All Types');
+    const [categoryFilter, setCategoryFilter] = useState('All Categories');
+
     const transactions = [
         { date: '2026-05-14', description: 'Client Payment - InTech', category: 'Revenue', gl: '4000', amount: 72000, status: 'posted', anomaly: null },
         { date: '2026-05-12', description: 'Interest Income', category: 'Interest', gl: '4500', amount: 2100, status: 'posted', anomaly: null },
@@ -376,6 +380,13 @@ export const TransactionsPage: React.FC = () => {
         { date: '2026-01-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
         { date: '2026-01-01', description: 'Client Payment - Globex Inc', category: 'Revenue', gl: '4000', amount: 62000, status: 'posted', anomaly: null },
     ];
+
+    const filteredTransactions = transactions.filter(tx => {
+        const matchesSearch = tx.description.toLowerCase().includes(searchQuery.toLowerCase()) || tx.category.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesType = typeFilter === 'All Types' || (typeFilter === 'Credit' ? tx.amount > 0 : tx.amount < 0);
+        const matchesCategory = categoryFilter === 'All Categories' || tx.category === categoryFilter;
+        return matchesSearch && matchesType && matchesCategory;
+    });
 
     const spendCategories = [
         { name: 'Salaries', amount: '$1,387,000', percent: '45.8%', fill: '90%' },
@@ -424,15 +435,29 @@ export const TransactionsPage: React.FC = () => {
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-500">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" className="w-full bg-slate-900 border border-slate-800 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block pl-10 p-2.5 text-white placeholder-slate-500" placeholder="Search transactions..." />
+                    <input 
+                        type="text" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-800 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block pl-10 p-2.5 text-white placeholder-slate-500" 
+                        placeholder="Search transactions..." 
+                    />
                 </div>
                 <div className="flex gap-4 w-full md:w-auto">
-                    <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
+                    <select 
+                        value={typeFilter}
+                        onChange={(e) => setTypeFilter(e.target.value)}
+                        className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40"
+                    >
                         <option>All Types</option>
                         <option>Credit</option>
                         <option>Debit</option>
                     </select>
-                    <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
+                    <select 
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40"
+                    >
                         <option>All Categories</option>
                         <option>Salaries</option>
                         <option>Revenue</option>
@@ -469,7 +494,11 @@ export const TransactionsPage: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800/50">
-                            {transactions.map((tx, index) => (
+                            {filteredTransactions.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-8 text-center text-slate-500">No transactions match your filters.</td>
+                                </tr>
+                            ) : filteredTransactions.map((tx, index) => (
                                 <tr key={index} className="hover:bg-slate-800/50 transition-colors">
                                     <td className="px-6 py-3 whitespace-nowrap">{tx.date}</td>
                                     <td className="px-6 py-3 font-semibold text-slate-200">{tx.description}</td>
