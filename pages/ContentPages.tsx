@@ -434,8 +434,21 @@ export const TransactionsPage: React.FC = () => {
                     </select>
                     <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
                         <option>All Categories</option>
-                        <option>Revenue</option>
                         <option>Salaries</option>
+                        <option>Revenue</option>
+                        <option>Professional Services</option>
+                        <option>Taxes</option>
+                        <option>Marketing</option>
+                        <option>Transfers</option>
+                        <option>Software & SaaS</option>
+                        <option>Rent & Facilities</option>
+                        <option>Equipment</option>
+                        <option>Travel</option>
+                        <option>Insurance</option>
+                        <option>Meals & Entertainment</option>
+                        <option>Utilities</option>
+                        <option>Interest</option>
+                        <option>Office Supplies</option>
                     </select>
                 </div>
             </div>
