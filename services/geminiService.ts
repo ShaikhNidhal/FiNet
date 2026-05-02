@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const geminiService = {
     async analyzeDocument(text: string) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         const prompt = `
             Analyze the following financial document text and extract:
             1. Vendor/Customer Name
@@ -29,7 +29,7 @@ export const geminiService = {
     },
 
     async getRiskInsights(transactions: any[]) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         const prompt = `
             Analyze these transactions for potential risks, anomalies, or cost-saving opportunities.
             Identify:
@@ -53,7 +53,7 @@ export const geminiService = {
     },
 
     async getFinancialInsight(query: string) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         const prompt = `
             You are FiNet AI, a strategic financial advisor for CFOs.
             Answer the following query professionally and concisely:
