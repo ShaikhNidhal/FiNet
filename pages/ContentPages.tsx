@@ -1,6 +1,6 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext, DataContext } from '../App';
 import { ThemeContextType, DataContextType, ThemeName, Transaction } from '../types';
 import { THEMES } from '../constants';
@@ -431,3 +431,304 @@ export const TaxCenterPage: React.FC = () => (
 export const PayrollPage: React.FC = () => (
     <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto"><div className="text-center"><h2 className="text-xl font-semibold mb-2 text-slate-700 dark:text-slate-200">Run Payroll</h2><p className="text-slate-500 dark:text-slate-400 mb-6">Process payroll in minutes with our fully integrated system.</p></div><div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg mb-6"><div className="flex justify-between items-center"><h3 className="font-medium text-slate-600 dark:text-slate-300">Next Pay Run: <span className="font-bold text-slate-800 dark:text-slate-100">Jul 1 - Jul 15</span></h3><p className="text-slate-600 dark:text-slate-300">Pay Date: <span className="font-bold text-slate-800 dark:text-slate-100">Jul 20, 2025</span></p></div></div><div className="text-center"><p className="text-slate-500 dark:text-slate-400">Total Payroll Cost</p><p className="text-5xl font-extrabold text-slate-800 dark:text-slate-100 my-2">$45,820.50</p><button className="w-full max-w-xs mx-auto bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-300 text-lg">Run Payroll</button></div></div>
 );
+
+export const ReconciliationPage: React.FC = () => {
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-end">
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">AI Reconciliation</h2>
+                    <p className="text-slate-500">Automated bank-to-ledger matching and "Continuous Close" logic.</p>
+                </div>
+                <div className="flex gap-3">
+                    <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium">Download Log</button>
+                    <button className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm font-medium">Run Auto-Match</button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-b-4 border-emerald-500">
+                    <p className="text-slate-500 text-sm">Matched</p>
+                    <h3 className="text-2xl font-bold text-emerald-600">98.2%</h3>
+                    <p className="text-[10px] text-emerald-500 mt-1">+1.5% from yesterday</p>
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-b-4 border-rose-500">
+                    <p className="text-slate-500 text-sm">Unreconciled</p>
+                    <h3 className="text-2xl font-bold text-rose-600">12 Items</h3>
+                    <p className="text-[10px] text-rose-400 mt-1">Requires manual review</p>
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-b-4 border-sky-500">
+                    <p className="text-slate-500 text-sm">AI Suggestions</p>
+                    <h3 className="text-2xl font-bold text-sky-600">8 High Conf.</h3>
+                    <p className="text-[10px] text-sky-400 mt-1">Ready for approval</p>
+                </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
+                <table className="w-full">
+                    <thead className="bg-slate-50 dark:bg-slate-700/50">
+                        <tr>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Bank Transaction</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Ledger Suggestion</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Confidence</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                        <tr>
+                            <td className="px-6 py-4">
+                                <p className="text-sm font-semibold">Amazon Web Services</p>
+                                <p className="text-xs text-slate-400">July 12 • ACH Debit • $1,240.00</p>
+                            </td>
+                            <td className="px-6 py-4">
+                                <p className="text-sm">Bill #INV-2025-042</p>
+                                <p className="text-xs text-slate-400">Hosting Services</p>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="flex items-center">
+                                    <div className="w-16 h-2 bg-slate-100 rounded-full mr-2">
+                                        <div className="w-[99%] h-full bg-emerald-500 rounded-full"></div>
+                                    </div>
+                                    <span className="text-xs font-bold text-emerald-600">99%</span>
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 text-right cursor-pointer text-sky-500 font-bold text-sm">Approve</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export const RiskDiscoveryPage: React.FC = () => {
+    return (
+        <div className="space-y-8">
+            <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900 p-6 rounded-xl flex items-start">
+                <div className="w-12 h-12 bg-rose-100 dark:bg-rose-800 rounded-full flex items-center justify-center mr-4 shrink-0">
+                    <svg className="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold text-rose-900 dark:text-rose-100">3 High-Priority Anomalies Detected</h3>
+                    <p className="text-rose-700 dark:text-rose-300 text-sm">AI has identified unusual transaction patterns in the AP cycle that deviate from historical vendor behavior.</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">Risk Metrics</h3>
+                    <div className="space-y-4">
+                        {[
+                            { label: "Duplicate Invoice Risk", score: 15, color: "bg-emerald-500" },
+                            { label: "Unauthorized Vendor Activity", score: 45, color: "bg-amber-500" },
+                            { label: "Benford's Law Deviation", score: 82, color: "bg-rose-500" },
+                            { label: "Phantom Employee Risk", score: 5, color: "bg-emerald-500" },
+                        ].map(m => (
+                            <div key={m.label}>
+                                <div className="flex justify-between text-xs font-semibold mb-1 uppercase tracking-wider text-slate-500">
+                                    <span>{m.label}</span>
+                                    <span>{m.score}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full">
+                                    <div className={`h-full ${m.color} rounded-full`} style={{ width: `${m.score}%` }}></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">Audit Defense Readiness</h3>
+                    <div className="flex items-center gap-6">
+                        <div className="w-32 h-32 relative">
+                            <svg className="w-full h-full transform -rotate-90">
+                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100 dark:text-slate-700" />
+                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={364} strokeDashoffset={364 * 0.15} className="text-emerald-500" />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center flex-col">
+                                <span className="text-2xl font-bold">85%</span>
+                                <span className="text-[10px] uppercase text-slate-400">Ready</span>
+                            </div>
+                        </div>
+                        <div className="flex-1 space-y-2">
+                            <p className="text-sm font-semibold text-slate-600">Workpapers Generated: <span className="text-emerald-600">12/12</span></p>
+                            <p className="text-sm font-semibold text-slate-600">Sample Testing: <span className="text-sky-600">In Progress</span></p>
+                            <button className="w-full mt-4 py-2 bg-slate-100 text-slate-700 rounded font-bold text-xs uppercase hover:bg-slate-200">Prepare Audit File</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const ScenarioPlanningPage: React.FC = () => {
+    const { themeColors, isDarkMode } = useContext(ThemeContext) as ThemeContextType;
+    const [growthRate, setGrowthRate] = useState(15);
+    const [hiringPlan, setHiringPlan] = useState(2);
+    
+    const baseData = [
+        { name: 'Month 1', Cash: 100 },
+        { name: 'Month 2', Cash: 110 },
+        { name: 'Month 3', Cash: 105 },
+        { name: 'Month 4', Cash: 120 },
+        { name: 'Month 5', Cash: 130 },
+        { name: 'Month 6', Cash: 140 },
+    ];
+
+    const scenarioData = baseData.map((d, i) => ({
+        ...d,
+        "Projected Cash": d.Cash * (1 + (growthRate/100) * (i/5)) - (hiringPlan * 5 * (i/5))
+    }));
+
+    return (
+        <div className="space-y-8">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
+                <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">"What-If" Scenario Modeling</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Target Growth Rate (%)</label>
+                            <input 
+                                type="range" min="0" max="50" step="1" 
+                                value={growthRate} onChange={(e) => setGrowthRate(Number(e.target.value))}
+                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
+                            />
+                            <div className="flex justify-between text-xs text-slate-500 mt-1"><span>0%</span><span>{growthRate}%</span><span>50%</span></div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Hires Per Month</label>
+                            <input 
+                                type="range" min="0" max="10" step="1" 
+                                value={hiringPlan} onChange={(e) => setHiringPlan(Number(e.target.value))}
+                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
+                            />
+                            <div className="flex justify-between text-xs text-slate-500 mt-1"><span>0</span><span>{hiringPlan}</span><span>10</span></div>
+                        </div>
+                        <div className="p-4 bg-sky-50 dark:bg-sky-900/30 border border-sky-100 dark:border-sky-800 rounded-lg">
+                            <h4 className="font-semibold text-sky-800 dark:text-sky-200 mb-1">AI Prediction</h4>
+                            <p className="text-sm text-sky-700 dark:text-sky-300">Increasing hiring to {hiringPlan} while aiming for {growthRate}% growth will cause a temporary cash dip in Month 3 before stabilizing at a higher net margin.</p>
+                        </div>
+                    </div>
+                    <div className="h-64">
+                         <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={scenarioData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
+                                <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
+                                <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
+                                <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#334155' : '#fff', border: '1px solid #374151' }} />
+                                <Legend />
+                                <Line type="monotone" dataKey="Cash" stroke="#94a3b8" strokeDasharray="5 5" />
+                                <Line type="monotone" dataKey="Projected Cash" stroke={themeColors.primary} strokeWidth={3} dot={{ r: 4 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const ESGReportingPage: React.FC = () => {
+    return (
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow text-center border-t-4 border-emerald-500">
+                    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">Carbon Footprint</h3>
+                    <p className="text-3xl font-bold text-emerald-600">12.5 <span className="text-sm font-normal text-slate-400">tCO2e</span></p>
+                    <p className="text-xs text-emerald-500 mt-1">▼ 8% from last quarter</p>
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow text-center border-t-4 border-sky-500">
+                    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">Diversity Ratio</h3>
+                    <p className="text-3xl font-bold text-sky-600">42%</p>
+                    <p className="text-xs text-sky-500 mt-1">▲ 2% target progress</p>
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow text-center border-t-4 border-amber-500">
+                    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">Governance Score</h3>
+                    <p className="text-3xl font-bold text-amber-600">88/100</p>
+                    <p className="text-xs text-amber-500 mt-1">Audit Ready</p>
+                </div>
+            </div>
+            
+            <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow">
+                <h2 className="text-xl font-semibold mb-6 text-slate-700 dark:text-slate-200">Compliance Status</h2>
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <div className="flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-4">
+                                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-slate-800 dark:text-slate-200">SOC2 Type II Audit</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Current status: Compliant</p>
+                            </div>
+                        </div>
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <div className="flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-4">
+                                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-slate-800 dark:text-slate-200">UK Modern Slavery Act</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Renewal due in 14 days</p>
+                            </div>
+                        </div>
+                        <button className="text-xs bg-[var(--color-primary)] text-white px-3 py-1 rounded hover:bg-[var(--color-primary-hover)]">Review Filings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const MarketIntelligencePage: React.FC = () => {
+    const marketInsights = [
+      { id: 1, type: 'Alert', title: 'Inflation Spike', description: 'Headline inflation rose to 4.2%. Projecting 12% increase in cloud hosting costs next quarter.', urgency: 'High' },
+      { id: 2, type: 'Opportunity', title: 'Currency Fluctuation', description: 'USD/EUR rate is favorable for EU service expansion. Now is a strategic time for relocation of Euro-denominated debt.', urgency: 'Med' },
+      { id: 3, type: 'Competitor', title: 'New Product Launch', description: 'Main competitor "FinFlow" launched a new payroll module. Customer sentiment indicates high interest in automated tax filing.', urgency: 'Low' },
+    ];
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Global Market Outlook</h2>
+                    <div className="h-64 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center italic text-slate-400">
+                        Market Sentiment Heatmap Visualization
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {marketInsights.map(insight => (
+                        <div key={insight.id} className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-l-4 border-l-sky-500">
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${insight.urgency === 'High' ? 'bg-rose-100 text-rose-700' : 'bg-sky-100 text-sky-700'}`}>{insight.type}</span>
+                                <span className="text-xs text-slate-400">2h ago</span>
+                            </div>
+                            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">{insight.title}</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{insight.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow h-fit">
+                <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Sentiment Indices</h3>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500">Small Business Index</span>
+                        <span className="font-bold text-emerald-500">62.5 (Bullish)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500">Tech Sector Sentiment</span>
+                        <span className="font-bold text-amber-500">48.2 (Neutral)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500">SaaS Burn Rate Average</span>
+                        <span className="font-bold text-rose-500">Rising</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

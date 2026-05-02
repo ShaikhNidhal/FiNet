@@ -4,8 +4,8 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import LoginPage from './pages/LoginPage';
-import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage } from './pages/ContentPages';
-import { ThemeName, Theme, ThemeContextType, DataContextType, Transaction, Bill, Invoice } from './types';
+import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage } from './pages/ContentPages';
+import { ThemeName, ThemeContextType, DataContextType, Transaction, Bill, Invoice } from './types';
 import { THEMES, INITIAL_TRANSACTIONS, INITIAL_AP_BILLS, INITIAL_AR_INVOICES, SIDEBAR_SECTIONS } from './constants';
 
 export const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -26,6 +26,8 @@ const MainLayout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         <Route path="/dashboard" element={<DashboardPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />
+                        <Route path="/reconciliation" element={<ReconciliationPage />} />
+                        <Route path="/risk-discovery" element={<RiskDiscoveryPage />} />
                         <Route path="/data-extraction" element={<DataExtractionPage />} />
                         <Route path="/workflows" element={<WorkflowsPage />} />
                         <Route path="/expense-management" element={<ExpenseManagementPage />} />
@@ -33,8 +35,11 @@ const MainLayout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         <Route path="/projects" element={<ProjectsPage />} />
                         <Route path="/fixed-assets" element={<FixedAssetsPage />} />
                         <Route path="/budgeting" element={<BudgetingPage />} />
+                        <Route path="/scenario-planning" element={<ScenarioPlanningPage />} />
+                        <Route path="/esg-reporting" element={<ESGReportingPage />} />
                         <Route path="/tax-center" element={<TaxCenterPage />} />
                         <Route path="/payroll" element={<PayrollPage />} />
+                        <Route path="/market-intelligence" element={<MarketIntelligencePage />} />
                         <Route path="/integrations" element={<IntegrationsPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="*" element={<Navigate to="/dashboard" />} />
@@ -51,8 +56,8 @@ const App: React.FC = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     
     const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
-    const [apBills, setApBills] = useState<Bill[]>(INITIAL_AP_BILLS);
-    const [arInvoices, setArInvoices] = useState<Invoice[]>(INITIAL_AR_INVOICES);
+    const [apBills] = useState<Bill[]>(INITIAL_AP_BILLS);
+    const [arInvoices] = useState<Invoice[]>(INITIAL_AR_INVOICES);
 
     useEffect(() => {
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
