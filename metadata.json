@@ -1,0 +1,6 @@
+{
+  "name": "FiNet - AI Financial Dashboard",
+  "description": "An intelligent financial management dashboard that provides at-a-glance insights, data extraction capabilities, and workflow automation, all powered by AI. Users can visualize cash flow, manage transactions, and interact with an AI assistant for financial queries.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
