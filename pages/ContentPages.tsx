@@ -5,115 +5,168 @@ import { ThemeContext, DataContext } from '../App';
 import { ThemeContextType, DataContextType, ThemeName, Transaction } from '../types';
 import { THEMES } from '../constants';
 
-const KpiCard: React.FC<{ title: string; value: string; colorClass: string }> = ({ title, value, colorClass }) => (
-    <div className="kpi-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-        <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">{title}</h3>
-        <p className={`text-3xl font-bold ${colorClass}`}>{value}</p>
+const NewKpiCard: React.FC<{ title: string; value: string; subtext: string; isPositive: boolean; icon: React.ReactNode }> = ({ title, value, subtext, isPositive, icon }) => (
+    <div className="premium-card relative overflow-hidden flex flex-col justify-between p-5">
+        <div className="flex justify-between items-start mb-2">
+            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
+            <div className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.15)]">
+                {icon}
+            </div>
+        </div>
+        <div>
+            <p className="text-3xl font-black text-white mb-1">{value}</p>
+            <p className={`text-xs font-semibold ${isPositive ? 'text-emerald-500' : (subtext.includes('per month') ? 'text-slate-500' : 'text-rose-500')}`}>
+                {subtext}
+            </p>
+        </div>
     </div>
 );
 
 export const DashboardPage: React.FC = () => {
-    const themeContext = useContext(ThemeContext) as ThemeContextType;
-    const { themeColors, isDarkMode } = themeContext;
-
     const cashFlowData = [
-        { name: 'Jan', Inflow: 50000, Outflow: 40000 },
-        { name: 'Feb', Inflow: 60000, Outflow: 45000 },
-        { name: 'Mar', Inflow: 75000, Outflow: 50000 },
-        { name: 'Apr', Inflow: 80000, Outflow: 55000 },
-        { name: 'May', Inflow: 70000, Outflow: 60000 },
-        { name: 'Jun', Inflow: 90000, Outflow: 65000 },
-        { name: 'Jul', Inflow: 105000, Outflow: 70000 },
+        { name: '2025-06', Inflow: 130000, Outflow: 160000 },
+        { name: '2025-07', Inflow: 140000, Outflow: 155000 },
+        { name: '2025-08', Inflow: 75000, Outflow: 155000 },
+        { name: '2025-09', Inflow: 100000, Outflow: 165000 },
+        { name: '2025-10', Inflow: 105000, Outflow: 175000 },
+        { name: '2025-11', Inflow: 80000, Outflow: 185000 },
+        { name: '2025-12', Inflow: 190000, Outflow: 200000 },
+        { name: '2026-01', Inflow: 65000, Outflow: 175000 },
+        { name: '2026-02', Inflow: 75000, Outflow: 60000 },
+        { name: '2026-03', Inflow: 280000, Outflow: 180000 },
+        { name: '2026-04', Inflow: 165000, Outflow: 230000 },
+        { name: '2026-05', Inflow: 220000, Outflow: 120000 },
     ];
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <KpiCard title="Total Cash Balance" value="$125,730.55" colorClass="text-[var(--color-primary)]" />
-                <KpiCard title="Net Income (YTD)" value="$48,210.90" colorClass="text-emerald-500" />
-                <KpiCard title="Opex Ratio" value="12.4%" colorClass="text-sky-500" />
-                <KpiCard title="Burn Rate (Avg)" value="$15,200.00" colorClass="text-rose-500" />
+        <div className="space-y-6 animate-in fade-in duration-700 max-w-6xl">
+            {/* Header */}
+            <div>
+                <h2 className="text-xl font-bold font-outfit text-white">Financial Dashboard</h2>
+                <p className="text-slate-500 text-sm mt-1">Real-time overview of your financial position</p>
             </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 premium-card">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold font-outfit">Cash Flow Analytics</h3>
-                        <div className="flex gap-2">
-                            <span className="w-3 h-3 rounded-full bg-[var(--color-primary)]"></span>
-                            <span className="text-[10px] text-[var(--text-muted)] uppercase">Inflow</span>
-                            <span className="w-3 h-3 rounded-full bg-rose-500 ml-2"></span>
-                            <span className="text-[10px] text-[var(--text-muted)] uppercase">Outflow</span>
-                        </div>
-                    </div>
-                    <div className="h-[350px]">
-                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={cashFlowData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? 'rgba(255,255,255,0.05)' : '#e5e7eb'} vertical={false} />
-                                <XAxis 
-                                    dataKey="name" 
-                                    tick={{ fill: 'var(--text-muted)', fontSize: 12 }} 
-                                    axisLine={false}
-                                    tickLine={false}
-                                />
-                                <YAxis 
-                                    tick={{ fill: 'var(--text-muted)', fontSize: 12 }} 
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tickFormatter={(value) => `$${value/1000}k`}
-                                />
-                                <Tooltip 
-                                    contentStyle={{ 
-                                        backgroundColor: 'var(--bg-card)', 
-                                        borderRadius: '12px',
-                                        border: '1px solid var(--border-color)',
-                                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
-                                    }} 
-                                />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="Inflow" 
-                                    stroke="var(--color-primary)" 
-                                    strokeWidth={4}
-                                    dot={{ r: 4, fill: 'var(--color-primary)', strokeWidth: 2, stroke: '#fff' }}
-                                    activeDot={{ r: 6, strokeWidth: 0 }}
-                                />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="Outflow" 
-                                    stroke="#f43f5e" 
-                                    strokeWidth={4}
-                                    dot={{ r: 4, fill: '#f43f5e', strokeWidth: 2, stroke: '#fff' }}
-                                    activeDot={{ r: 6, strokeWidth: 0 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
 
-                <div className="premium-card">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold font-outfit">AI Strategic Insights</h3>
-                        <span className="px-2 py-1 bg-sky-500/10 text-sky-500 text-[10px] font-bold rounded-lg uppercase tracking-wider">Live</span>
+            {/* KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <NewKpiCard 
+                    title="CASH POSITION" 
+                    value="$-361800" 
+                    subtext="↘ -12.4% growth" 
+                    isPositive={false} 
+                    icon={<span className="font-bold text-sm">$</span>} 
+                />
+                <NewKpiCard 
+                    title="TOTAL REVENUE" 
+                    value="$1.59M" 
+                    subtext="↗ YTD" 
+                    isPositive={true} 
+                    icon={<span className="font-bold text-sm">↗</span>} 
+                />
+                <NewKpiCard 
+                    title="BURN RATE" 
+                    value="$163K" 
+                    subtext="per month" 
+                    isPositive={true} 
+                    icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>} 
+                />
+                <NewKpiCard 
+                    title="DAYS OUTSTANDING" 
+                    value="6d" 
+                    subtext="↗ avg receivables" 
+                    isPositive={true} 
+                    icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>} 
+                />
+            </div>
+
+            {/* Alert Banner */}
+            <div className="flex items-center gap-3 p-3 bg-rose-950/20 border border-rose-900/50 rounded-lg text-rose-500">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <p className="text-sm font-semibold">1 critical, 2 high severity anomalies require attention</p>
+            </div>
+
+            {/* Area Chart */}
+            <div className="premium-card">
+                <h3 className="text-sm font-bold font-outfit mb-6 text-white">Cash Flow — Last 12 Months</h3>
+                <div className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <defs>
+                                <linearGradient id="colorInflow" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                </linearGradient>
+                                <linearGradient id="colorOutflow" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                            <XAxis 
+                                dataKey="name" 
+                                tick={{ fill: '#64748b', fontSize: 10 }} 
+                                axisLine={false}
+                                tickLine={false}
+                                minTickGap={30}
+                            />
+                            <YAxis 
+                                tick={{ fill: '#64748b', fontSize: 10 }} 
+                                axisLine={false}
+                                tickLine={false}
+                                tickFormatter={(value) => `$${value/1000}K`}
+                            />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: '#0f172a', 
+                                    borderRadius: '8px',
+                                    border: '1px solid #1e293b',
+                                    color: '#f8fafc'
+                                }} 
+                            />
+                            <Area type="monotone" dataKey="Outflow" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#colorOutflow)" />
+                            <Area type="monotone" dataKey="Inflow" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorInflow)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* Recent Transactions List */}
+            <div className="premium-card">
+                <h3 className="text-sm font-bold font-outfit mb-4 text-white">Recent Transactions</h3>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                        <div>
+                            <p className="font-semibold text-white text-sm">AWS Cloud Services</p>
+                            <p className="text-[11px] text-slate-500 mt-1">Software & SaaS • 2026-05-02</p>
+                        </div>
+                        <p className="font-bold text-white text-sm">-$9K</p>
                     </div>
-                    <div className="space-y-6">
-                        <div className="group cursor-default">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold">↑</div>
-                                <h4 className="font-semibold text-sm">Revenue Acceleration</h4>
-                            </div>
-                            <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">Month-over-month growth is exceeding projections by 15%. Recommend increasing marketing spend in Region A.</p>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                        <div>
+                            <p className="font-semibold text-white text-sm">Payroll - Engineering Team</p>
+                            <p className="text-[11px] text-slate-500 mt-1">Salaries • 2026-05-03</p>
                         </div>
-                        <div className="group cursor-default">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 font-bold">!</div>
-                                <h4 className="font-semibold text-sm">Subscription Bloat</h4>
-                            </div>
-                            <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">FiNet detected 3 overlapping SaaS subscriptions. Estimated savings: $420/month.</p>
+                        <p className="font-bold text-white text-sm">-$92K</p>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                        <div>
+                            <p className="font-semibold text-white text-sm">Business Meals - Client Dinner</p>
+                            <p className="text-[11px] text-slate-500 mt-1">Meals & Entertainment • 2026-05-07</p>
                         </div>
-                        <button className="w-full py-3 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-xl text-xs font-bold hover:bg-[var(--color-primary)] hover:text-white transition-all">
-                            Generate Full Audit Report
-                        </button>
+                        <p className="font-bold text-white text-sm">-$5K</p>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                        <div>
+                            <p className="font-semibold text-white text-sm">Marketing Campaign - Meta Ads</p>
+                            <p className="text-[11px] text-slate-500 mt-1">Marketing • 2026-05-10</p>
+                        </div>
+                        <p className="font-bold text-white text-sm">-$2K</p>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                        <div>
+                            <p className="font-semibold text-white text-sm">Interest Income</p>
+                            <p className="text-[11px] text-slate-500 mt-1">Interest • 2026-05-12</p>
+                        </div>
+                        <p className="font-bold text-emerald-500 text-sm">+$2K</p>
                     </div>
                 </div>
             </div>
