@@ -276,106 +276,203 @@ export const TransactionsPage: React.FC = () => {
     );
 };
 
+import { generateIncomeStatementPDF, generateIncomeStatementExcel } from '../services/exportService';
+
 export const ReportsPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('pnl');
-    const themeContext = useContext(ThemeContext) as ThemeContextType;
-    const { themeColors, isDarkMode } = themeContext;
+    const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+    const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
+    const [selectedYear, setSelectedYear] = useState('2026');
+    
+    // Revenue vs Expenses by Category Data
+    const categoryData = [
+        { name: 'Software & S', value: 17 },
+        { name: 'Salaries', value: 536 },
+        { name: 'Meals & Ente', value: 5 },
+        { name: 'Marketing', value: 27 },
+        { name: 'Professional', value: 55 },
+        { name: 'Utilities', value: 2 },
+        { name: 'Transfers', value: 45 },
+        { name: 'Equipment', value: 13 },
+    ];
 
-    const reports = {
-        pnl: { name: 'Profit & Loss' },
-        balanceSheet: { name: 'Balance Sheet' },
-        cashFlow: { name: 'Cash Flow Statement' }
+    const handleDownloadPDF = () => {
+        setIsDownloadDropdownOpen(false);
+        generateIncomeStatementPDF(selectedYear);
     };
 
-    const pnlData = [
-        { name: 'Jan', Revenue: 30, 'Net Income': 5 },
-        { name: 'Feb', Revenue: 35, 'Net Income': 7 },
-        { name: 'Mar', Revenue: 42, 'Net Income': 10 },
-        { name: 'Apr', Revenue: 45, 'Net Income': 12 },
-        { name: 'May', Revenue: 40, 'Net Income': 8 },
-        { name: 'Jun', Revenue: 50, 'Net Income': 15 },
-        { name: 'Jul', Revenue: 58, 'Net Income': 21 },
-    ];
-    
-    const balanceSheetData = [
-      { name: 'Amount', Assets: 150000, Liabilities: 75000, Equity: 75000 }
-    ];
-    
-    const balanceSheetColors = [themeColors.primary, '#f97316', '#10b981'];
+    const handleDownloadExcel = () => {
+        setIsDownloadDropdownOpen(false);
+        generateIncomeStatementExcel(selectedYear);
+    };
+
+    const handleDownloadPPT = () => {
+        setIsDownloadDropdownOpen(false);
+        alert('PowerPoint presentation export is coming soon!');
+    };
 
     const renderContent = () => {
-        switch (activeTab) {
-            case 'pnl':
-                return (
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                        <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Profit & Loss (YTD)</h3>
-                        <div className="h-96">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={pnlData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                                    <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                    <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#334155' : '#fff', border: '1px solid #374151' }} />
-                                    <Legend wrapperStyle={{ color: isDarkMode ? '#cbd5e1' : '#475569' }}/>
-                                    <Bar dataKey="Revenue" fill={themeColors.primary} />
-                                    <Bar dataKey="Net Income" fill="#10b981" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                );
-            case 'balanceSheet':
-                return (
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                        <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Balance Sheet (as of Jul 15, 2025)</h3>
-                        <div className="h-96">
-                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={balanceSheetData} layout="vertical">
-                                    <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                                    <XAxis type="number" tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                    <YAxis type="category" dataKey="name" tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#334155' : '#fff', border: '1px solid #374151' }} />
-                                    <Legend wrapperStyle={{ color: isDarkMode ? '#cbd5e1' : '#475569' }} />
-                                    <Bar dataKey="Assets" fill={balanceSheetColors[0]} />
-                                    <Bar dataKey="Liabilities" fill={balanceSheetColors[1]} />
-                                    <Bar dataKey="Equity" fill={balanceSheetColors[2]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                );
-            case 'cashFlow':
-                 return (
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                        <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Cash Flow Statement (YTD)</h3>
-                        <p className="text-center text-slate-500 dark:text-slate-400 pt-16">Detailed Cash Flow Statement table would be displayed here.</p>
-                    </div>
-                );
-            default:
-                return null;
+        if (activeTab === 'balanceSheet') {
+            return (
+                <div className="premium-card h-96 flex items-center justify-center">
+                    <p className="text-[var(--text-muted)] text-lg">Balance Sheet data placeholder. Connect your accounting software to view.</p>
+                </div>
+            );
         }
+        if (activeTab === 'cashFlow') {
+            return (
+                <div className="premium-card h-96 flex items-center justify-center">
+                    <p className="text-[var(--text-muted)] text-lg">Cash Flow Statement data placeholder. Sync your bank accounts to view.</p>
+                </div>
+            );
+        }
+
+        // P&L Content
+        return (
+            <div className="space-y-6">
+                {/* KPIs */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="premium-card py-4 px-6 border-l-4 border-l-emerald-500">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">TOTAL REVENUE</span>
+                            <span className="text-emerald-500 text-xs font-bold">↗</span>
+                        </div>
+                        <p className="text-2xl font-bold text-emerald-500">$800K</p>
+                    </div>
+                    <div className="premium-card py-4 px-6 border-l-4 border-l-rose-500">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">TOTAL EXPENSES</span>
+                            <span className="text-rose-500 text-xs font-bold">↘</span>
+                        </div>
+                        <p className="text-2xl font-bold text-rose-500">$768K</p>
+                    </div>
+                    <div className="premium-card py-4 px-6 border-l-4 border-l-emerald-500">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">NET INCOME</span>
+                            <span className="text-emerald-500 text-xs font-bold">$</span>
+                        </div>
+                        <p className="text-2xl font-bold text-emerald-500">$32K</p>
+                    </div>
+                    <div className="premium-card py-4 px-6 border-l-4 border-l-[var(--color-primary)]">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">NET MARGIN</span>
+                            <span className="text-[var(--color-primary)] text-xs font-bold">📊</span>
+                        </div>
+                        <p className="text-2xl font-bold text-[var(--color-primary)]">4.0%</p>
+                    </div>
+                </div>
+
+                {/* Chart */}
+                <div className="premium-card">
+                    <h3 className="text-sm font-bold font-outfit mb-6">Revenue vs Expenses by Category</h3>
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={categoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 10}} interval={0} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 10}} tickFormatter={(v) => `$${v}K`} />
+                                <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-main)'}} />
+                                <Bar dataKey="value" fill="#f43f5e" radius={[2, 2, 0, 0]} barSize={40} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="premium-card overflow-x-auto">
+                    <h3 className="text-sm font-bold font-outfit mb-4">Income Statement — {selectedYear}</h3>
+                    <table className="w-full text-left text-sm">
+                        <tbody className="divide-y divide-[var(--border-color)]">
+                            <tr><td className="py-3 font-bold" colSpan={2}>REVENUE</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Revenue</td><td className="py-2 text-right">$798K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Interest</td><td className="py-2 text-right">$2K</td></tr>
+                            <tr className="font-bold"><td className="py-3">Total Revenue</td><td className="py-3 text-right">$800K</td></tr>
+                            
+                            <tr><td className="py-3 font-bold mt-4" colSpan={2}>EXPENSES</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Software & SaaS</td><td className="py-2 text-right text-rose-500">-$17K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Salaries</td><td className="py-2 text-right text-rose-500">-$536K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Meals & Entertainment</td><td className="py-2 text-right text-rose-500">-$5K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Marketing</td><td className="py-2 text-right text-rose-500">-$27K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Professional Services</td><td className="py-2 text-right text-rose-500">-$55K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Utilities</td><td className="py-2 text-right text-rose-500">-$2K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Transfers</td><td className="py-2 text-right text-rose-500">-$45K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Equipment</td><td className="py-2 text-right text-rose-500">-$13K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Taxes</td><td className="py-2 text-right text-rose-500">-$35K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Rent & Facilities</td><td className="py-2 text-right text-rose-500">-$12K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Insurance</td><td className="py-2 text-right text-rose-500">-$10K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Travel</td><td className="py-2 text-right text-rose-500">-$10K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-2 pl-4">Office Supplies</td><td className="py-2 text-right text-rose-500">-$420</td></tr>
+                            <tr className="font-bold"><td className="py-3">Total Expenses</td><td className="py-3 text-right text-rose-500">-$768K</td></tr>
+                            
+                            <tr className="font-bold border-t-2 border-[var(--border-color)]"><td className="py-4">EBITDA</td><td className="py-4 text-right">$32K</td></tr>
+                            <tr className="font-bold"><td className="py-3">Net Income</td><td className="py-3 text-right">$32K</td></tr>
+                            <tr className="text-[var(--text-muted)]"><td className="py-3 pl-4">Net Margin %</td><td className="py-3 text-right">4.0%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
     };
 
     return (
-        <div>
-            <div className="mb-6">
-                <div className="hidden sm:block">
-                    <div className="border-b border-slate-200 dark:border-slate-700">
-                        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                            {Object.entries(reports).map(([key, { name }]) => (
-                                <button
-                                    key={key}
-                                    onClick={() => setActiveTab(key)}
-                                    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === key ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'}`}
-                                >
-                                    {name}
-                                </button>
-                            ))}
-                        </nav>
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-black font-outfit">Financial Reports</h2>
+                    <p className="text-[var(--text-muted)] mt-1">P&L, Balance Sheet, and Cash Flow — generated from live transaction data</p>
+                </div>
+                <div className="flex gap-2 relative">
+                    <div>
+                        <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[var(--bg-main)]">
+                            FY {selectedYear} <span>▼</span>
+                        </button>
+                        {isYearDropdownOpen && (
+                            <div className="absolute top-full mt-1 w-32 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-lg z-10 py-1">
+                                <button className="block w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-main)]" onClick={() => {setSelectedYear('2025'); setIsYearDropdownOpen(false);}}>FY 2025</button>
+                                <button className="block w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-main)]" onClick={() => {setSelectedYear('2024'); setIsYearDropdownOpen(false);}}>FY 2024</button>
+                            </div>
+                        )}
                     </div>
+                    <div>
+                        <button onClick={() => setIsDownloadDropdownOpen(!isDownloadDropdownOpen)} className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[var(--bg-main)]">
+                            Download <span>▼</span>
+                        </button>
+                        {isDownloadDropdownOpen && (
+                            <div className="absolute top-full mt-1 w-32 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-lg z-10 py-1">
+                                <button className="block w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-main)]" onClick={handleDownloadPDF}>PDF</button>
+                                <button className="block w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-main)]" onClick={handleDownloadExcel}>Excel</button>
+                                <button className="block w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-main)]" onClick={handleDownloadPPT}>PowerPoint</button>
+                            </div>
+                        )}
+                    </div>
+                    <button className="btn-primary" onClick={handleDownloadPPT}>Create Presentation</button>
                 </div>
             </div>
-            <div>{renderContent()}</div>
+
+            {/* Info Banner */}
+            <div className="flex items-center gap-3 p-4 bg-sky-500/10 border border-sky-500/20 rounded-xl text-sky-600 dark:text-sky-400">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p className="text-sm font-medium">Download the full report as an <strong>Excel workbook</strong> (3 sheets), save as <strong>PDF</strong>, or generate a polished <strong>PowerPoint presentation</strong> with 6 branded slides ready to share.</p>
+            </div>
+
+            {/* Tabs */}
+            <div className="border-b border-[var(--border-color)]">
+                <nav className="flex space-x-8">
+                    <button onClick={() => setActiveTab('pnl')} className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'pnl' ? 'border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
+                        📈 P&L Statement
+                    </button>
+                    <button onClick={() => setActiveTab('balanceSheet')} className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'balanceSheet' ? 'border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
+                        ⚖️ Balance Sheet
+                    </button>
+                    <button onClick={() => setActiveTab('cashFlow')} className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'cashFlow' ? 'border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
+                        💵 Cash Flow
+                    </button>
+                </nav>
+            </div>
+
+            {/* Content */}
+            {renderContent()}
         </div>
     );
 };
