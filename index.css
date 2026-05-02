@@ -3,22 +3,82 @@
 :root {
   --color-primary: #0ea5e9;
   --color-primary-hover: #0284c7;
+  --color-primary-light: rgba(14, 165, 233, 0.1);
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(226, 232, 240, 0.8);
 }
 
 .dark {
   --color-primary: #38bdf8;
   --color-primary-hover: #7dd3fc;
+  --color-primary-light: rgba(56, 189, 248, 0.1);
+  --bg-main: #020617; /* Deep Space Navy */
+  --bg-card: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #1e293b;
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(30, 41, 59, 0.8);
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 @layer components {
-  .kpi-card {
-    @apply transition-all duration-200 hover:scale-[1.02] hover:shadow-lg;
+  .glass {
+    @apply backdrop-blur-xl border;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
   }
+  
+  .premium-card {
+    @apply rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+  }
+
+  .kpi-card {
+    @apply rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl border-l-4;
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    border-left-color: var(--color-primary);
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 rounded-xl font-semibold transition-all active:scale-95 shadow-lg;
+    background-color: var(--color-primary);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    @apply shadow-sky-500/30;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full;
+  background: var(--border-color);
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply brightness-90;
 }

@@ -3,8 +3,9 @@ import React, { useState, useMemo, useCallback, useEffect, createContext } from 
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import SubscriptionBanner from './components/SubscriptionBanner';
 import LoginPage from './pages/LoginPage';
-import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage } from './pages/ContentPages';
+import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage, ExecutiveInsightsPage } from './pages/ContentPages';
 import { ThemeName, ThemeContextType, DataContextType, Transaction, Bill, Invoice } from './types';
 import { THEMES, INITIAL_TRANSACTIONS, INITIAL_AP_BILLS, INITIAL_AR_INVOICES, SIDEBAR_SECTIONS } from './constants';
 
@@ -17,13 +18,15 @@ const MainLayout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const pageTitle = link ? link.label : 'Dashboard';
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen overflow-hidden">
             <Sidebar onLogout={onLogout} />
-            <main className="flex-1 flex flex-col overflow-y-auto">
+            <main className="flex-1 flex flex-col min-w-0">
+                <SubscriptionBanner />
                 <Header title={pageTitle} />
-                <div className="p-6 md:p-10 flex-grow">
+                <div className="p-6 md:p-10 overflow-y-auto flex-grow bg-[var(--bg-main)]">
                     <Routes>
                         <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/executive-insights" element={<ExecutiveInsightsPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />
                         <Route path="/reconciliation" element={<ReconciliationPage />} />
@@ -51,13 +54,24 @@ const MainLayout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 };
 
 const App: React.FC = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
     const [themeName, setThemeName] = useState<ThemeName>('sky');
     const [isDarkMode, setIsDarkMode] = useState(false);
     
-    const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+    const [transactions, setTransactions] = useState<Transaction[]>(() => {
+        const saved = localStorage.getItem('finet_transactions');
+        return saved ? JSON.parse(saved) : INITIAL_TRANSACTIONS;
+    });
     const [apBills] = useState<Bill[]>(INITIAL_AP_BILLS);
     const [arInvoices] = useState<Invoice[]>(INITIAL_AR_INVOICES);
+
+    useEffect(() => {
+        localStorage.setItem('isLoggedIn', isLoggedIn.toString());
+    }, [isLoggedIn]);
+
+    useEffect(() => {
+        localStorage.setItem('finet_transactions', JSON.stringify(transactions));
+    }, [transactions]);
 
     useEffect(() => {
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext, DataContext } from '../App';
 import { ThemeContextType, DataContextType, ThemeName, Transaction } from '../types';
 import { THEMES } from '../constants';
@@ -17,46 +17,103 @@ export const DashboardPage: React.FC = () => {
     const { themeColors, isDarkMode } = themeContext;
 
     const cashFlowData = [
-        { name: 'Jan', Inflow: 50, Outflow: 40 },
-        { name: 'Feb', Inflow: 60, Outflow: 45 },
-        { name: 'Mar', Inflow: 75, Outflow: 50 },
-        { name: 'Apr', Inflow: 80, Outflow: 55 },
-        { name: 'May', Inflow: 70, Outflow: 60 },
-        { name: 'Jun', Inflow: 90, Outflow: 65 },
-        { name: 'Jul', Inflow: 105, Outflow: 70 },
+        { name: 'Jan', Inflow: 50000, Outflow: 40000 },
+        { name: 'Feb', Inflow: 60000, Outflow: 45000 },
+        { name: 'Mar', Inflow: 75000, Outflow: 50000 },
+        { name: 'Apr', Inflow: 80000, Outflow: 55000 },
+        { name: 'May', Inflow: 70000, Outflow: 60000 },
+        { name: 'Jun', Inflow: 90000, Outflow: 65000 },
+        { name: 'Jul', Inflow: 105000, Outflow: 70000 },
     ];
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-10 animate-in fade-in duration-700">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <KpiCard title="Cash Balance" value="$125,730.55" colorClass="text-[var(--color-primary)]" />
-                <KpiCard title="Net Income (YTD)" value="$48,210.90" colorClass="text-emerald-600" />
-                <KpiCard title="Inventory Value" value="$82,450.00" colorClass="text-slate-800 dark:text-slate-200" />
-                <KpiCard title="Pending Expenses" value="$2,150.75" colorClass="text-rose-600" />
+                <KpiCard title="Total Cash Balance" value="$125,730.55" colorClass="text-[var(--color-primary)]" />
+                <KpiCard title="Net Income (YTD)" value="$48,210.90" colorClass="text-emerald-500" />
+                <KpiCard title="Opex Ratio" value="12.4%" colorClass="text-sky-500" />
+                <KpiCard title="Burn Rate (Avg)" value="$15,200.00" colorClass="text-rose-500" />
             </div>
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                    <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Cash Flow Forecast</h3>
-                    <div className="h-80">
+                <div className="lg:col-span-2 premium-card">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold font-outfit">Cash Flow Analytics</h3>
+                        <div className="flex gap-2">
+                            <span className="w-3 h-3 rounded-full bg-[var(--color-primary)]"></span>
+                            <span className="text-[10px] text-[var(--text-muted)] uppercase">Inflow</span>
+                            <span className="w-3 h-3 rounded-full bg-rose-500 ml-2"></span>
+                            <span className="text-[10px] text-[var(--text-muted)] uppercase">Outflow</span>
+                        </div>
+                    </div>
+                    <div className="h-[350px]">
                          <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={cashFlowData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                                <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#334155' : '#fff', border: '1px solid #374151' }} />
-                                <Legend wrapperStyle={{ color: isDarkMode ? '#cbd5e1' : '#475569' }} />
-                                <Line type="monotone" dataKey="Inflow" stroke={themeColors.hover} fill={themeColors.light} />
-                                <Line type="monotone" dataKey="Outflow" stroke="#e11d48" fill="rgba(225, 29, 72, 0.1)" />
+                                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? 'rgba(255,255,255,0.05)' : '#e5e7eb'} vertical={false} />
+                                <XAxis 
+                                    dataKey="name" 
+                                    tick={{ fill: 'var(--text-muted)', fontSize: 12 }} 
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <YAxis 
+                                    tick={{ fill: 'var(--text-muted)', fontSize: 12 }} 
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tickFormatter={(value) => `$${value/1000}k`}
+                                />
+                                <Tooltip 
+                                    contentStyle={{ 
+                                        backgroundColor: 'var(--bg-card)', 
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--border-color)',
+                                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                                    }} 
+                                />
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="Inflow" 
+                                    stroke="var(--color-primary)" 
+                                    strokeWidth={4}
+                                    dot={{ r: 4, fill: 'var(--color-primary)', strokeWidth: 2, stroke: '#fff' }}
+                                    activeDot={{ r: 6, strokeWidth: 0 }}
+                                />
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="Outflow" 
+                                    stroke="#f43f5e" 
+                                    strokeWidth={4}
+                                    dot={{ r: 4, fill: '#f43f5e', strokeWidth: 2, stroke: '#fff' }}
+                                    activeDot={{ r: 6, strokeWidth: 0 }}
+                                />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                    <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">FiNet Insights</h3>
-                    <div className="space-y-4">
-                        <div className="flex items-start"><span className="text-emerald-500 text-xl mr-3">▲</span><div><h4 className="font-semibold text-slate-800 dark:text-slate-200">Positive Trend</h4><p className="text-sm text-slate-500 dark:text-slate-400">Sales revenue has increased by 15% month-over-month.</p></div></div>
-                        <div className="flex items-start"><span className="text-amber-500 text-xl mr-3">!</span><div><h4 className="font-semibold text-slate-800 dark:text-slate-200">Anomaly Detected</h4><p className="text-sm text-slate-500 dark:text-slate-400">Software spending is 30% higher than the 3-month average. Review recent subscriptions.</p></div></div>
-                        <div className="flex items-start"><span className="text-sky-500 text-xl mr-3">→</span><div><h4 className="font-semibold text-slate-800 dark:text-slate-200">Forecast</h4><p className="text-sm text-slate-500 dark:text-slate-400">Based on current trends, you are projected to exceed your Q3 profit target by 8%.</p></div></div>
+
+                <div className="premium-card">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-bold font-outfit">AI Strategic Insights</h3>
+                        <span className="px-2 py-1 bg-sky-500/10 text-sky-500 text-[10px] font-bold rounded-lg uppercase tracking-wider">Live</span>
+                    </div>
+                    <div className="space-y-6">
+                        <div className="group cursor-default">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold">↑</div>
+                                <h4 className="font-semibold text-sm">Revenue Acceleration</h4>
+                            </div>
+                            <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">Month-over-month growth is exceeding projections by 15%. Recommend increasing marketing spend in Region A.</p>
+                        </div>
+                        <div className="group cursor-default">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 font-bold">!</div>
+                                <h4 className="font-semibold text-sm">Subscription Bloat</h4>
+                            </div>
+                            <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">FiNet detected 3 overlapping SaaS subscriptions. Estimated savings: $420/month.</p>
+                        </div>
+                        <button className="w-full py-3 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-xl text-xs font-bold hover:bg-[var(--color-primary)] hover:text-white transition-all">
+                            Generate Full Audit Report
+                        </button>
                     </div>
                 </div>
             </div>
@@ -64,68 +121,115 @@ export const DashboardPage: React.FC = () => {
     );
 };
 
+import { geminiService } from '../services/geminiService';
+
 export const DataExtractionPage: React.FC = () => {
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isComplete, setIsComplete] = useState(false);
+    const [extractedData, setExtractedData] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
     const dataContext = useContext(DataContext) as DataContextType;
     const navigate = useNavigate();
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
         setIsProcessing(true);
-        setIsComplete(false);
-        setTimeout(() => {
+        setError(null);
+        
+        // In a real app, we'd read the file. 
+        // For this integration demo, we'll simulate a document text.
+        const mockDocText = "Invoice from Innovate Tech Inc. Date: 2025-07-15. Total: $1250.00. Description: Annual Cloud Hosting. Due: 2025-08-14.";
+        
+        try {
+            const data = await geminiService.analyzeDocument(mockDocText);
+            if (data) {
+                setExtractedData({
+                    vendor: data["Vendor/Customer Name"] || data.vendor,
+                    date: data.Date || data.date,
+                    amount: parseFloat(data["Total Amount"] || data.amount),
+                    dueDate: data["Due Date"] || "2025-08-14",
+                    description: data.Description || data.description,
+                    category: data["Suggested Category"] || data.category
+                });
+            } else {
+                setError("Failed to parse document. Please try again.");
+            }
+        } catch (err) {
+            setError("AI Service error. Check your API key.");
+        } finally {
             setIsProcessing(false);
-            setIsComplete(true);
-        }, 2000);
+        }
     };
     
     const handleAddToTransactions = () => {
-        const newTransaction: Transaction = { date: '2025-07-15', description: 'Innovate Tech Inc.', amount: -1250.00, type: 'expense', category: 'Software & Subscriptions' };
+        if (!extractedData) return;
+        const newTransaction: Transaction = { 
+            date: extractedData.date, 
+            description: extractedData.vendor, 
+            amount: -extractedData.amount, 
+            type: 'expense', 
+            category: extractedData.category 
+        };
         dataContext.setTransactions(prev => [newTransaction, ...prev]);
         navigate('/transactions');
     };
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Upload a Document</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">Simulate uploading an invoice, receipt, or bank statement. FiNet will analyze the document and extract the key data points automatically.</p>
-            <div className="flex items-center justify-center w-full mb-8">
-                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600" onClick={handleUpload}>
+        <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="premium-card text-center">
+                <h2 className="text-2xl font-bold font-outfit mb-2">Intelligent Data Extraction</h2>
+                <p className="text-[var(--text-muted)] mb-8">Upload any financial document. FiNet's AI will parse invoices and receipts with 99.9% accuracy.</p>
+                
+                <div 
+                    className="flex flex-col items-center justify-center w-full h-72 border-2 border-[var(--border-color)] border-dashed rounded-2xl cursor-pointer bg-[var(--bg-main)] hover:bg-[var(--color-primary-light)] hover:border-[var(--color-primary)] transition-all group"
+                    onClick={handleUpload}
+                >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg className="w-10 h-10 mb-3 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v1.586a1 1 0 01-.293.707l-1.414 1.414a1 1 0 00-.707.293H7z"></path></svg>
-                        <p className="mb-2 text-sm text-slate-500 dark:text-slate-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Simulated: PDF, PNG, JPG</p>
+                        <div className="w-16 h-16 rounded-full bg-[var(--color-primary-light)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v1.586a1 1 0 01-.293.707l-1.414 1.414a1 1 0 00-.707.293H7z"></path></svg>
+                        </div>
+                        <p className="mb-2 text-sm text-[var(--text-main)]"><span className="font-bold">Drop your invoice here</span> or click to browse</p>
+                        <p className="text-xs text-[var(--text-muted)]">Supports PDF, JPG, PNG (Max 10MB)</p>
                     </div>
-                    <input id="file-upload" type="button" className="hidden" />
-                </label>
+                </div>
             </div>
             
-            {(isProcessing || isComplete) && (
-                <div>
-                    {isProcessing && (
-                        <div className="text-center p-8">
-                            <div className="loader mx-auto"></div>
-                            <p className="mt-4 text-slate-600 dark:text-slate-300 font-medium">FiNet is analyzing document...</p>
+            {isProcessing && (
+                <div className="premium-card text-center py-12">
+                    <div className="w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-lg font-medium animate-pulse">Gemini AI is analyzing document...</p>
+                </div>
+            )}
+
+            {extractedData && !isProcessing && (
+                <div className="premium-card border-t-4 border-t-emerald-500 animate-in zoom-in duration-300">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold text-emerald-600">Verification Result</h3>
+                        <span className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg font-bold">98% Confidence</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DetailField label="Vendor" value={extractedData.vendor} />
+                        <DetailField label="Invoice Date" value={extractedData.date} />
+                        <DetailField label="Total Amount" value={`$${extractedData.amount.toFixed(2)}`} isBold />
+                        <DetailField label="Due Date" value={extractedData.dueDate} />
+                        <div className="md:col-span-2">
+                            <DetailField label="AI Description" value={extractedData.description} />
                         </div>
-                    )}
-                    {isComplete && (
-                        <div>
-                            <h3 className="text-lg font-semibold mb-4 text-emerald-600">Data Extracted Successfully!</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Vendor</label><input type="text" value="Innovate Tech Inc." className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 shadow-sm bg-slate-100 dark:bg-slate-600" readOnly /></div>
-                                <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Invoice Date</label><input type="text" value="2025-07-15" className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 shadow-sm bg-slate-100 dark:bg-slate-600" readOnly /></div>
-                                <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Total Amount</label><input type="text" value="$1,250.00" className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 shadow-sm bg-slate-100 dark:bg-slate-600" readOnly /></div>
-                                <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Due Date</label><input type="text" value="2025-08-14" className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 shadow-sm bg-slate-100 dark:bg-slate-600" readOnly /></div>
-                                <div className="md:col-span-2"><label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label><input type="text" value="Annual Cloud Hosting Subscription" className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 shadow-sm bg-slate-100 dark:bg-slate-600" readOnly /></div>
-                            </div>
-                            <div className="mt-6 text-right"><button onClick={handleAddToTransactions} className="bg-[var(--color-primary)] text-white px-6 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition">Add to Transactions</button></div>
-                        </div>
-                    )}
+                    </div>
+                    <div className="mt-8 flex justify-end gap-4">
+                        <button className="px-6 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Discard</button>
+                        <button onClick={handleAddToTransactions} className="btn-primary">Approve & Add to Books</button>
+                    </div>
                 </div>
             )}
         </div>
     );
 };
+
+const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> = ({ label, value, isBold }) => (
+    <div>
+        <label className="block text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">{label}</label>
+        <p className={`text-sm ${isBold ? 'font-bold' : 'font-medium'}`}>{value}</p>
+    </div>
+);
 
 export const TransactionsPage: React.FC = () => {
     const dataContext = useContext(DataContext) as DataContextType;
@@ -377,6 +481,32 @@ export const SettingsPage: React.FC = () => {
                     ))}
                 </div>
             </div>
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                <h3 className="text-lg font-bold font-outfit text-slate-800 dark:text-slate-200">Subscription & Billing</h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1">Manage your FiNet Pro plan and trial status.</p>
+                
+                <div className="mt-6 p-6 rounded-2xl border border-[var(--color-primary)] bg-[var(--color-primary-light)]">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <span className="px-2 py-1 bg-[var(--color-primary)] text-white text-[10px] font-black rounded-lg uppercase tracking-wider">Active Trial</span>
+                            <h4 className="text-xl font-bold mt-2">FiNet Enterprise Pro</h4>
+                            <p className="text-sm text-[var(--text-muted)]">30-day free trial ends in 24 days.</p>
+                        </div>
+                        <button className="btn-primary">Upgrade to Annual</button>
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl">
+                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Next Billing</p>
+                            <p className="text-sm font-bold">$199.00 on Jun 1, 2026</p>
+                        </div>
+                        <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl">
+                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Payment Method</p>
+                            <p className="text-sm font-bold">•••• 4242</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
              <div className="border-t border-slate-200 dark:border-slate-700 pt-6"><h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Multi-Currency</h3><p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage finances across different currencies.</p><div className="mt-4 space-y-4"><label className="block"><span className="text-slate-700 dark:text-slate-300">Base Currency</span><select className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"><option>USD - United States Dollar</option><option>EUR - Euro</option><option>GBP - British Pound</option></select></label></div></div>
         </div>
     );
@@ -433,127 +563,200 @@ export const PayrollPage: React.FC = () => (
 );
 
 export const ReconciliationPage: React.FC = () => {
+    const [matches, setMatches] = useState([
+        { id: 1, bank: "Stripe Payout - #8392", ledger: "Sales Revenue - Jun 15", amount: 12500.00, confidence: 99, status: 'pending' },
+        { id: 2, bank: "Google Cloud", ledger: "Hosting Expenses", amount: 420.55, confidence: 95, status: 'pending' },
+        { id: 3, bank: "Office Depot", ledger: "Unknown Expense", amount: 85.20, confidence: 72, status: 'pending' },
+    ]);
+
+    const handleConfirm = (id: number) => {
+        setMatches(prev => prev.map(m => m.id === id ? { ...m, status: 'confirmed' } : m));
+    };
+
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-end">
+        <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+            <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">AI Reconciliation</h2>
-                    <p className="text-slate-500">Automated bank-to-ledger matching and "Continuous Close" logic.</p>
+                    <h2 className="text-2xl font-black font-outfit">AI Auto-Reconciliation</h2>
+                    <p className="text-[var(--text-muted)] mt-1">FiNet has automatically matched 142/145 bank transactions.</p>
                 </div>
-                <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium">Download Log</button>
-                    <button className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm font-medium">Run Auto-Match</button>
-                </div>
+                <button className="btn-primary">Sync with Bank</button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-b-4 border-emerald-500">
-                    <p className="text-slate-500 text-sm">Matched</p>
-                    <h3 className="text-2xl font-bold text-emerald-600">98.2%</h3>
-                    <p className="text-[10px] text-emerald-500 mt-1">+1.5% from yesterday</p>
+                <div className="premium-card border-b-4 border-emerald-500">
+                    <p className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-widest">Matched Status</p>
+                    <h3 className="text-3xl font-black font-outfit text-emerald-600 mt-2">98.2%</h3>
+                    <p className="text-[10px] text-emerald-500 mt-1 font-bold">+1.5% from yesterday</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-b-4 border-rose-500">
-                    <p className="text-slate-500 text-sm">Unreconciled</p>
-                    <h3 className="text-2xl font-bold text-rose-600">12 Items</h3>
-                    <p className="text-[10px] text-rose-400 mt-1">Requires manual review</p>
+                <div className="premium-card border-b-4 border-rose-500">
+                    <p className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-widest">Unreconciled</p>
+                    <h3 className="text-3xl font-black font-outfit text-rose-600 mt-2">12 Items</h3>
+                    <p className="text-[10px] text-rose-400 mt-1 font-bold">Requires manual review</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-b-4 border-sky-500">
-                    <p className="text-slate-500 text-sm">AI Suggestions</p>
-                    <h3 className="text-2xl font-bold text-sky-600">8 High Conf.</h3>
-                    <p className="text-[10px] text-sky-400 mt-1">Ready for approval</p>
+                <div className="premium-card border-b-4 border-sky-500">
+                    <p className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-widest">AI Suggestions</p>
+                    <h3 className="text-3xl font-black font-outfit text-sky-600 mt-2">8 High Conf.</h3>
+                    <p className="text-[10px] text-sky-400 mt-1 font-bold">Ready for approval</p>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
-                <table className="w-full">
-                    <thead className="bg-slate-50 dark:bg-slate-700/50">
-                        <tr>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Bank Transaction</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Ledger Suggestion</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Confidence</th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                        <tr>
-                            <td className="px-6 py-4">
-                                <p className="text-sm font-semibold">Amazon Web Services</p>
-                                <p className="text-xs text-slate-400">July 12 • ACH Debit • $1,240.00</p>
-                            </td>
-                            <td className="px-6 py-4">
-                                <p className="text-sm">Bill #INV-2025-042</p>
-                                <p className="text-xs text-slate-400">Hosting Services</p>
-                            </td>
-                            <td className="px-6 py-4">
-                                <div className="flex items-center">
-                                    <div className="w-16 h-2 bg-slate-100 rounded-full mr-2">
-                                        <div className="w-[99%] h-full bg-emerald-500 rounded-full"></div>
-                                    </div>
-                                    <span className="text-xs font-bold text-emerald-600">99%</span>
-                                </div>
-                            </td>
-                            <td className="px-6 py-4 text-right cursor-pointer text-sky-500 font-bold text-sm">Approve</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div className="premium-card">
+                <div className="flex items-center gap-2 mb-6 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 w-fit">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Continuous Close Active</span>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b border-[var(--border-color)]">
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Bank Entry</th>
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Suggested Ledger</th>
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Amount</th>
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Confidence</th>
+                                <th className="pb-4 text-right"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--border-color)]">
+                            {matches.map(match => (
+                                <tr key={match.id} className="group hover:bg-[var(--bg-main)] transition-colors">
+                                    <td className="py-6">
+                                        <p className="text-sm font-bold">{match.bank}</p>
+                                        <p className="text-[10px] text-[var(--text-muted)] font-medium">Bank Reference: TRX-9921</p>
+                                    </td>
+                                    <td className="py-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></span>
+                                            <p className="text-sm font-bold">{match.ledger}</p>
+                                        </div>
+                                    </td>
+                                    <td className="py-6">
+                                        <p className="text-sm font-black">${match.amount.toLocaleString()}</p>
+                                    </td>
+                                    <td className="py-6">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-16 h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
+                                                <div className="h-full bg-emerald-500" style={{ width: `${match.confidence}%` }}></div>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-emerald-600">{match.confidence}%</span>
+                                        </div>
+                                    </td>
+                                    <td className="py-6 text-right">
+                                        {match.status === 'confirmed' ? (
+                                            <span className="text-xs font-bold text-emerald-500 bg-emerald-50 px-3 py-1 rounded-lg">Matched</span>
+                                        ) : (
+                                            <div className="flex justify-end gap-2">
+                                                <button className="p-2 text-[var(--text-muted)] hover:text-rose-500"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                                <button onClick={() => handleConfirm(match.id)} className="px-4 py-1.5 bg-[var(--color-primary)] text-white text-xs font-bold rounded-lg hover:shadow-lg transition-all">Confirm Match</button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 };
 
 export const RiskDiscoveryPage: React.FC = () => {
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [aiInsights, setAiInsights] = useState<string | null>(null);
+    const dataContext = useContext(DataContext) as DataContextType;
+
+    const runAnalysis = async () => {
+        setIsAnalyzing(true);
+        try {
+            const insights = await geminiService.getRiskInsights(dataContext.transactions);
+            setAiInsights(insights);
+        } catch (err) {
+            setAiInsights("Failed to generate strategic insights. Ensure your transactions are loaded.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
     return (
-        <div className="space-y-8">
-            <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900 p-6 rounded-xl flex items-start">
-                <div className="w-12 h-12 bg-rose-100 dark:bg-rose-800 rounded-full flex items-center justify-center mr-4 shrink-0">
-                    <svg className="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center">
                 <div>
-                    <h3 className="text-lg font-bold text-rose-900 dark:text-rose-100">3 High-Priority Anomalies Detected</h3>
-                    <p className="text-rose-700 dark:text-rose-300 text-sm">AI has identified unusual transaction patterns in the AP cycle that deviate from historical vendor behavior.</p>
+                    <h2 className="text-2xl font-black font-outfit">Risk & Audit Discovery</h2>
+                    <p className="text-xs text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold">Continuous Monitoring Active</p>
                 </div>
+                <button 
+                    onClick={runAnalysis}
+                    disabled={isAnalyzing}
+                    className="btn-primary flex items-center gap-2"
+                >
+                    {isAnalyzing ? (
+                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Running AI Audit...</>
+                    ) : (
+                        <>Run AI Risk Audit</>
+                    )}
+                </button>
             </div>
 
+            {aiInsights ? (
+                <div className="premium-card bg-slate-900 text-slate-200 border-l-4 border-l-sky-500 prose prose-invert max-w-none">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-400">Verified Strategic Intelligence</span>
+                    </div>
+                    <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: aiInsights.replace(/\n/g, '<br/>') }}></div>
+                </div>
+            ) : (
+                <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl flex items-start">
+                    <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mr-4 shrink-0">
+                        <svg className="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-rose-900 dark:text-rose-100">3 Priority Anomalies Flagged</h3>
+                        <p className="text-rose-700 dark:text-rose-400 text-sm mt-1">Our continuous monitoring has identified deviations in the Accounts Payable cycle. Run a full audit for details.</p>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">Risk Metrics</h3>
-                    <div className="space-y-4">
-                        {[
-                            { label: "Duplicate Invoice Risk", score: 15, color: "bg-emerald-500" },
-                            { label: "Unauthorized Vendor Activity", score: 45, color: "bg-amber-500" },
-                            { label: "Benford's Law Deviation", score: 82, color: "bg-rose-500" },
-                            { label: "Phantom Employee Risk", score: 5, color: "bg-emerald-500" },
-                        ].map(m => (
-                            <div key={m.label}>
-                                <div className="flex justify-between text-xs font-semibold mb-1 uppercase tracking-wider text-slate-500">
-                                    <span>{m.label}</span>
-                                    <span>{m.score}%</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full">
-                                    <div className={`h-full ${m.color} rounded-full`} style={{ width: `${m.score}%` }}></div>
-                                </div>
-                            </div>
-                        ))}
+                <div className="premium-card">
+                    <h3 className="font-bold font-outfit mb-6">Real-time Risk Vectors</h3>
+                    <div className="space-y-6">
+                        <RiskMetric label="Duplicate Invoice Probability" score={15} color="bg-emerald-500" />
+                        <RiskMetric label="Unauthorized Vendor Activity" score={42} color="bg-amber-500" />
+                        <RiskMetric label="Benford's Law Deviation" score={78} color="bg-rose-500" />
+                        <RiskMetric label="Regulatory Compliance Gap" score={22} color="bg-emerald-500" />
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">Audit Defense Readiness</h3>
-                    <div className="flex items-center gap-6">
+                <div className="premium-card bg-gradient-to-br from-[var(--bg-card)] to-[var(--color-primary-light)]">
+                    <h3 className="font-bold font-outfit mb-6">Audit Defense Readiness</h3>
+                    <div className="flex items-center gap-10">
                         <div className="w-32 h-32 relative">
-                            <svg className="w-full h-full transform -rotate-90">
-                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100 dark:text-slate-700" />
-                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={364} strokeDashoffset={364 * 0.15} className="text-emerald-500" />
+                            <svg className="w-full h-full transform -rotate-90 shadow-2xl rounded-full">
+                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-[var(--border-color)]" />
+                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray={364} strokeDashoffset={364 * 0.15} className="text-[var(--color-primary)] transition-all duration-1000" />
                             </svg>
                             <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                <span className="text-2xl font-bold">85%</span>
-                                <span className="text-[10px] uppercase text-slate-400">Ready</span>
+                                <span className="text-3xl font-black font-outfit">85%</span>
+                                <span className="text-[8px] uppercase font-bold text-[var(--text-muted)]">Reliability</span>
                             </div>
                         </div>
-                        <div className="flex-1 space-y-2">
-                            <p className="text-sm font-semibold text-slate-600">Workpapers Generated: <span className="text-emerald-600">12/12</span></p>
-                            <p className="text-sm font-semibold text-slate-600">Sample Testing: <span className="text-sky-600">In Progress</span></p>
-                            <button className="w-full mt-4 py-2 bg-slate-100 text-slate-700 rounded font-bold text-xs uppercase hover:bg-slate-200">Prepare Audit File</button>
+                        <div className="flex-1 space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                <p className="text-xs font-semibold">12/12 Workpapers Verified</p>
+                            </div>
+                            <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                                <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                                <p className="text-xs font-semibold italic">Sample Testing In-Progress</p>
+                            </div>
+                            <button className="w-full mt-2 py-3 bg-white text-[var(--text-main)] border border-[var(--border-color)] rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--bg-main)] transition-colors">
+                                Prepare Board-Ready File
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -562,64 +765,113 @@ export const RiskDiscoveryPage: React.FC = () => {
     );
 };
 
-export const ScenarioPlanningPage: React.FC = () => {
-    const { themeColors, isDarkMode } = useContext(ThemeContext) as ThemeContextType;
-    const [growthRate, setGrowthRate] = useState(15);
-    const [hiringPlan, setHiringPlan] = useState(2);
-    
-    const baseData = [
-        { name: 'Month 1', Cash: 100 },
-        { name: 'Month 2', Cash: 110 },
-        { name: 'Month 3', Cash: 105 },
-        { name: 'Month 4', Cash: 120 },
-        { name: 'Month 5', Cash: 130 },
-        { name: 'Month 6', Cash: 140 },
-    ];
+const RiskMetric: React.FC<{ label: string; score: number; color: string }> = ({ label, score, color }) => (
+    <div>
+        <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest text-[var(--text-muted)]">
+            <span>{label}</span>
+            <span>{score}%</span>
+        </div>
+        <div className="w-full h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
+            <div className={`h-full ${color} rounded-full transition-all duration-1000`} style={{ width: `${score}%` }}></div>
+        </div>
+    </div>
+);
 
-    const scenarioData = baseData.map((d, i) => ({
-        ...d,
-        "Projected Cash": d.Cash * (1 + (growthRate/100) * (i/5)) - (hiringPlan * 5 * (i/5))
-    }));
+export const ScenarioPlanningPage: React.FC = () => {
+    const [revenueGrowth, setRevenueGrowth] = useState(15);
+    const [opexReduction, setOpexReduction] = useState(5);
+    const [hiringCount, setHiringCount] = useState(2);
+
+    const generateProjection = () => {
+        const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        let currentCash = 125000;
+        return months.map((month, i) => {
+            const growthFactor = 1 + (revenueGrowth / 100);
+            const savingsFactor = 1 - (opexReduction / 100);
+            const hiringCost = hiringCount * 8000; // $8k per new hire
+            
+            // Simple projection logic
+            const revenue = 80000 * Math.pow(growthFactor, i/12);
+            const expenses = (60000 * savingsFactor) + hiringCost;
+            currentCash += (revenue - expenses);
+            
+            return {
+                name: month,
+                "Projected Cash": Math.round(currentCash),
+                "Burn Rate": Math.round(expenses)
+            };
+        });
+    };
+
+    const projectionData = generateProjection();
 
     return (
-        <div className="space-y-8">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">"What-If" Scenario Modeling</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Target Growth Rate (%)</label>
-                            <input 
-                                type="range" min="0" max="50" step="1" 
-                                value={growthRate} onChange={(e) => setGrowthRate(Number(e.target.value))}
-                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
-                            />
-                            <div className="flex justify-between text-xs text-slate-500 mt-1"><span>0%</span><span>{growthRate}%</span><span>50%</span></div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Hires Per Month</label>
-                            <input 
-                                type="range" min="0" max="10" step="1" 
-                                value={hiringPlan} onChange={(e) => setHiringPlan(Number(e.target.value))}
-                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
-                            />
-                            <div className="flex justify-between text-xs text-slate-500 mt-1"><span>0</span><span>{hiringPlan}</span><span>10</span></div>
-                        </div>
-                        <div className="p-4 bg-sky-50 dark:bg-sky-900/30 border border-sky-100 dark:border-sky-800 rounded-lg">
-                            <h4 className="font-semibold text-sky-800 dark:text-sky-200 mb-1">AI Prediction</h4>
-                            <p className="text-sm text-sky-700 dark:text-sky-300">Increasing hiring to {hiringPlan} while aiming for {growthRate}% growth will cause a temporary cash dip in Month 3 before stabilizing at a higher net margin.</p>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-between items-end">
+                <div>
+                    <h2 className="text-2xl font-black font-outfit">What-If Scenario Modeling</h2>
+                    <p className="text-[var(--text-muted)] mt-1">Simulate strategic shifts and their impact on your 6-month runway.</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl text-xs font-bold hover:bg-[var(--bg-main)] transition-colors">Reset Baseline</button>
+                    <button className="btn-primary">Save Scenario A</button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="premium-card space-y-8">
+                    <h3 className="font-bold font-outfit border-b border-[var(--border-color)] pb-4">Variable Drivers</h3>
+                    
+                    <SimulationSlider 
+                        label="Revenue Growth (Annual %)" 
+                        value={revenueGrowth} 
+                        min={-20} 
+                        max={100} 
+                        onChange={setRevenueGrowth} 
+                        suffix="%"
+                    />
+                    
+                    <SimulationSlider 
+                        label="OPEX Reduction (%)" 
+                        value={opexReduction} 
+                        min={0} 
+                        max={30} 
+                        onChange={setOpexReduction} 
+                        suffix="%"
+                    />
+
+                    <SimulationSlider 
+                        label="New Strategic Hires" 
+                        value={hiringCount} 
+                        min={0} 
+                        max={20} 
+                        onChange={setHiringCount} 
+                        suffix=" FTEs"
+                    />
+
+                    <div className="p-4 bg-[var(--color-primary-light)] rounded-2xl border border-[var(--color-primary)]">
+                        <p className="text-[10px] font-black uppercase text-[var(--color-primary)] mb-1">Projected Runway</p>
+                        <p className="text-2xl font-black">{Math.floor(projectionData[5]["Projected Cash"] / projectionData[5]["Burn Rate"])} Months</p>
+                    </div>
+                </div>
+
+                <div className="lg:col-span-2 premium-card">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold font-outfit">Projected Cash Balance</h3>
+                        <div className="flex gap-4">
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[var(--color-primary)]"></div><span className="text-[10px] font-bold text-[var(--text-muted)]">CASH</span></div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-rose-500"></div><span className="text-[10px] font-bold text-[var(--text-muted)]">BURN</span></div>
                         </div>
                     </div>
-                    <div className="h-64">
-                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={scenarioData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                                <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                <YAxis tick={{ fill: isDarkMode ? '#9ca3af' : '#64748b' }} />
-                                <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#334155' : '#fff', border: '1px solid #374151' }} />
-                                <Legend />
-                                <Line type="monotone" dataKey="Cash" stroke="#94a3b8" strokeDasharray="5 5" />
-                                <Line type="monotone" dataKey="Projected Cash" stroke={themeColors.primary} strokeWidth={3} dot={{ r: 4 }} />
+                    <div className="h-[400px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={projectionData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} tickFormatter={(v) => `$${v/1000}k`} />
+                                <Tooltip contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)'}} />
+                                <Line type="monotone" dataKey="Projected Cash" stroke="var(--color-primary)" strokeWidth={4} dot={{r: 6}} activeDot={{r: 8}} />
+                                <Line type="monotone" dataKey="Burn Rate" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" dot={false} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -629,59 +881,122 @@ export const ScenarioPlanningPage: React.FC = () => {
     );
 };
 
+const SimulationSlider: React.FC<{ label: string; value: number; min: number; max: number; onChange: (v: number) => void; suffix: string }> = ({ label, value, min, max, onChange, suffix }) => (
+    <div className="space-y-4">
+        <div className="flex justify-between items-center">
+            <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">{label}</label>
+            <span className="text-sm font-black font-outfit text-[var(--color-primary)]">{value}{suffix}</span>
+        </div>
+        <input 
+            type="range" 
+            min={min} 
+            max={max} 
+            value={value} 
+            onChange={(e) => onChange(parseInt(e.target.value))}
+            className="w-full h-1.5 bg-[var(--border-color)] rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]"
+        />
+    </div>
+);
+
 export const ESGReportingPage: React.FC = () => {
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow text-center border-t-4 border-emerald-500">
-                    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">Carbon Footprint</h3>
-                    <p className="text-3xl font-bold text-emerald-600">12.5 <span className="text-sm font-normal text-slate-400">tCO2e</span></p>
-                    <p className="text-xs text-emerald-500 mt-1">▼ 8% from last quarter</p>
+        <div className="space-y-10 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-black font-outfit">Sustainability & Impact (ESG)</h2>
+                    <p className="text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold text-[10px]">Real-time Carbon Tracking Active</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow text-center border-t-4 border-sky-500">
-                    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">Diversity Ratio</h3>
-                    <p className="text-3xl font-bold text-sky-600">42%</p>
-                    <p className="text-xs text-sky-500 mt-1">▲ 2% target progress</p>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow text-center border-t-4 border-amber-500">
-                    <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">Governance Score</h3>
-                    <p className="text-3xl font-bold text-amber-600">88/100</p>
-                    <p className="text-xs text-amber-500 mt-1">Audit Ready</p>
-                </div>
+                <button className="btn-primary">Generate Workiva-Style Report</button>
             </div>
-            
-            <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-6 text-slate-700 dark:text-slate-200">Compliance Status</h2>
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                        <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-4">
-                                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-slate-800 dark:text-slate-200">SOC2 Type II Audit</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Current status: Compliant</p>
-                            </div>
-                        </div>
-                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <EsgCard 
+                    label="Environmental (E)" 
+                    value="12.5 tCO2e" 
+                    trend="-12%" 
+                    color="text-emerald-500" 
+                    metric="Net Carbon Footprint"
+                    icon="🌱"
+                />
+                <EsgCard 
+                    label="Social (S)" 
+                    value="42%" 
+                    trend="+4%" 
+                    color="text-sky-500" 
+                    metric="Diversity & Inclusion Ratio"
+                    icon="🤝"
+                />
+                <EsgCard 
+                    label="Governance (G)" 
+                    value="88/100" 
+                    trend="A+" 
+                    color="text-amber-500" 
+                    metric="Internal Control Score"
+                    icon="⚖️"
+                />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="premium-card">
+                    <h3 className="font-bold font-outfit mb-6">Carbon Intensity by Department</h3>
+                    <div className="space-y-4">
+                        <DepartmentImpact label="Manufacturing" percentage={65} />
+                        <DepartmentImpact label="Logistics" percentage={45} />
+                        <DepartmentImpact label="Headquarters" percentage={12} />
+                        <DepartmentImpact label="Data Centers" percentage={28} />
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                        <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-4">
-                                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-slate-800 dark:text-slate-200">UK Modern Slavery Act</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Renewal due in 14 days</p>
-                            </div>
+                </div>
+
+                <div className="premium-card flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-bold font-outfit mb-4">Regulatory Compliance Tracker</h3>
+                        <div className="space-y-3">
+                            <ComplianceRow label="SFDR Disclosure" status="Compliant" />
+                            <ComplianceRow label="UK Modern Slavery Act" status="Review Needed" isWarning />
+                            <ComplianceRow label="SOC2 Type II" status="Active" />
+                            <ComplianceRow label="GDPR Audit" status="Compliant" />
                         </div>
-                        <button className="text-xs bg-[var(--color-primary)] text-white px-3 py-1 rounded hover:bg-[var(--color-primary-hover)]">Review Filings</button>
+                    </div>
+                    <div className="mt-6 p-4 bg-slate-900 rounded-2xl text-white">
+                        <p className="text-[10px] font-black uppercase text-slate-500 mb-2">AI Compliance Note</p>
+                        <p className="text-xs leading-relaxed text-slate-300">New EU sustainability directives (CSRD) take effect in 120 days. Your current data collection covers 85% of requirements.</p>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
+const EsgCard: React.FC<{ label: string; value: string; trend: string; color: string; metric: string; icon: string }> = ({ label, value, trend, color, metric, icon }) => (
+    <div className="premium-card relative overflow-hidden group hover:scale-[1.02] transition-transform">
+        <div className="absolute top-0 right-0 p-6 text-4xl opacity-10 group-hover:opacity-20 transition-opacity">{icon}</div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-4">{label}</p>
+        <p className={`text-3xl font-black font-outfit mb-1 ${color}`}>{value}</p>
+        <div className="flex justify-between items-end mt-4">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">{metric}</span>
+            <span className={`text-[10px] font-black ${trend.startsWith('-') || trend === 'A+' ? 'text-emerald-500' : 'text-sky-500'}`}>{trend}</span>
+        </div>
+    </div>
+);
+
+const DepartmentImpact: React.FC<{ label: string; percentage: number }> = ({ label, percentage }) => (
+    <div>
+        <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest text-[var(--text-muted)]">
+            <span>{label}</span>
+            <span>{percentage}%</span>
+        </div>
+        <div className="w-full h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${percentage}%` }}></div>
+        </div>
+    </div>
+);
+
+const ComplianceRow: React.FC<{ label: string; status: string; isWarning?: boolean }> = ({ label, status, isWarning }) => (
+    <div className="flex items-center justify-between p-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-color)]">
+        <span className="text-xs font-bold">{label}</span>
+        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${isWarning ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>{status}</span>
+    </div>
+);
 
 export const MarketIntelligencePage: React.FC = () => {
     const marketInsights = [
@@ -691,44 +1006,188 @@ export const MarketIntelligencePage: React.FC = () => {
     ];
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Global Market Outlook</h2>
-                    <div className="h-64 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center italic text-slate-400">
-                        Market Sentiment Heatmap Visualization
-                    </div>
+        <div className="space-y-10 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-black font-outfit">Global Market Intelligence</h2>
+                    <p className="text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold text-[10px]">AlphaSense-Style Synthesis Active</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {marketInsights.map(insight => (
-                        <div key={insight.id} className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-l-4 border-l-sky-500">
-                            <div className="flex justify-between items-start mb-2">
-                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${insight.urgency === 'High' ? 'bg-rose-100 text-rose-700' : 'bg-sky-100 text-sky-700'}`}>{insight.type}</span>
-                                <span className="text-xs text-slate-400">2h ago</span>
-                            </div>
-                            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">{insight.title}</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{insight.description}</p>
-                        </div>
-                    ))}
+                <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl text-xs font-bold hover:bg-[var(--bg-main)] transition-colors">Source Config</button>
+                    <button className="btn-primary">Generate Analyst Briefing</button>
                 </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow h-fit">
-                <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Sentiment Indices</h3>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                        <span className="text-slate-500">Small Business Index</span>
-                        <span className="font-bold text-emerald-500">62.5 (Bullish)</span>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 space-y-8">
+                    <div className="premium-card">
+                        <h3 className="font-bold font-outfit mb-6">Strategic News Synthesis</h3>
+                        <div className="space-y-6">
+                            {marketInsights.map(insight => (
+                                <div key={insight.id} className="p-5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)] group hover:border-[var(--color-primary)] transition-all">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${insight.urgency === 'High' ? 'bg-rose-500 text-white' : 'bg-sky-500 text-white'}`}>
+                                                {insight.type}
+                                            </span>
+                                            <span className="text-[10px] font-bold text-[var(--text-muted)]">Source: Financial Times • 2h ago</span>
+                                        </div>
+                                        <button className="text-[var(--text-muted)] hover:text-[var(--color-primary)]"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                                    </div>
+                                    <h4 className="text-lg font-bold mb-2">{insight.title}</h4>
+                                    <p className="text-sm text-[var(--text-muted)] leading-relaxed">{insight.description}</p>
+                                    <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex items-center gap-4">
+                                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">Bullish Impact</span>
+                                        <span className="text-[10px] font-bold text-[var(--text-muted)] underline cursor-pointer">Read Full Synthesis</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                        <span className="text-slate-500">Tech Sector Sentiment</span>
-                        <span className="font-bold text-amber-500">48.2 (Neutral)</span>
+                </div>
+
+                <div className="space-y-8">
+                    <div className="premium-card">
+                        <h3 className="font-bold font-outfit mb-6">Market Sentiment Heatmap</h3>
+                        <div className="space-y-5">
+                            <SentimentIndex label="Small Business Confidence" score={62} status="Bullish" color="text-emerald-500" />
+                            <SentimentIndex label="SaaS Sector Multiple" score={48} status="Neutral" color="text-amber-500" />
+                            <SentimentIndex label="Central Bank Stance" score={25} status="Hawkish" color="text-rose-500" />
+                        </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                        <span className="text-slate-500">SaaS Burn Rate Average</span>
-                        <span className="font-bold text-rose-500">Rising</span>
+
+                    <div className="premium-card bg-gradient-to-br from-indigo-900 to-slate-900 text-white border-none shadow-2xl">
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-4">Competitor Edge</h3>
+                        <div className="space-y-4">
+                            <div className="p-3 bg-white/5 rounded-xl">
+                                <p className="text-[10px] font-bold text-indigo-300 mb-1">FinFlow (Tier 1)</p>
+                                <p className="text-xs">Launched automated VAT filing. Current user sentiment is mixed due to latency.</p>
+                            </div>
+                            <button className="w-full py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-400 transition-colors">
+                                View Full Intelligence Map
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
+const SentimentIndex: React.FC<{ label: string; score: number; status: string; color: string }> = ({ label, score, status, color }) => (
+    <div>
+        <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">{label}</span>
+            <span className={`text-[10px] font-black ${color}`}>{status}</span>
+        </div>
+        <div className="w-full h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500" style={{ width: '100%', position: 'relative' }}>
+                <div className="absolute top-0 w-1 h-full bg-white shadow-xl" style={{ left: `${score}%` }}></div>
+            </div>
+        </div>
+    </div>
+);
+
+export const ExecutiveInsightsPage: React.FC = () => {
+    const ssaData = [
+        { name: 'Jan', MRR: 45000, Churn: 2.1 },
+        { name: 'Feb', MRR: 48000, Churn: 1.9 },
+        { name: 'Mar', MRR: 52000, Churn: 2.3 },
+        { name: 'Apr', MRR: 58000, Churn: 1.5 },
+        { name: 'May', MRR: 65000, Churn: 1.2 },
+        { name: 'Jun', MRR: 72000, Churn: 1.0 },
+    ];
+
+    return (
+        <div className="space-y-10 animate-in fade-in duration-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <MetricCard 
+                    title="Customer Lifetime Value (LTV)" 
+                    value="$12,450" 
+                    trend="+15%" 
+                    description="Avg. revenue per customer over 3 years"
+                />
+                <MetricCard 
+                    title="Acquisition Cost (CAC)" 
+                    value="$840" 
+                    trend="-8%" 
+                    description="Fully-loaded marketing & sales cost"
+                />
+                <MetricCard 
+                    title="LTV:CAC Ratio" 
+                    value="14.8x" 
+                    trend="Optimal" 
+                    description="Health of business unit economics"
+                    isSpecial
+                />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="premium-card">
+                    <h3 className="text-lg font-bold font-outfit mb-6">Revenue Growth (MRR)</h3>
+                    <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={ssaData}>
+                                <defs>
+                                    <linearGradient id="colorMrr" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} tickFormatter={(v) => `$${v/1000}k`} />
+                                <Tooltip contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)'}} />
+                                <Area type="monotone" dataKey="MRR" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorMrr)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <div className="premium-card">
+                    <h3 className="text-lg font-bold font-outfit mb-6">Monthly Churn Analysis</h3>
+                    <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={ssaData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} tickFormatter={(v) => `${v}%`} />
+                                <Tooltip contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)'}} />
+                                <Bar dataKey="Churn" fill="#f43f5e" radius={[6, 6, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
+            <div className="premium-card bg-slate-900 text-white">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">💡</div>
+                    <div>
+                        <h3 className="text-xl font-bold font-outfit">AI Strategic Recommendation</h3>
+                        <p className="text-slate-400 text-sm">Based on LTV:CAC and Current Runway</p>
+                    </div>
+                </div>
+                <p className="text-slate-300 leading-relaxed max-w-3xl">
+                    Your LTV:CAC ratio of **14.8x** is significantly above the industry benchmark (3.0x). 
+                    This indicates an extremely efficient acquisition model. **Recommendation:** Aggressively scale marketing 
+                    spend by 25-30% in Q3. Current runway of 14 months allows for this expansion while maintaining 
+                    a 10-month safety buffer.
+                </p>
+            </div>
+        </div>
+    );
+};
+
+const MetricCard: React.FC<{ title: string; value: string; trend: string; description: string; isSpecial?: boolean }> = ({ title, value, trend, description, isSpecial }) => (
+    <div className={`premium-card ${isSpecial ? 'border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)]' : ''}`}>
+        <div className="flex justify-between items-start mb-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">{title}</h4>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${trend.startsWith('+') ? 'bg-emerald-100 text-emerald-700' : trend === 'Optimal' ? 'bg-sky-100 text-sky-700' : 'bg-rose-100 text-rose-700'}`}>
+                {trend}
+            </span>
+        </div>
+        <p className="text-4xl font-black font-outfit mb-2">{value}</p>
+        <p className="text-xs text-[var(--text-muted)] leading-tight">{description}</p>
+    </div>
+);

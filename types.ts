@@ -53,3 +53,10 @@ export interface DataContextType {
     apBills: Bill[];
     arInvoices: Invoice[];
 }
+
+export interface SubscriptionStatus {
+    isTrial: boolean;
+    trialDaysRemaining: number;
+    isExpired: boolean;
+    isPro: boolean;
+}

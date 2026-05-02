@@ -1,35 +1,76 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Assume process.env.API_KEY is available in the environment.
-const API_KEY = process.env.API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(API_KEY);
 
-if (!API_KEY) {
-  console.warn("API_KEY not found. AI features will be disabled.");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
-
-export const getFinancialInsight = async (query: string): Promise<string> => {
-  if (!API_KEY) {
-    return "The AI feature is currently unavailable. Please configure the API key.";
-  }
-
-  try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `You are FiNet, an AI financial assistant integrated into a business finance dashboard. The user has access to their dashboard which includes data on cash balance, net income, expenses, transactions, inventory, and cash flow. Based on the user's question, provide a concise and helpful financial insight. Do not invent precise numbers unless the user's query implies them. Ground your answer in general financial principles as they would apply to their dashboard data. User question: "${query}"`,
-        config: {
-            temperature: 0.5,
-            topK: 32,
-            topP: 1,
-            // Disable thinking for faster responses for this specific interactive feature.
-            thinkingConfig: { thinkingBudget: 0 }
+export const geminiService = {
+    async analyzeDocument(text: string) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `
+            Analyze the following financial document text and extract:
+            1. Vendor/Customer Name
+            2. Date
+            3. Total Amount
+            4. Description
+            5. Suggested Category (one of: Software, Marketing, Office Supplies, Hosting, Revenue, Other)
+            
+            Format the output as JSON.
+            Document Text: ${text}
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return JSON.parse(response.text());
+        } catch (error) {
+            console.error("Gemini Analysis Error:", error);
+            return null;
         }
-    });
-    
-    return response.text;
-  } catch (error) {
-    console.error("Error fetching from Gemini API:", error);
-    return "Sorry, I encountered an error while processing your request. Please try again later.";
-  }
+    },
+
+    async getRiskInsights(transactions: any[]) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `
+            Analyze these transactions for potential risks, anomalies, or cost-saving opportunities.
+            Identify:
+            1. Unusual spending spikes.
+            2. Potential duplicate charges.
+            3. Recommendations for the CFO.
+            
+            Transactions: ${JSON.stringify(transactions)}
+            
+            Format the response as a professional financial summary.
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Gemini Risk Insight Error:", error);
+            return "Unable to generate insights at this time.";
+        }
+    },
+
+    async getFinancialInsight(query: string) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `
+            You are FiNet AI, a strategic financial advisor for CFOs.
+            Answer the following query professionally and concisely:
+            "${query}"
+            
+            Focus on actionable financial advice.
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Gemini Insight Error:", error);
+            return "I'm sorry, I couldn't process that financial query right now.";
+        }
+    }
 };
+
+export const getFinancialInsight = geminiService.getFinancialInsight;
