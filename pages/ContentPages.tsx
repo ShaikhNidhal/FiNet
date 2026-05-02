@@ -429,8 +429,8 @@ export const TransactionsPage: React.FC = () => {
                 <div className="flex gap-4 w-full md:w-auto">
                     <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
                         <option>All Types</option>
-                        <option>Income</option>
-                        <option>Expense</option>
+                        <option>Credit</option>
+                        <option>Debit</option>
                     </select>
                     <select className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40">
                         <option>All Categories</option>
