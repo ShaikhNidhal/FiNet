@@ -2,19 +2,35 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# FiNet: Premium AI Financial Intelligence Suite
 
-This contains everything you need to run your app locally.
+FiNet is a state-of-the-art, AI-driven financial operating system designed for CFOs, SMBs, and accounting firms. It transforms raw financial data into strategic intelligence using Gemini AI.
 
-View your app in AI Studio: https://ai.studio/apps/1dbd9b0d-9961-4c94-9c98-af980e1684f2
+## 🚀 Key Features
 
-## Run Locally
+- **Executive Insights Dashboard**: Real-time CFO metrics (LTV, CAC, MRR Growth, Churn).
+- **Interactive Scenario Modeling**: "What-If" simulations for cash flow and runway projection.
+- **Autonomous Bookkeeping**: AI-powered bank-to-ledger matching with confidence scoring.
+- **Risk & Audit Discovery**: MindBridge-style anomaly detection and Benford's Law analysis.
+- **ESG Reporting**: Automated sustainability and regulatory impact tracking.
+- **Strategic AI Chat**: Context-aware financial advisor for instant strategic answers.
 
-**Prerequisites:**  Node.js
+## 🛠 Tech Stack
 
+- **Frontend**: React 19, Vite, Tailwind CSS (Vanilla CSS Design System).
+- **AI**: Gemini 1.5 Flash (@google/generative-ai).
+- **Charts**: Recharts.
+- **Persistence**: LocalStorage (simulated backend).
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🌍 Deployment (Vercel)
+
+1. **Connect Repository**: Go to [Vercel](https://vercel.com) and import this repository.
+2. **Environment Variables**: Add `VITE_GEMINI_API_KEY` with your Google Gemini API Key.
+3. **Deploy**: Click Deploy. The app is pre-configured for Vite/React.
+
+## 🔑 Environment Variables
+
+Create a `.env` file in the root:
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+```
