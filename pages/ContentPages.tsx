@@ -239,15 +239,16 @@ export const DataExtractionPage: React.FC = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [extractedData, setExtractedData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [activeInputTab, setActiveInputTab] = useState<'upload' | 'paste'>('upload');
+    const [docType, setDocType] = useState('Invoice');
     const dataContext = useContext(DataContext) as DataContextType;
     const navigate = useNavigate();
 
-    const handleUpload = async () => {
+    const handleExtract = async () => {
         setIsProcessing(true);
         setError(null);
         
-        // In a real app, we'd read the file. 
-        // For this integration demo, we'll simulate a document text.
+        // Mock data for demo
         const mockDocText = "Invoice from Innovate Tech Inc. Date: 2025-07-15. Total: $1250.00. Description: Annual Cloud Hosting. Due: 2025-08-14.";
         
         try {
@@ -284,54 +285,160 @@ export const DataExtractionPage: React.FC = () => {
         navigate('/transactions');
     };
 
+    const capabilities = [
+        "PDF invoice & receipt parsing",
+        "Excel / CSV financial reports",
+        "Multi-sheet workbook support",
+        "Contract key terms extraction",
+        "Line items & tax calculation",
+        "Vendor / client identification",
+        "Bank statement transactions",
+        "Date & currency normalization"
+    ];
+
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-            <div className="premium-card text-center">
-                <h2 className="text-2xl font-bold font-outfit mb-2">Intelligent Data Extraction</h2>
-                <p className="text-[var(--text-muted)] mb-8">Upload any financial document. FiNet's AI will parse invoices and receipts with 99.9% accuracy.</p>
-                
-                <div 
-                    className="flex flex-col items-center justify-center w-full h-72 border-2 border-[var(--border-color)] border-dashed rounded-2xl cursor-pointer bg-[var(--bg-main)] hover:bg-[var(--color-primary-light)] hover:border-[var(--color-primary)] transition-all group"
-                    onClick={handleUpload}
-                >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <div className="w-16 h-16 rounded-full bg-[var(--color-primary-light)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v1.586a1 1 0 01-.293.707l-1.414 1.414a1 1 0 00-.707.293H7z"></path></svg>
+        <div className="space-y-8 animate-in fade-in duration-700 w-full">
+            {/* Header */}
+            <div>
+                <h2 className="text-xl font-bold font-outfit text-white">AI Data Extraction</h2>
+                <p className="text-slate-500 text-sm mt-1">OCR/NLP-powered extraction from invoices, receipts, bank statements, PDFs, and Excel files</p>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {/* Left Column: Input */}
+                <div className="premium-card p-6 space-y-6">
+                    <div className="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-widest">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Document Input
+                    </div>
+
+                    <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-800">
+                        <button 
+                            onClick={() => setActiveInputTab('upload')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${activeInputTab === 'upload' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Upload File
+                        </button>
+                        <button 
+                            onClick={() => setActiveInputTab('paste')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${activeInputTab === 'paste' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            Paste Text
+                        </button>
+                    </div>
+
+                    <select 
+                        value={docType}
+                        onChange={(e) => setDocType(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-xl focus:ring-sky-500 focus:border-sky-500 block p-3"
+                    >
+                        <option>Invoice</option>
+                        <option>Receipt</option>
+                        <option>Bank Statement</option>
+                        <option>Contract</option>
+                    </select>
+
+                    <div 
+                        className="group relative flex flex-col items-center justify-center w-full h-64 border-2 border-slate-800 border-dashed rounded-2xl cursor-pointer hover:bg-slate-800/30 hover:border-sky-500/50 transition-all"
+                        onClick={handleExtract}
+                    >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg className="w-10 h-10 text-slate-600 group-hover:text-sky-500 mb-4 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v1.586a1 1 0 01-.293.707l-1.414 1.414a1 1 0 00-.707.293H7z"></path></svg>
+                            <p className="mb-2 text-sm text-slate-300"><span className="font-bold">Drop file here</span> or click to browse</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-4">Supports PDF, Excel (.xlsx / .xls), and CSV</p>
+                            
+                            <div className="flex gap-2">
+                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20">PDF</span>
+                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLSX</span>
+                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLS</span>
+                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-sky-500/10 text-sky-500 border border-sky-500/20">CSV</span>
+                            </div>
                         </div>
-                        <p className="mb-2 text-sm text-[var(--text-main)]"><span className="font-bold">Drop your invoice here</span> or click to browse</p>
-                        <p className="text-xs text-[var(--text-muted)]">Supports PDF, JPG, PNG (Max 10MB)</p>
+                    </div>
+
+                    <button 
+                        onClick={handleExtract}
+                        disabled={isProcessing}
+                        className="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-900/20"
+                    >
+                        {isProcessing ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        )}
+                        Extract with AI
+                    </button>
+                </div>
+
+                {/* Right Column: Output & Capabilities */}
+                <div className="space-y-8">
+                    {/* Output Area */}
+                    <div className="premium-card h-64 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+                        {isProcessing ? (
+                            <div className="space-y-4 animate-pulse">
+                                <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto"></div>
+                                <div className="h-4 w-48 bg-slate-800 rounded-full mx-auto"></div>
+                                <div className="h-3 w-32 bg-slate-800 rounded-full mx-auto"></div>
+                            </div>
+                        ) : extractedData ? (
+                            <div className="w-full text-left space-y-4 animate-in zoom-in duration-300">
+                                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                                    <h3 className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Extracted Results</h3>
+                                    <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded font-black tracking-widest">98.4% CONFIDENCE</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <DetailField label="Vendor" value={extractedData.vendor} />
+                                    <DetailField label="Date" value={extractedData.date} />
+                                    <DetailField label="Amount" value={`$${extractedData.amount.toLocaleString()}`} isBold />
+                                    <DetailField label="Due Date" value={extractedData.dueDate} />
+                                </div>
+                                <button onClick={handleAddToTransactions} className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-colors">
+                                    Approve & Sync to Ledger
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="w-12 h-12 bg-slate-900/50 rounded-2xl flex items-center justify-center mb-4 border border-slate-800 shadow-inner">
+                                    <svg className="w-6 h-6 text-sky-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.618.309a6 6 0 01-3.86.517l-2.457-.492a2 2 0 00-1.022.547l-2.387 2.387a2 2 0 00-.547 1.022l-.477 2.387a2 2 0 001.022 2.387l2.387.477a2 2 0 002.387-1.022l.477-2.387a2 2 0 00-.547-1.022l-2.387-.477a2 2 0 00-1.022.547l-2.387 2.387z"></path></svg>
+                                </div>
+                                <h3 className="text-sm font-bold text-white mb-1">Extracted fields will appear here</h3>
+                                <p className="text-xs text-slate-500">Upload a file or paste text, then click Extract</p>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Capabilities Area */}
+                    <div className="premium-card p-6">
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Supported Formats & Capabilities</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                            {capabilities.map((cap, idx) => (
+                                <div key={idx} className="flex items-center gap-3 text-xs">
+                                    <div className="flex-shrink-0 w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                        <svg className="w-2.5 h-2.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span className="text-slate-400 font-medium">{cap}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            {isProcessing && (
-                <div className="premium-card text-center py-12">
-                    <div className="w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-lg font-medium animate-pulse">Gemini AI is analyzing document...</p>
-                </div>
-            )}
 
-            {extractedData && !isProcessing && (
-                <div className="premium-card border-t-4 border-t-emerald-500 animate-in zoom-in duration-300">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold text-emerald-600">Verification Result</h3>
-                        <span className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg font-bold">98% Confidence</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <DetailField label="Vendor" value={extractedData.vendor} />
-                        <DetailField label="Invoice Date" value={extractedData.date} />
-                        <DetailField label="Total Amount" value={`$${extractedData.amount.toFixed(2)}`} isBold />
-                        <DetailField label="Due Date" value={extractedData.dueDate} />
-                        <div className="md:col-span-2">
-                            <DetailField label="AI Description" value={extractedData.description} />
-                        </div>
-                    </div>
-                    <div className="mt-8 flex justify-end gap-4">
-                        <button className="px-6 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Discard</button>
-                        <button onClick={handleAddToTransactions} className="btn-primary">Approve & Add to Books</button>
-                    </div>
+            {/* Bottom Section: History */}
+            <div className="premium-card p-0 overflow-hidden">
+                <div className="flex justify-between items-center p-6 border-b border-slate-800">
+                    <h3 className="text-sm font-bold font-outfit text-white">Extraction History</h3>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">0 documents</span>
                 </div>
-            )}
+                <div className="py-12 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-slate-900/50 rounded-full flex items-center justify-center mb-4 border border-slate-800">
+                        <svg className="w-8 h-8 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">No documents extracted yet</p>
+                </div>
+            </div>
         </div>
     );
 };
