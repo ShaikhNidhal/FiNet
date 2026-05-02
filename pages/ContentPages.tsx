@@ -338,6 +338,7 @@ export const DataExtractionPage: React.FC = () => {
                         <option>Receipt</option>
                         <option>Bank Statement</option>
                         <option>Contract</option>
+                        <option>Spreadsheet / Report</option>
                     </select>
 
                     <div 
