@@ -460,14 +460,17 @@ export const DataExtractionPage: React.FC = () => {
                             </div>
                         ) : extractedData ? (
                             <div className="w-full text-left space-y-4 animate-in zoom-in duration-300">
-                                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full font-bold">high confidence</span>
-                                        <button onClick={() => setExtractedData(null)} className="text-slate-500 hover:text-rose-500 transition-colors">
+                                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
+                                            <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tight">high confidence</span>
+                                        </div>
+                                        <button onClick={() => setExtractedData(null)} className="text-slate-600 hover:text-rose-500 transition-colors p-1 hover:bg-rose-500/5 rounded-md">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
-                                    <span className="text-[10px] text-slate-500 font-black tracking-widest">98.4% MATCH</span>
+                                    <span className="text-[10px] text-slate-500 font-black tracking-widest uppercase">98.4% Match</span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <DetailField label="Vendor" value={extractedData.vendor} />
@@ -527,28 +530,28 @@ export const DataExtractionPage: React.FC = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-800/30">
                                 {history.map((item, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-800/20 transition-colors">
+                                    <tr key={idx} className="hover:bg-slate-800/20 transition-colors border-b border-slate-800/30 last:border-0">
                                         <td className="px-6 py-4">
-                                            <div className="flex items-start gap-3">
-                                                <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                                                     <svg className="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
                                                 </div>
                                                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
                                                     <svg className="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"></path><path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-white mb-0.5">{item.fileName}</p>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-bold text-white mb-0.5 truncate">{item.fileName}</p>
                                                     <p className="text-[10px] text-slate-500 font-medium">
                                                         {item.docType} • {item.source} • {item.timestamp}
                                                     </p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 align-top pt-5 text-slate-200 font-semibold">{item.vendor}</td>
-                                        <td className="px-6 py-4 align-top pt-5 text-slate-500 font-medium">{item.date}</td>
-                                        <td className="px-6 py-4 align-top pt-5 text-right font-black text-white tracking-tight">${item.amount.toLocaleString()}</td>
-                                        <td className="px-6 py-4 align-top pt-5 text-center">
-                                            <span className="px-2.5 py-1 rounded-full bg-slate-900 text-[9px] font-black uppercase tracking-tighter border border-slate-800 text-slate-400">{item.category}</span>
+                                        <td className="px-6 py-4 text-white font-bold">{item.vendor}</td>
+                                        <td className="px-6 py-4 text-slate-500 font-medium">{item.date}</td>
+                                        <td className="px-6 py-4 text-right font-black text-white tracking-tight">${item.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="px-2.5 py-1 rounded-full bg-slate-900 text-[9px] font-black uppercase tracking-tighter border border-slate-700 text-slate-300">{item.category}</span>
                                         </td>
                                     </tr>
                                 ))}
