@@ -279,7 +279,9 @@ export const DataExtractionPage: React.FC = () => {
         setExtractedData(null); // Reset results to show processing state
         
         // Mock data for demo - in a real app we'd send the file/text to the backend
-        const mockDocText = activeInputTab === 'paste' ? pastedText : `File: ${selectedFile?.name}. Analysis requested.`;
+        const mockDocText = activeInputTab === 'paste' 
+            ? pastedText 
+            : `Analysis requested for document type: ${docType}. Filename: ${selectedFile?.name}.`;
         
         try {
             // Artificial delay to feel like AI is thinking
