@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface Transaction {
   date: string;
   description: string;
