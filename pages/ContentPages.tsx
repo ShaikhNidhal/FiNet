@@ -39,158 +39,195 @@ export const DashboardPage: React.FC = () => {
     ];
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 max-w-6xl">
-            {/* Header */}
-            <div>
-                <h2 className="text-xl font-bold font-outfit text-white">Financial Dashboard</h2>
-                <p className="text-slate-500 text-sm mt-1">Real-time overview of your financial position</p>
-            </div>
-
-            {/* KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <NewKpiCard 
-                    title="CASH POSITION" 
-                    value="$-361800" 
-                    subtext="↘ -12.4% growth" 
-                    isPositive={false} 
-                    icon={<span className="font-bold text-sm">$</span>} 
-                />
-                <NewKpiCard 
-                    title="TOTAL REVENUE" 
-                    value="$1.59M" 
-                    subtext="↗ YTD" 
-                    isPositive={true} 
-                    icon={<span className="font-bold text-sm">↗</span>} 
-                />
-                <NewKpiCard 
-                    title="BURN RATE" 
-                    value="$163K" 
-                    subtext="per month" 
-                    isPositive={true} 
-                    icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>} 
-                />
-                <NewKpiCard 
-                    title="DAYS OUTSTANDING" 
-                    value="6d" 
-                    subtext="↗ avg receivables" 
-                    isPositive={true} 
-                    icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>} 
-                />
-            </div>
-
-            {/* Alert Banner */}
-            <div className="flex items-center gap-3 p-3 bg-rose-950/20 border border-rose-900/50 rounded-lg text-rose-500">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <p className="text-sm font-semibold">1 critical, 2 high severity anomalies require attention</p>
-            </div>
-
-            {/* Area Chart */}
-            <div className="premium-card">
-                <h3 className="text-sm font-bold font-outfit mb-6 text-white">Cash Flow — Last 12 Months</h3>
-                <div className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="colorInflow" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorOutflow" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                            <XAxis 
-                                dataKey="name" 
-                                tick={{ fill: '#64748b', fontSize: 10 }} 
-                                axisLine={false}
-                                tickLine={false}
-                                minTickGap={30}
-                            />
-                            <YAxis 
-                                tick={{ fill: '#64748b', fontSize: 10 }} 
-                                axisLine={false}
-                                tickLine={false}
-                                tickFormatter={(value) => `$${value/1000}K`}
-                            />
-                            <Tooltip 
-                                contentStyle={{ 
-                                    backgroundColor: '#0f172a', 
-                                    borderRadius: '8px',
-                                    border: '1px solid #1e293b',
-                                    color: '#f8fafc'
-                                }} 
-                            />
-                            <Area type="monotone" dataKey="Outflow" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#colorOutflow)" />
-                            <Area type="monotone" dataKey="Inflow" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorInflow)" />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* Recent Transactions List */}
-            <div className="premium-card">
-                <h3 className="text-sm font-bold font-outfit mb-4 text-white">Recent Transactions</h3>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                        <div>
-                            <p className="font-semibold text-white text-sm">AWS Cloud Services</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Software & SaaS • 2026-05-02</p>
-                        </div>
-                        <p className="font-bold text-white text-sm">-$9K</p>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                        <div>
-                            <p className="font-semibold text-white text-sm">Payroll - Engineering Team</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Salaries • 2026-05-03</p>
-                        </div>
-                        <p className="font-bold text-white text-sm">-$92K</p>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                        <div>
-                            <p className="font-semibold text-white text-sm">Business Meals - Client Dinner</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Meals & Entertainment • 2026-05-07</p>
-                        </div>
-                        <p className="font-bold text-white text-sm">-$5K</p>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                        <div>
-                            <p className="font-semibold text-white text-sm">Marketing Campaign - Meta Ads</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Marketing • 2026-05-10</p>
-                        </div>
-                        <p className="font-bold text-white text-sm">-$2K</p>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                        <div>
-                            <p className="font-semibold text-white text-sm">Interest Income</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Interest • 2026-05-12</p>
-                        </div>
-                        <p className="font-bold text-emerald-500 text-sm">+$2K</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Quick Stats Bottom Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="premium-card flex items-center gap-4 p-4">
-                    <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
+        <div className="animate-in fade-in duration-700">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                
+                {/* Left Column - Main Content */}
+                <div className="xl:col-span-2 space-y-6">
+                    {/* Header */}
                     <div>
-                        <p className="text-xl font-bold text-white leading-tight">10</p>
-                        <p className="text-xs text-[var(--text-muted)]">Open Invoices</p>
+                        <h2 className="text-xl font-bold font-outfit text-white">Financial Dashboard</h2>
+                        <p className="text-slate-500 text-sm mt-1">Real-time overview of your financial position</p>
+                    </div>
+
+                    {/* KPIs */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <NewKpiCard 
+                            title="CASH POSITION" 
+                            value="$-361800" 
+                            subtext="↘ -12.4% growth" 
+                            isPositive={false} 
+                            icon={<span className="font-bold text-sm">$</span>} 
+                        />
+                        <NewKpiCard 
+                            title="TOTAL REVENUE" 
+                            value="$1.59M" 
+                            subtext="↗ YTD" 
+                            isPositive={true} 
+                            icon={<span className="font-bold text-sm">↗</span>} 
+                        />
+                        <NewKpiCard 
+                            title="BURN RATE" 
+                            value="$163K" 
+                            subtext="per month" 
+                            isPositive={true} 
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>} 
+                        />
+                        <NewKpiCard 
+                            title="DAYS OUTSTANDING" 
+                            value="6d" 
+                            subtext="↗ avg receivables" 
+                            isPositive={true} 
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>} 
+                        />
+                    </div>
+
+                    {/* Alert Banner */}
+                    <div className="flex items-center gap-3 p-3 bg-rose-950/20 border border-rose-900/50 rounded-lg text-rose-500">
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p className="text-sm font-semibold">1 critical, 2 high severity anomalies require attention</p>
+                    </div>
+
+                    {/* Area Chart */}
+                    <div className="premium-card">
+                        <h3 className="text-sm font-bold font-outfit mb-6 text-white">Cash Flow — Last 12 Months</h3>
+                        <div className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorInflow" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                        </linearGradient>
+                                        <linearGradient id="colorOutflow" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                    <XAxis 
+                                        dataKey="name" 
+                                        tick={{ fill: '#64748b', fontSize: 10 }} 
+                                        axisLine={false}
+                                        tickLine={false}
+                                        minTickGap={30}
+                                    />
+                                    <YAxis 
+                                        tick={{ fill: '#64748b', fontSize: 10 }} 
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tickFormatter={(value) => `$${value/1000}K`}
+                                    />
+                                    <Tooltip 
+                                        contentStyle={{ 
+                                            backgroundColor: '#0f172a', 
+                                            borderRadius: '8px',
+                                            border: '1px solid #1e293b',
+                                            color: '#f8fafc'
+                                        }} 
+                                    />
+                                    <Area type="monotone" dataKey="Outflow" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#colorOutflow)" />
+                                    <Area type="monotone" dataKey="Inflow" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorInflow)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* Recent Transactions List */}
+                    <div className="premium-card">
+                        <h3 className="text-sm font-bold font-outfit mb-4 text-white">Recent Transactions</h3>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                <div>
+                                    <p className="font-semibold text-white text-sm">AWS Cloud Services</p>
+                                    <p className="text-[11px] text-slate-500 mt-1">Software & SaaS • 2026-05-02</p>
+                                </div>
+                                <p className="font-bold text-white text-sm">-$9K</p>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                <div>
+                                    <p className="font-semibold text-white text-sm">Payroll - Engineering Team</p>
+                                    <p className="text-[11px] text-slate-500 mt-1">Salaries • 2026-05-03</p>
+                                </div>
+                                <p className="font-bold text-white text-sm">-$92K</p>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                <div>
+                                    <p className="font-semibold text-white text-sm">Business Meals - Client Dinner</p>
+                                    <p className="text-[11px] text-slate-500 mt-1">Meals & Entertainment • 2026-05-07</p>
+                                </div>
+                                <p className="font-bold text-white text-sm">-$5K</p>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                <div>
+                                    <p className="font-semibold text-white text-sm">Marketing Campaign - Meta Ads</p>
+                                    <p className="text-[11px] text-slate-500 mt-1">Marketing • 2026-05-10</p>
+                                </div>
+                                <p className="font-bold text-white text-sm">-$2K</p>
+                            </div>
+                            <div className="flex justify-between items-center py-2">
+                                <div>
+                                    <p className="font-semibold text-white text-sm">Interest Income</p>
+                                    <p className="text-[11px] text-slate-500 mt-1">Interest • 2026-05-12</p>
+                                </div>
+                                <p className="font-bold text-emerald-500 text-sm">+$2K</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="premium-card flex items-center gap-4 p-4">
-                    <div className="w-12 h-12 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+
+                {/* Right Column - Sidebar */}
+                <div className="xl:col-span-1 space-y-6 xl:pt-[4.5rem]">
+                    {/* AI Strategic Insights */}
+                    <div className="premium-card">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-sm font-bold font-outfit text-white">AI Strategic Insights</h3>
+                            <span className="px-2 py-1 bg-sky-500/10 text-sky-500 text-[10px] font-bold rounded-lg uppercase tracking-wider">Live</span>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="group cursor-default">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold">↑</div>
+                                    <h4 className="font-semibold text-white text-sm">Revenue Acceleration</h4>
+                                </div>
+                                <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">Month-over-month growth is exceeding projections by 15%. Recommend increasing marketing spend in Region A.</p>
+                            </div>
+                            <div className="group cursor-default">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 font-bold">!</div>
+                                    <h4 className="font-semibold text-white text-sm">Subscription Bloat</h4>
+                                </div>
+                                <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">FiNet detected 3 overlapping SaaS subscriptions. Estimated savings: $420/month.</p>
+                            </div>
+                            <button className="w-full py-3 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-xl text-xs font-bold hover:bg-[var(--color-primary)] hover:text-white transition-all mt-4">
+                                Generate Full Audit Report
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-xl font-bold text-white leading-tight">5</p>
-                        <p className="text-xs text-[var(--text-muted)]">Open Anomalies</p>
+
+                    {/* Quick Stats Stacked */}
+                    <div className="space-y-4">
+                        <div className="premium-card flex items-center gap-4 p-4">
+                            <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div>
+                                <p className="text-xl font-bold text-white leading-tight">10</p>
+                                <p className="text-xs text-[var(--text-muted)]">Open Invoices</p>
+                            </div>
+                        </div>
+                        <div className="premium-card flex items-center gap-4 p-4">
+                            <div className="w-12 h-12 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <div>
+                                <p className="text-xl font-bold text-white leading-tight">5</p>
+                                <p className="text-xs text-[var(--text-muted)]">Open Anomalies</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     );
