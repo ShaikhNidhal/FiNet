@@ -400,7 +400,7 @@ export const TransactionsPage: React.FC = () => {
     ];
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700 max-w-6xl">
+        <div className="space-y-6 animate-in fade-in duration-700 w-full">
             {/* Header */}
             <div>
                 <h2 className="text-xl font-bold font-outfit text-white">Transaction Ledger</h2>
