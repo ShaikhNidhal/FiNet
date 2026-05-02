@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext, DataContext } from '../App';
@@ -241,27 +241,54 @@ export const DataExtractionPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [activeInputTab, setActiveInputTab] = useState<'upload' | 'paste'>('upload');
     const [docType, setDocType] = useState('Invoice');
+    const [pastedText, setPastedText] = useState('');
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [history, setHistory] = useState<any[]>([]);
+    
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const dataContext = useContext(DataContext) as DataContextType;
     const navigate = useNavigate();
 
+    const handleFileClick = () => {
+        if (activeInputTab === 'upload') {
+            fileInputRef.current?.click();
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            handleExtract();
+        }
+    };
+
     const handleExtract = async () => {
+        if (activeInputTab === 'paste' && !pastedText.trim()) {
+            setError("Please paste some text first.");
+            return;
+        }
+
         setIsProcessing(true);
         setError(null);
         
         // Mock data for demo
-        const mockDocText = "Invoice from Innovate Tech Inc. Date: 2025-07-15. Total: $1250.00. Description: Annual Cloud Hosting. Due: 2025-08-14.";
+        const mockDocText = activeInputTab === 'paste' ? pastedText : "Invoice from Innovate Tech Inc. Date: 2025-07-15. Total: $1250.00. Description: Annual Cloud Hosting. Due: 2025-08-14.";
         
         try {
             const data = await geminiService.analyzeDocument(mockDocText);
             if (data) {
-                setExtractedData({
+                const result = {
                     vendor: data["Vendor/Customer Name"] || data.vendor,
                     date: data.Date || data.date,
                     amount: parseFloat(data["Total Amount"] || data.amount),
                     dueDate: data["Due Date"] || "2025-08-14",
                     description: data.Description || data.description,
-                    category: data["Suggested Category"] || data.category
-                });
+                    category: data["Suggested Category"] || data.category,
+                    fileName: selectedFile?.name || "Text Snippet"
+                };
+                setExtractedData(result);
+                setHistory(prev => [result, ...prev]);
             } else {
                 setError("Failed to parse document. Please try again.");
             }
@@ -343,20 +370,47 @@ export const DataExtractionPage: React.FC = () => {
 
                     <div 
                         className="group relative flex flex-col items-center justify-center w-full h-64 border-2 border-slate-800 border-dashed rounded-2xl cursor-pointer hover:bg-slate-800/30 hover:border-sky-500/50 transition-all"
-                        onClick={handleExtract}
+                        onClick={handleFileClick}
                     >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg className="w-10 h-10 text-slate-600 group-hover:text-sky-500 mb-4 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v1.586a1 1 0 01-.293.707l-1.414 1.414a1 1 0 00-.707.293H7z"></path></svg>
-                            <p className="mb-2 text-sm text-slate-300"><span className="font-bold">Drop file here</span> or click to browse</p>
-                            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-4">Supports PDF, Excel (.xlsx / .xls), and CSV</p>
-                            
-                            <div className="flex gap-2">
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20">PDF</span>
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLSX</span>
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLS</span>
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-sky-500/10 text-sky-500 border border-sky-500/20">CSV</span>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            className="hidden" 
+                            accept=".pdf,.xlsx,.xls,.csv"
+                        />
+                        
+                        {activeInputTab === 'upload' ? (
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg className="w-10 h-10 text-slate-600 group-hover:text-sky-500 mb-4 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h1.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H12a4 4 0 014 4v1.586a1 1 0 01-.293.707l-1.414 1.414a1 1 0 00-.707.293H7z"></path></svg>
+                                {selectedFile ? (
+                                    <div className="text-center">
+                                        <p className="text-sky-500 font-bold text-sm mb-1">{selectedFile.name}</p>
+                                        <p className="text-[10px] text-slate-500">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <p className="mb-2 text-sm text-slate-300"><span className="font-bold">Drop file here</span> or click to browse</p>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-4">Supports PDF, Excel (.xlsx / .xls), and CSV</p>
+                                        
+                                        <div className="flex gap-2">
+                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20">PDF</span>
+                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLSX</span>
+                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLS</span>
+                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-sky-500/10 text-sky-500 border border-sky-500/20">CSV</span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                        </div>
+                        ) : (
+                            <textarea 
+                                value={pastedText}
+                                onChange={(e) => setPastedText(e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                placeholder="Paste raw text from an invoice or bank statement here..."
+                                className="w-full h-full bg-transparent border-none focus:ring-0 text-sm text-slate-300 p-6 resize-none"
+                            />
+                        )}
                     </div>
 
                     <button 
@@ -431,14 +485,43 @@ export const DataExtractionPage: React.FC = () => {
             <div className="premium-card p-0 overflow-hidden">
                 <div className="flex justify-between items-center p-6 border-b border-slate-800">
                     <h3 className="text-sm font-bold font-outfit text-white">Extraction History</h3>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">0 documents</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{history.length} documents</span>
                 </div>
-                <div className="py-12 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-slate-900/50 rounded-full flex items-center justify-center mb-4 border border-slate-800">
-                        <svg className="w-8 h-8 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                {history.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-xs text-left text-slate-400">
+                            <thead className="text-[10px] text-slate-500 uppercase font-bold border-b border-slate-800 bg-slate-900/30">
+                                <tr>
+                                    <th className="px-6 py-3">SOURCE</th>
+                                    <th className="px-6 py-3">VENDOR</th>
+                                    <th className="px-6 py-3">DATE</th>
+                                    <th className="px-6 py-3 text-right">AMOUNT</th>
+                                    <th className="px-6 py-3 text-center">CATEGORY</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800/30">
+                                {history.map((item, idx) => (
+                                    <tr key={idx} className="hover:bg-slate-800/20">
+                                        <td className="px-6 py-3 font-medium text-sky-500">{item.fileName}</td>
+                                        <td className="px-6 py-3 text-slate-200">{item.vendor}</td>
+                                        <td className="px-6 py-3 text-slate-400">{item.date}</td>
+                                        <td className="px-6 py-3 text-right font-bold text-white">${item.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-3 text-center">
+                                            <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] border border-slate-700">{item.category}</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                    <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">No documents extracted yet</p>
-                </div>
+                ) : (
+                    <div className="py-12 flex flex-col items-center justify-center text-center">
+                        <div className="w-16 h-16 bg-slate-900/50 rounded-full flex items-center justify-center mb-4 border border-slate-800">
+                            <svg className="w-8 h-8 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">No documents extracted yet</p>
+                    </div>
+                )}
             </div>
         </div>
     );
