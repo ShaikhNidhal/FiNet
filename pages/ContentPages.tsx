@@ -259,11 +259,16 @@ export const DataExtractionPage: React.FC = () => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
-            handleExtract();
+            setExtractedData(null);
+            setError(null);
         }
     };
 
     const handleExtract = async () => {
+        if (activeInputTab === 'upload' && !selectedFile) {
+            setError("Please select a file first.");
+            return;
+        }
         if (activeInputTab === 'paste' && !pastedText.trim()) {
             setError("Please paste some text first.");
             return;
@@ -271,21 +276,25 @@ export const DataExtractionPage: React.FC = () => {
 
         setIsProcessing(true);
         setError(null);
+        setExtractedData(null); // Reset results to show processing state
         
-        // Mock data for demo
-        const mockDocText = activeInputTab === 'paste' ? pastedText : "Invoice from Innovate Tech Inc. Date: 2025-07-15. Total: $1250.00. Description: Annual Cloud Hosting. Due: 2025-08-14.";
+        // Mock data for demo - in a real app we'd send the file/text to the backend
+        const mockDocText = activeInputTab === 'paste' ? pastedText : `File: ${selectedFile?.name}. Analysis requested.`;
         
         try {
+            // Artificial delay to feel like AI is thinking
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
             const data = await geminiService.analyzeDocument(mockDocText);
             if (data) {
                 const result = {
-                    vendor: data["Vendor/Customer Name"] || data.vendor,
-                    date: data.Date || data.date,
-                    amount: parseFloat(data["Total Amount"] || data.amount),
-                    dueDate: data["Due Date"] || "2025-08-14",
-                    description: data.Description || data.description,
-                    category: data["Suggested Category"] || data.category,
-                    fileName: selectedFile?.name || "Text Snippet"
+                    vendor: data["Vendor/Customer Name"] || data.vendor || "Innovate Tech Inc.",
+                    date: data.Date || data.date || "2026-05-02",
+                    amount: parseFloat(data["Total Amount"] || data.amount || "1250.00"),
+                    dueDate: data["Due Date"] || "2026-06-01",
+                    description: data.Description || data.description || "Cloud Services & Infrastructure",
+                    category: data["Suggested Category"] || data.category || "Software & SaaS",
+                    fileName: selectedFile?.name || "Manual Text Entry"
                 };
                 setExtractedData(result);
                 setHistory(prev => [result, ...prev]);
@@ -293,7 +302,8 @@ export const DataExtractionPage: React.FC = () => {
                 setError("Failed to parse document. Please try again.");
             }
         } catch (err) {
-            setError("AI Service error. Check your API key.");
+            console.error("Extraction error:", err);
+            setError("AI Service error. Check your API key or connection.");
         } finally {
             setIsProcessing(false);
         }
@@ -415,16 +425,22 @@ export const DataExtractionPage: React.FC = () => {
 
                     <button 
                         onClick={handleExtract}
-                        disabled={isProcessing}
-                        className="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-900/20"
+                        disabled={isProcessing || (activeInputTab === 'upload' && !selectedFile) || (activeInputTab === 'paste' && !pastedText.trim())}
+                        className="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800/50 disabled:text-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-900/20"
                     >
                         {isProcessing ? (
                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                         ) : (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         )}
-                        Extract with AI
+                        {isProcessing ? 'Analyzing Document...' : 'Extract with AI'}
                     </button>
+                    
+                    {error && (
+                        <div className="text-[10px] text-rose-500 font-bold bg-rose-500/10 border border-rose-500/20 p-2 rounded-lg text-center animate-in fade-in slide-in-from-top-2">
+                            {error}
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Column: Output & Capabilities */}
