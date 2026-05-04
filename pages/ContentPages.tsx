@@ -2163,25 +2163,35 @@ export const UserManagementPage: React.FC = () => {
     const [team, setTeam] = useState<TeamMember[]>([
         { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'Admin', status: 'Active' },
         { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Finance Manager', status: 'Active' },
-        { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Analyst', status: 'Invited' },
-        { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Employee', status: 'Suspended' },
-    ]);
-
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [formData, setFormData] = useState({ name: '', email: '', role: 'Employee' as UserRole });
+    const [notification, setNotification] = useState<string | null>(null);
 
     const handleAddUser = () => {
         if (!formData.email || !formData.name) return;
+        
+        // Simulating Backend Invitation
         const newUser: TeamMember = {
             id: Math.random().toString(36).substr(2, 9),
             name: formData.name,
             email: formData.email,
             role: formData.role,
-            status: 'Active'
+            status: 'Invited' // Changed to Invited initially
         };
+
         setTeam([...team, newUser]);
+        
+        // Show mock notification
+        setNotification(`Invitation email successfully queued for ${formData.email}. Secure setup link generated.`);
+        setTimeout(() => setNotification(null), 5000);
+
         setFormData({ name: '', email: '', role: 'Employee' });
         setIsInviteOpen(false);
+    };
+
+    const handleResendInvite = (email: string) => {
+        setNotification(`Reminder email resent to ${email}. Setup link remains valid for 24h.`);
+        setTimeout(() => setNotification(null), 5000);
     };
 
     const handleDelete = (id: string) => {
@@ -2194,6 +2204,18 @@ export const UserManagementPage: React.FC = () => {
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700">
+            {notification && (
+                <div className="fixed top-24 right-8 z-[100] animate-in slide-in-from-right duration-500">
+                    <div className="bg-sky-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20">
+                        <span className="text-2xl">✉️</span>
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-widest">System Notification</p>
+                            <p className="text-sm font-medium">{notification}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-black font-outfit text-white">User Management</h2>
@@ -2326,7 +2348,15 @@ export const UserManagementPage: React.FC = () => {
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-right">
+                                    <td className="px-8 py-5 text-right flex items-center justify-end gap-4">
+                                        {member.status === 'Invited' && (
+                                            <button 
+                                                onClick={() => handleResendInvite(member.email)}
+                                                className="text-[9px] font-black text-sky-500 hover:text-sky-400 uppercase tracking-widest transition-colors"
+                                            >
+                                                Resend Invite
+                                            </button>
+                                        )}
                                         <button 
                                             onClick={() => handleDelete(member.id)}
                                             className="px-4 py-2 bg-rose-500/10 text-rose-500 rounded-lg text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white"
