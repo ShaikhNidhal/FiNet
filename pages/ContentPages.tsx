@@ -235,7 +235,6 @@ export const DashboardPage: React.FC = () => {
     );
 };
 
-import { geminiService } from '../services/geminiService';
 
 const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> = ({ label, value, isBold }) => (
     <div className="space-y-1">
