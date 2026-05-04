@@ -60,3 +60,13 @@ export interface SubscriptionStatus {
     isExpired: boolean;
     isPro: boolean;
 }
+
+export type UserRole = 'CFO' | 'Accountant' | 'SMB Owner' | 'Auditor' | 'Viewer';
+
+export interface TeamMember {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    status: 'Active' | 'Invited' | 'Suspended';
+}

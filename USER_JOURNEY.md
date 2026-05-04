@@ -65,5 +65,6 @@ graph TD
 *   **Journey**:
     1.  Monitors the **Continuous Close** status and anomaly feeds across multiple client profiles.
     2.  Uses **Sustainability Reporting** to calculate carbon footprints and perform **AI ESG Audits** for clients.
-    3.  Generates board-ready **Disclosure Reports** and exports verified **CSV/PDF files** for tax preparation.
-    4.  Utilizes the **Market Sentiment Heatmap** to advise clients on sector-specific financial strategies.
+    3.  Manages client team permissions in **Workspace Settings**, assigning **Auditor** roles for external reviews.
+    4.  Generates board-ready **Disclosure Reports** and exports verified **CSV/PDF files** for tax preparation.
+    5.  Utilizes the **Market Sentiment Heatmap** to advise clients on sector-specific financial strategies.

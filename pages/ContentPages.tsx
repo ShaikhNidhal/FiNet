@@ -1129,60 +1129,108 @@ export const SettingsPage: React.FC = () => {
     const themeContext = useContext(ThemeContext) as ThemeContextType;
     const { themeName, isDarkMode, applyTheme, toggleDarkMode } = themeContext;
 
+    const teamMembers = [
+        { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'CFO', status: 'Active' },
+        { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Accountant', status: 'Active' },
+        { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Auditor', status: 'Invited' },
+        { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Viewer', status: 'Suspended' },
+    ];
+
     return (
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-lg shadow max-w-4xl mx-auto space-y-8">
-            <div><h2 className="text-xl font-semibold text-white font-outfit font-bold">Settings</h2><p className="text-slate-400 mt-1">Customize your FiNet workspace.</p></div>
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-                <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Appearance</h3>
-                <div className="mt-4 flex items-center space-x-4">
-                    <span className="text-slate-400">Light</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} className="sr-only peer" />
-                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-300 dark:peer-focus:ring-[var(--color-primary-hover)] rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-[var(--color-primary)]"></div>
-                    </label>
-                    <span className="text-slate-400">Dark</span>
-                </div>
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-2xl max-w-5xl mx-auto space-y-12 border border-slate-200 dark:border-slate-800">
+            <div>
+                <h2 className="text-3xl font-black text-slate-800 dark:text-white font-outfit">Workspace Settings</h2>
+                <p className="text-slate-500 mt-2 font-medium">Manage your team, appearance, and organizational controls.</p>
             </div>
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-                <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Color Theme</h3>
-                <div className="mt-4 flex items-center space-x-4">
-                    {(Object.keys(THEMES) as ThemeName[]).map(name => (
-                        <button
-                            key={name}
-                            onClick={() => applyTheme(name)}
-                            className={`w-8 h-8 rounded-full bg-${name}-500 transition-all ${themeName === name ? 'ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-[var(--color-primary)]' : ''}`}
-                            style={{ backgroundColor: THEMES[name].primary }}
-                        ></button>
-                    ))}
-                </div>
-            </div>
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-                <h3 className="text-lg font-bold font-outfit text-slate-800 dark:text-slate-200">Subscription & Billing</h3>
-                <p className="text-sm text-[var(--text-muted)] mt-1">Manage your FiNet Pro plan and trial status.</p>
-                
-                <div className="mt-6 p-6 rounded-2xl border border-[var(--color-primary)] bg-[var(--color-primary-light)]">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <span className="px-2 py-1 bg-[var(--color-primary)] text-white text-[10px] font-black rounded-lg uppercase tracking-wider">Active Trial</span>
-                            <h4 className="text-xl font-bold mt-2">FiNet Enterprise Pro</h4>
-                            <p className="text-sm text-[var(--text-muted)]">30-day free trial ends in 24 days.</p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="space-y-8">
+                    <section className="space-y-6">
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Personalization</h3>
+                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+                            <div>
+                                <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Dark Mode</p>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase">Toggle high-contrast interface</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} className="sr-only peer" />
+                                <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-sky-500"></div>
+                            </label>
                         </div>
-                        <button className="btn-primary">Upgrade to Annual</button>
+
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Brand Color</p>
+                            <div className="flex items-center gap-3">
+                                {(Object.keys(THEMES) as ThemeName[]).map(name => (
+                                    <button
+                                        key={name}
+                                        onClick={() => applyTheme(name)}
+                                        className={`w-10 h-10 rounded-xl transition-all flex items-center justify-center ${themeName === name ? 'ring-4 ring-sky-500/20 scale-110' : 'hover:scale-105'}`}
+                                        style={{ backgroundColor: THEMES[name].primary }}
+                                    >
+                                        {themeName === name && <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="space-y-6">
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Subscription</h3>
+                        <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+                            </div>
+                            <div className="relative z-10">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-sky-500 text-white px-2 py-1 rounded-md">Enterprise Pro</span>
+                                <h4 className="text-2xl font-black mt-4">$199<span className="text-sm font-normal text-slate-400">/mo</span></h4>
+                                <p className="text-xs text-slate-400 mt-2">Next billing cycle: **June 1, 2026**</p>
+                                <button className="mt-6 w-full py-3 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Manage Billing</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <section className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Team Management</h3>
+                        <button className="text-[10px] font-black text-sky-500 uppercase tracking-widest hover:underline">+ Invite Member</button>
                     </div>
-                    <div className="mt-6 grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl">
-                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Next Billing</p>
-                            <p className="text-sm font-bold">$199.00 on Jun 1, 2026</p>
-                        </div>
-                        <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl">
-                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Payment Method</p>
-                            <p className="text-sm font-bold">•••• 4242</p>
+                    <div className="space-y-3">
+                        {teamMembers.map(member => (
+                            <div key={member.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-black text-slate-500">
+                                        {member.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{member.name}</p>
+                                        <p className="text-[10px] text-slate-500 font-medium">{member.email}</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md mb-1 block w-fit ml-auto ${
+                                        member.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500' : 
+                                        member.status === 'Invited' ? 'bg-sky-500/10 text-sky-500' : 'bg-rose-500/10 text-rose-500'
+                                    }`}>
+                                        {member.status}
+                                    </span>
+                                    <p className="text-[10px] font-bold text-slate-400 group-hover:text-slate-200 transition-colors">{member.role}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+                        <div className="flex gap-3">
+                            <span className="text-xl">🛡️</span>
+                            <div>
+                                <p className="text-xs font-bold text-amber-600 dark:text-amber-400">Role-Based Access Control</p>
+                                <p className="text-[10px] text-slate-500 mt-1">Users with the **Auditor** role have read-only access to ledger logs and Benford's Law dashboards.</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
-            
-             <div className="border-t border-slate-200 dark:border-slate-700 pt-6"><h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">Multi-Currency</h3><p className="text-sm text-slate-400 mt-1">Manage finances across different currencies.</p><div className="mt-4 space-y-4"><label className="block"><span className="text-slate-200 font-semibold">Base Currency</span><select className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]"><option>USD - United States Dollar</option><option>EUR - Euro</option><option>GBP - British Pound</option></select></label></div></div>
         </div>
     );
 };
