@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import SubscriptionBanner from './components/SubscriptionBanner';
 import LoginPage from './pages/LoginPage';
-import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage, ExecutiveInsightsPage } from './pages/ContentPages';
+import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage, ExecutiveInsightsPage, UserManagementPage } from './pages/ContentPages';
 import { ThemeName, ThemeContextType, DataContextType, Transaction, Bill, Invoice } from './types';
 import { THEMES, INITIAL_TRANSACTIONS, INITIAL_AP_BILLS, INITIAL_AR_INVOICES, SIDEBAR_SECTIONS } from './constants';
 
@@ -45,7 +45,9 @@ const MainLayout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         <Route path="/market-intelligence" element={<MarketIntelligencePage />} />
                         <Route path="/integrations" element={<IntegrationsPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/user-management" element={<UserManagementPage />} />
                         <Route path="*" element={<Navigate to="/dashboard" />} />
+
                     </Routes>
                 </div>
             </main>

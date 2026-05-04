@@ -2157,4 +2157,239 @@ const MetricCard: React.FC<{ title: string; value: string; trend: string; descri
         <p className="text-4xl font-black font-outfit mb-2">{value}</p>
         <p className="text-xs text-[var(--text-muted)] leading-tight">{description}</p>
     </div>
-);
+);
+
+export const UserManagementPage: React.FC = () => {
+    const [team, setTeam] = useState<TeamMember[]>([
+        { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'Admin', status: 'Active' },
+        { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Finance Manager', status: 'Active' },
+        { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Analyst', status: 'Invited' },
+        { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Employee', status: 'Suspended' },
+    ]);
+
+    const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [formData, setFormData] = useState({ name: '', email: '', role: 'Employee' as UserRole });
+
+    const handleAddUser = () => {
+        if (!formData.email || !formData.name) return;
+        const newUser: TeamMember = {
+            id: Math.random().toString(36).substr(2, 9),
+            name: formData.name,
+            email: formData.email,
+            role: formData.role,
+            status: 'Active'
+        };
+        setTeam([...team, newUser]);
+        setFormData({ name: '', email: '', role: 'Employee' });
+        setIsInviteOpen(false);
+    };
+
+    const handleDelete = (id: string) => {
+        setTeam(team.filter(m => m.id !== id));
+    };
+
+    const handleRoleChange = (id: string, role: UserRole) => {
+        setTeam(team.map(m => m.id === id ? { ...m, role } : m));
+    };
+
+    return (
+        <div className="space-y-10 animate-in fade-in duration-700">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-3xl font-black font-outfit text-white">User Management</h2>
+                    <p className="text-[10px] text-slate-500 mt-2 uppercase tracking-widest font-bold">Admin Controls • {team.length} Total Users</p>
+                </div>
+                <button 
+                    onClick={() => setIsInviteOpen(true)}
+                    className="group relative px-8 py-3 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all shadow-[0_20px_40px_rgba(0,0,0,0.4)] flex items-center gap-2 overflow-hidden"
+                >
+                    <span className="relative z-10">+ Add New Team Member</span>
+                    <div className="absolute inset-0 bg-sky-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                </button>
+            </div>
+
+            {isInviteOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="premium-card bg-slate-900 border-sky-500/30 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 p-8">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-xl font-bold text-white font-outfit">Add New Member</h3>
+                            <button onClick={() => setIsInviteOpen(false)} className="text-slate-500 hover:text-white transition-colors text-2xl">&times;</button>
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Full Name</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Enter name" 
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Address</label>
+                                <input 
+                                    type="email" 
+                                    placeholder="email@company.com" 
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Workspace Role</label>
+                                <select 
+                                    value={formData.role}
+                                    onChange={(e) => setFormData({...formData, role: e.target.value as UserRole})}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-500 appearance-none"
+                                >
+                                    <option value="Admin">Admin (Full Access)</option>
+                                    <option value="Finance Manager">Finance Manager (Operations)</option>
+                                    <option value="Analyst">Analyst (Read-Only)</option>
+                                    <option value="Employee">Employee (Basic)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="mt-10 flex gap-4">
+                            <button 
+                                onClick={handleAddUser}
+                                className="flex-1 py-4 bg-sky-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-400 transition-all shadow-lg"
+                            >
+                                Confirm & Add User
+                            </button>
+                            <button 
+                                onClick={() => setIsInviteOpen(false)}
+                                className="px-8 py-4 bg-slate-800 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="premium-card overflow-hidden p-0 border border-slate-800">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-slate-900/50 border-b border-slate-800">
+                            <tr>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Team Member</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Access Level</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500">Status</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Settings</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800">
+                            {team.map(member => (
+                                <tr key={member.id} className="group hover:bg-slate-800/20 transition-colors">
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center text-sm font-black text-sky-500 shadow-xl group-hover:scale-110 transition-transform">
+                                                {member.name.split(' ').map(n => n[0]).join('')}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors">{member.name}</p>
+                                                <p className="text-[10px] text-slate-500 mt-0.5">{member.email}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <div className="relative group/select">
+                                            <select 
+                                                value={member.role}
+                                                onChange={(e) => handleRoleChange(member.id, e.target.value as UserRole)}
+                                                className="bg-slate-800/50 border border-transparent hover:border-slate-700 rounded-lg px-3 py-1.5 text-[10px] text-slate-300 font-black uppercase tracking-widest focus:outline-none appearance-none cursor-pointer"
+                                            >
+                                                <option value="Admin">Admin</option>
+                                                <option value="Finance Manager">Finance Manager</option>
+                                                <option value="Analyst">Analyst</option>
+                                                <option value="Employee">Employee</option>
+                                            </select>
+                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${
+                                                member.status === 'Active' ? 'bg-emerald-500 animate-pulse' : 
+                                                member.status === 'Invited' ? 'bg-sky-500' : 'bg-rose-500'
+                                            }`}></div>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest ${
+                                                member.status === 'Active' ? 'text-emerald-500' : 
+                                                member.status === 'Invited' ? 'text-sky-500' : 'text-rose-500'
+                                            }`}>
+                                                {member.status}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 text-right">
+                                        <button 
+                                            onClick={() => handleDelete(member.id)}
+                                            className="px-4 py-2 bg-rose-500/10 text-rose-500 rounded-lg text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white"
+                                        >
+                                            Revoke Access
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="premium-card bg-slate-900 border-amber-500/20 lg:col-span-2">
+                    <div className="flex gap-6">
+                        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-3xl">🛡️</div>
+                        <div className="flex-1">
+                            <h4 className="text-lg font-bold text-white mb-4 font-outfit">Access Control Overview</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="p-4 bg-slate-800/30 rounded-2xl border border-slate-700/50">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase mb-2">Full Permissions</p>
+                                    <p className="text-[11px] text-slate-500 leading-relaxed">**Admin** can modify all financial rules, manage integrations, and invite/remove any user.</p>
+                                </div>
+                                <div className="p-4 bg-slate-800/30 rounded-2xl border border-slate-700/50">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase mb-2">Operations Access</p>
+                                    <p className="text-[11px] text-slate-500 leading-relaxed">**Finance Manager** can approve ledger changes and trigger What-If simulations.</p>
+                                </div>
+                                <div className="p-4 bg-slate-800/30 rounded-2xl border border-slate-700/50">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase mb-2">Read-Only Strategy</p>
+                                    <p className="text-[11px] text-slate-500 leading-relaxed">**Analyst** can view all dashboards and intelligence reports but cannot modify data.</p>
+                                </div>
+                                <div className="p-4 bg-slate-800/30 rounded-2xl border border-slate-700/50">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase mb-2">Restricted Basic</p>
+                                    <p className="text-[11px] text-slate-500 leading-relaxed">**Employee** access is limited to their own expense reports and general chat help.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="premium-card bg-slate-900 border-sky-500/20 flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-xl">📑</div>
+                            <h4 className="text-sm font-bold text-white font-outfit">Security Audit Trail</h4>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex gap-3">
+                                <div className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5"></div>
+                                <p className="text-[10px] text-slate-500 italic">"Admin added user Alice Johnson with role: Finance Manager"</p>
+                            </div>
+                            <div className="flex gap-3">
+                                <div className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5"></div>
+                                <p className="text-[10px] text-slate-500 italic">"Security Policy updated for multi-factor auth"</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button className="w-full py-3 bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all mt-8">
+                        Export Security Log
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
