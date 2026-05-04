@@ -84,6 +84,76 @@ export const geminiService = {
             console.error("Gemini Insight Error:", error);
             return "I'm sorry, I couldn't process that financial query right now.";
         }
+    },
+
+    async getSustainabilityAudit(transactions: any[]) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const prompt = `
+            Analyze these business expenditures for Environmental and Social impact (ESG).
+            Estimate:
+            1. Carbon footprint (high-level).
+            2. Social sustainability (diversity, fair labor potential).
+            3. Regulatory compliance risks (CSRD/SFDR).
+            
+            Transactions: ${JSON.stringify(transactions.slice(0, 20))}
+            
+            Provide a brief, professional ESG audit summary for a board-level presentation.
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Gemini ESG Audit Error:", error);
+            return "ESG Analysis temporarily unavailable.";
+        }
+    },
+
+    async getMarketBriefing(insights: any[]) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const prompt = `
+            You are a senior financial analyst. Synthesize the following market insights into a concise "CFO Morning Briefing".
+            Include:
+            1. Key Market Risks.
+            2. Strategic Opportunities.
+            3. Recommended actions for today.
+            
+            Insights: ${JSON.stringify(insights)}
+            
+            Keep the tone urgent, professional, and data-driven.
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Gemini Briefing Error:", error);
+            return "Unable to generate briefing at this time.";
+        }
+    },
+
+    async getExecutiveSummary(data: any) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const prompt = `
+            You are a CFO's Chief of Staff. Analyze the following business metrics and provide a 3-sentence high-level strategic summary.
+            Metrics: ${JSON.stringify(data)}
+            
+            Focus on:
+            1. Unit economics (LTV/CAC).
+            2. Growth vs Burn.
+            3. The one most important thing the CFO should do today.
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Gemini Summary Error:", error);
+            return "Strategic advice currently unavailable.";
+        }
     }
 };
 

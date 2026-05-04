@@ -27,16 +27,16 @@ graph TD
         K --> L[Strategic Insights Report]
     end
 
-    subgraph Phase 4: Decision & Execution
-        L --> M[What-If Scenario Modeling]
-        M --> N[AI Contextual Chatbot]
-        N --> O[Optimized Decision Made]
+    subgraph Phase 4: Market & Strategy
+        L --> M[Market Intelligence Synthesis]
+        M --> N[What-If Scenario Modeling]
+        N --> O[AI Strategic Health Check]
     end
 
-    subgraph Phase 5: Reporting
-        O --> P[Generate ESG Report]
-        P --> Q[Export Board-Ready Files]
-        Q --> R[Continuous Close Status]
+    subgraph Phase 5: Reporting & ESG
+        O --> P[Run AI ESG Audit]
+        P --> Q[Generate Disclosure Reports]
+        Q --> R[Board-Ready Analyst Briefing]
     end
 ```
 
@@ -47,23 +47,23 @@ graph TD
 ### 1. The Strategic CFO (Niche: Large Co's)
 *   **Goal**: Maximize runway and detect strategic risks.
 *   **Journey**:
-    1.  Logs into **Executive Insights** to check MRR/Churn velocity.
-    2.  Uses **Scenario Planning** to simulate the impact of a 15% revenue drop.
-    3.  Runs the **Risk Audit** to identify department-level burn anomalies.
-    4.  Queries **FiNet AI Chat** for a real-time runway prediction based on the new scenario.
+    1.  Logs into **Executive Insights** to check MRR/Churn velocity and runs a **Strategic Health Check**.
+    2.  Uses **Market Intelligence** to synthesize news (e.g., Inflation spikes) into a **CFO Analyst Briefing**.
+    3.  Runs the **Risk Discovery** dashboard to identify high-priority price drifts or unregistered vendor risks.
+    4.  Simulates growth scenarios in the **What-If Sandbox** to determine feasibility of Q4 expansion.
 
 ### 2. The SMB Owner (Niche: Small Businesses)
 *   **Goal**: Save time on manual entry and manage cash flow.
 *   **Journey**:
-    1.  Uploads a batch of invoices to **Data Extraction**.
-    2.  Reviews AI-extracted vendor data and confirms the auto-categorization.
-    3.  Navigates to **Reconciliation** to approve 98% of automatically matched bank transactions.
-    4.  Checks the **Subscription Banner** to monitor trial status before upgrading to Pro.
+    1.  Uploads a batch of invoices to **Data Extraction** for instant Gemini OCR processing.
+    2.  Reviews AI-extracted vendor data and confirms the auto-categorization into the **General Ledger**.
+    3.  Checks the **Real-time Burn Chart** on the dashboard to ensure runway is within safety limits.
+    4.  Monitors the **Subscription Banner** to ensure premium AI credits are available for the month.
 
 ### 3. The Professional Accountant (Niche: Bookkeeping Firms)
 *   **Goal**: Handle 5x more clients through automation.
 *   **Journey**:
-    1.  Monitors the **Continuous Close** status across multiple client profiles.
-    2.  Uses **Audit Discovery** (Benford's Law) to perform deep-dive spot checks on high-risk transactions.
-    3.  Generates a **Workiva-style ESG report** for regulatory compliance.
-    4.  Exports a verified **Board-Ready File** for the end-of-quarter review.
+    1.  Monitors the **Continuous Close** status and anomaly feeds across multiple client profiles.
+    2.  Uses **Sustainability Reporting** to calculate carbon footprints and perform **AI ESG Audits** for clients.
+    3.  Generates board-ready **Disclosure Reports** and exports verified **CSV/PDF files** for tax preparation.
+    4.  Utilizes the **Market Sentiment Heatmap** to advise clients on sector-specific financial strategies.

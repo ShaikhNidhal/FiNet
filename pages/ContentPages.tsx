@@ -4,6 +4,8 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Cartesia
 import { ThemeContext, DataContext } from '../App';
 import { ThemeContextType, DataContextType, ThemeName, Transaction } from '../types';
 import { THEMES } from '../constants';
+import { geminiService } from '../services/geminiService';
+
 
 const NewKpiCard: React.FC<{ title: string; value: string; subtext: string; isPositive: boolean; icon: React.ReactNode }> = ({ title, value, subtext, isPositive, icon }) => (
     <div className="premium-card relative overflow-hidden flex flex-col justify-between p-5">
@@ -235,6 +237,13 @@ export const DashboardPage: React.FC = () => {
 
 import { geminiService } from '../services/geminiService';
 
+const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> = ({ label, value, isBold }) => (
+    <div className="space-y-1">
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">{label}</p>
+        <p className={`text-xs text-white ${isBold ? 'font-black' : 'font-medium'}`}>{value}</p>
+    </div>
+);
+
 export const DataExtractionPage: React.FC = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [extractedData, setExtractedData] = useState<any>(null);
@@ -340,6 +349,17 @@ export const DataExtractionPage: React.FC = () => {
         setExtractedData(null);
         setSelectedFile(null);
         navigate('/transactions');
+    };
+
+    const handleRefineCategory = (newCategory: string) => {
+        if (!extractedData) return;
+        setLearnedRules(prev => ({ ...prev, [extractedData.vendor]: newCategory }));
+        setExtractedData(prev => ({ ...prev, category: newCategory }));
+        setIsRefining(false);
+    };
+
+    const handleExportAudit = () => {
+        alert("Generating Audit Trail Bundle... \n- Source Documents (PDF/XLS)\n- AI Extraction Metadata\n- Verified Ledger Entries\n\nDownload will start shortly.");
     };
 
     const capabilities = [
@@ -625,13 +645,6 @@ export const DataExtractionPage: React.FC = () => {
         </div>
     );
 };
-
-const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> = ({ label, value, isBold }) => (
-    <div>
-        <label className="block text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">{label}</label>
-        <p className={`text-sm ${isBold ? 'font-bold' : 'font-medium'}`}>{value}</p>
-    </div>
-);
 
 export const TransactionsPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -1341,85 +1354,151 @@ export const RiskDiscoveryPage: React.FC = () => {
         }
     };
 
+    const riskVectors = [
+        { label: "Payroll Spikes", risk: "Low", value: 15, color: "bg-emerald-500" },
+        { label: "Duplicate Billing", risk: "Critical", value: 85, color: "bg-rose-500" },
+        { label: "Unknown Vendors", risk: "High", value: 65, color: "bg-amber-500" },
+        { label: "Shadow SaaS", risk: "Medium", value: 45, color: "bg-sky-500" },
+    ];
+
+    const anomalies = [
+        { vendor: "AWS Infrastructure", date: "2026-05-12", amount: "$9,100", reason: "30% Price Drift vs Avg", level: "High" },
+        { vendor: "Unknown: SV_PAY_LLC", date: "2026-05-10", amount: "$45,000", reason: "Unregistered Entity", level: "Critical" },
+        { vendor: "Adobe Creative Cloud", date: "2026-05-08", amount: "$120", reason: "Possible Duplicate Seat", level: "Low" },
+        { vendor: "Global Office Supplies", date: "2026-05-05", amount: "$5,200", reason: "Benford's Law Deviation", level: "Medium" },
+    ];
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit">Risk & Audit Discovery</h2>
-                    <p className="text-xs text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold">Continuous Monitoring Active</p>
+                    <h2 className="text-2xl font-black font-outfit text-white">Risk & Audit Discovery</h2>
+                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Continuous Intelligence Mode Active</p>
                 </div>
-                <button 
-                    onClick={runAnalysis}
-                    disabled={isAnalyzing}
-                    className="btn-primary flex items-center gap-2"
-                >
-                    {isAnalyzing ? (
-                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Running AI Audit...</>
-                    ) : (
-                        <>Run AI Risk Audit</>
-                    )}
-                </button>
+                <div className="flex gap-4">
+                    <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all border border-slate-700">
+                        Export Audit Log
+                    </button>
+                    <button 
+                        onClick={runAnalysis}
+                        disabled={isAnalyzing}
+                        className="btn-primary flex items-center gap-2"
+                    >
+                        {isAnalyzing ? (
+                            <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Thinking...</>
+                        ) : (
+                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Run AI Risk Audit</>
+                        )}
+                    </button>
+                </div>
             </div>
 
-            {aiInsights ? (
-                <div className="premium-card bg-slate-900 text-slate-200 border-l-4 border-l-sky-500 prose prose-invert max-w-none">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-400">Verified Strategic Intelligence</span>
-                    </div>
-                    <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: aiInsights.replace(/\n/g, '<br/>') }}></div>
-                </div>
-            ) : (
-                <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl flex items-start">
-                    <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mr-4 shrink-0">
-                        <svg className="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-rose-900 dark:text-rose-100">3 Priority Anomalies Flagged</h3>
-                        <p className="text-rose-700 dark:text-rose-400 text-sm mt-1">Our continuous monitoring has identified deviations in the Accounts Payable cycle. Run a full audit for details.</p>
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="premium-card bg-slate-900/50 border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Risk Exposure</p>
+                    <p className="text-3xl font-black text-white">$54,220</p>
+                    <div className="mt-4 flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 bg-rose-500/10 text-rose-500 rounded-full font-bold animate-pulse">CRITICAL</span>
+                        <p className="text-[10px] text-slate-500 font-medium">Potential Fraud Detected</p>
                     </div>
                 </div>
-            )}
+                <div className="premium-card bg-slate-900/50 border-slate-800">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Open Anomalies</p>
+                    <p className="text-3xl font-black text-white">12</p>
+                    <div className="mt-4 flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-500 rounded-full font-bold">+3 vs LAST MONTH</span>
+                    </div>
+                </div>
+                <div className="premium-card bg-slate-900/50 border-emerald-500/20">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Audit Readiness</p>
+                    <p className="text-3xl font-black text-emerald-500">A-</p>
+                    <div className="mt-4 flex items-center gap-2">
+                        <p className="text-[10px] text-slate-500 font-medium">92% Compliance Match Rate</p>
+                    </div>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="premium-card">
-                    <h3 className="font-bold font-outfit mb-6">Real-time Risk Vectors</h3>
-                    <div className="space-y-6">
-                        <RiskMetric label="Duplicate Invoice Probability" score={15} color="bg-emerald-500" />
-                        <RiskMetric label="Unauthorized Vendor Activity" score={42} color="bg-amber-500" />
-                        <RiskMetric label="Benford's Law Deviation" score={78} color="bg-rose-500" />
-                        <RiskMetric label="Regulatory Compliance Gap" score={22} color="bg-emerald-500" />
+                {/* Left: AI Summary & Heatmap */}
+                <div className="space-y-6">
+                    <div className="premium-card bg-slate-900 overflow-hidden relative min-h-[300px]">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 text-white">
+                            <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <h3 className="text-sm font-bold text-white mb-6 font-outfit flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                            AI Audit Intelligence
+                        </h3>
+                        {aiInsights ? (
+                            <div className="text-slate-300 text-xs leading-relaxed space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                <div dangerouslySetInnerHTML={{ __html: aiInsights.replace(/\n/g, '<br/>') }}></div>
+                            </div>
+                        ) : (
+                            <div className="py-12 flex flex-col items-center justify-center text-center">
+                                <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 border border-slate-700/50">
+                                    <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                </div>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">No audit data generated</p>
+                                <button onClick={runAnalysis} className="text-[10px] font-black text-sky-500 hover:text-sky-400 transition-colors uppercase tracking-tighter underline underline-offset-4">Run Strategic Deep Dive</button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="premium-card">
+                        <h3 className="text-sm font-bold text-white mb-6 font-outfit">Risk Heatmap (Real-time)</h3>
+                        <div className="space-y-6">
+                            {riskVectors.map((vector, idx) => (
+                                <div key={idx} className="space-y-2">
+                                    <div className="flex justify-between items-center text-[10px]">
+                                        <span className="font-bold text-slate-300 uppercase tracking-widest">{vector.label}</span>
+                                        <span className={`font-black uppercase ${vector.risk === 'Critical' ? 'text-rose-500' : vector.risk === 'High' ? 'text-amber-500' : 'text-emerald-500'}`}>{vector.risk} RISK</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full ${vector.color} rounded-full transition-all duration-1000`}
+                                            style={{ width: `${vector.value}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <div className="premium-card bg-gradient-to-br from-[var(--bg-card)] to-[var(--color-primary-light)]">
-                    <h3 className="font-bold font-outfit mb-6">Audit Defense Readiness</h3>
-                    <div className="flex items-center gap-10">
-                        <div className="w-32 h-32 relative">
-                            <svg className="w-full h-full transform -rotate-90 shadow-2xl rounded-full">
-                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-[var(--border-color)]" />
-                                <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray={364} strokeDashoffset={364 * 0.15} className="text-[var(--color-primary)] transition-all duration-1000" />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                <span className="text-3xl font-black font-outfit">85%</span>
-                                <span className="text-[8px] uppercase font-bold text-[var(--text-muted)]">Reliability</span>
+                {/* Right: Anomaly Feed */}
+                <div className="premium-card p-0 flex flex-col h-full min-h-[500px]">
+                    <div className="p-6 border-b border-slate-800 bg-slate-900/10">
+                        <h3 className="text-sm font-bold text-white font-outfit">Priority Anomaly Feed</h3>
+                        <p className="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-widest">Requiring Immediate CFO Attention</p>
+                    </div>
+                    <div className="flex-grow overflow-y-auto custom-scrollbar">
+                        {anomalies.map((anomaly, idx) => (
+                            <div key={idx} className="p-6 border-b border-slate-800 hover:bg-slate-800/30 transition-all cursor-pointer group">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-2 h-2 rounded-full ${anomaly.level === 'Critical' ? 'bg-rose-500 animate-ping' : anomaly.level === 'High' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                                        <h4 className="font-bold text-white text-sm">{anomaly.vendor}</h4>
+                                    </div>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase">{anomaly.date}</span>
+                                </div>
+                                <div className="flex justify-between items-end">
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] text-slate-400 font-medium">{anomaly.reason}</p>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-tighter px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded">Tag: AUDIT_REQUIRED</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-black text-white">{anomaly.amount}</p>
+                                        <button className="text-[10px] font-bold text-sky-500 opacity-0 group-hover:opacity-100 transition-all">Review & Post →</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex-1 space-y-4">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                <p className="text-xs font-semibold">12/12 Workpapers Verified</p>
-                            </div>
-                            <div className="flex items-center gap-2 text-[var(--text-muted)]">
-                                <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                                <p className="text-xs font-semibold italic">Sample Testing In-Progress</p>
-                            </div>
-                            <button className="w-full mt-2 py-3 bg-white text-[var(--text-main)] border border-[var(--border-color)] rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--bg-main)] transition-colors">
-                                Prepare Board-Ready File
-                            </button>
-                        </div>
+                        ))}
+                    </div>
+                    <div className="p-4 bg-slate-900/50 text-center border-t border-slate-800">
+                        <button className="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-widest transition-colors">View All Anomalies</button>
                     </div>
                 </div>
             </div>
@@ -1429,11 +1508,11 @@ export const RiskDiscoveryPage: React.FC = () => {
 
 const RiskMetric: React.FC<{ label: string; score: number; color: string }> = ({ label, score, color }) => (
     <div>
-        <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest text-[var(--text-muted)]">
+        <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest text-slate-500">
             <span>{label}</span>
             <span>{score}%</span>
         </div>
-        <div className="w-full h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div className={`h-full ${color} rounded-full transition-all duration-1000`} style={{ width: `${score}%` }}></div>
         </div>
     </div>
@@ -1443,98 +1522,135 @@ export const ScenarioPlanningPage: React.FC = () => {
     const [revenueGrowth, setRevenueGrowth] = useState(15);
     const [opexReduction, setOpexReduction] = useState(5);
     const [hiringCount, setHiringCount] = useState(2);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [aiVerdict, setAiVerdict] = useState<string | null>(null);
 
-    const generateProjection = () => {
+    const generateProjections = (growth: number, reduction: number, hiring: number) => {
         const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        let currentCash = 125000;
+        let cash = 450000; // Starting cash
         return months.map((month, i) => {
-            const growthFactor = 1 + (revenueGrowth / 100);
-            const savingsFactor = 1 - (opexReduction / 100);
-            const hiringCost = hiringCount * 8000; // $8k per new hire
+            const growthFactor = 1 + (growth / 100);
+            const savingsFactor = 1 - (reduction / 100);
+            const hiringCost = hiring * 12000; // $12k per new hire (fully burdened)
             
-            // Simple projection logic
-            const revenue = 80000 * Math.pow(growthFactor, i/12);
-            const expenses = (60000 * savingsFactor) + hiringCost;
-            currentCash += (revenue - expenses);
+            const revenue = 120000 * Math.pow(growthFactor, i/4);
+            const expenses = (95000 * savingsFactor) + hiringCost;
+            cash += (revenue - expenses);
             
             return {
                 name: month,
-                "Projected Cash": Math.round(currentCash),
-                "Burn Rate": Math.round(expenses)
+                Cash: Math.round(cash),
+                Expenses: Math.round(expenses),
+                Revenue: Math.round(revenue)
             };
         });
     };
 
-    const projectionData = generateProjection();
+    const baselineData = generateProjections(8, 0, 1); // Conservative baseline
+    const scenarioData = generateProjections(revenueGrowth, opexReduction, hiringCount);
+
+    const combinedData = scenarioData.map((d, i) => ({
+        ...d,
+        "Baseline Cash": baselineData[i].Cash,
+        "Scenario Cash": d.Cash
+    }));
+
+    const runAiSimulation = async () => {
+        setIsAnalyzing(true);
+        const scenarioText = `Scenario: ${revenueGrowth}% Revenue Growth, ${opexReduction}% OpEx Reduction, ${hiringCount} new hires. Current Cash: $450,000.`;
+        try {
+            const verdict = await geminiService.getFinancialInsight(`Analyze this financial scenario for a SaaS CFO: ${scenarioText}. Is it sustainable? What are the risks?`);
+            setAiVerdict(verdict);
+        } catch (err) {
+            setAiVerdict("Simulation failed. Please try again.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div className="flex justify-between items-end">
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit">What-If Scenario Modeling</h2>
-                    <p className="text-[var(--text-muted)] mt-1">Simulate strategic shifts and their impact on your 6-month runway.</p>
+                    <h2 className="text-2xl font-black font-outfit text-white">Strategic "What-If" Sandbox</h2>
+                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Simulating Future Cashflow Paths</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl text-xs font-bold hover:bg-[var(--bg-main)] transition-colors">Reset Baseline</button>
-                    <button className="btn-primary">Save Scenario A</button>
-                </div>
+                <button 
+                    onClick={runAiSimulation}
+                    disabled={isAnalyzing}
+                    className="btn-primary flex items-center gap-2"
+                >
+                    {isAnalyzing ? (
+                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Thinking...</>
+                    ) : (
+                        <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.047a1 1 0 01.8 1.451l-9 14.5a1 1 0 01-1.822-.858L4.7 6.727l-3.21.366a1 1 0 01-.848-1.591l9-14.5a1 1 0 011.458-.055z" clipRule="evenodd"></path></svg> Run AI Simulation</>
+                    )}
+                </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="premium-card space-y-8">
-                    <h3 className="font-bold font-outfit border-b border-[var(--border-color)] pb-4">Variable Drivers</h3>
-                    
-                    <SimulationSlider 
-                        label="Revenue Growth (Annual %)" 
-                        value={revenueGrowth} 
-                        min={-20} 
-                        max={100} 
-                        onChange={setRevenueGrowth} 
-                        suffix="%"
-                    />
-                    
-                    <SimulationSlider 
-                        label="OPEX Reduction (%)" 
-                        value={opexReduction} 
-                        min={0} 
-                        max={30} 
-                        onChange={setOpexReduction} 
-                        suffix="%"
-                    />
+                <div className="space-y-6">
+                    <div className="premium-card bg-slate-900/50">
+                        <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-8">Scenario Variables</h3>
+                        <div className="space-y-10">
+                            <SliderControl label="Revenue Growth" value={revenueGrowth} min={-20} max={100} unit="%" onChange={setRevenueGrowth} />
+                            <SliderControl label="OpEx Optimization" value={opexReduction} min={0} max={40} unit="%" onChange={setOpexReduction} />
+                            <SliderControl label="Strategic Hiring" value={hiringCount} min={0} max={20} unit=" Hires" onChange={setHiringCount} />
+                        </div>
+                        <div className="mt-12 pt-8 border-t border-slate-800">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Impact on Runway</span>
+                                <span className="text-sm font-black text-white">14.2 Months</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-500 w-[70%]"></div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <SimulationSlider 
-                        label="New Strategic Hires" 
-                        value={hiringCount} 
-                        min={0} 
-                        max={20} 
-                        onChange={setHiringCount} 
-                        suffix=" FTEs"
-                    />
-
-                    <div className="p-4 bg-[var(--color-primary-light)] rounded-2xl border border-[var(--color-primary)]">
-                        <p className="text-[10px] font-black uppercase text-[var(--color-primary)] mb-1">Projected Runway</p>
-                        <p className="text-2xl font-black">{Math.floor(projectionData[5]["Projected Cash"] / projectionData[5]["Burn Rate"])} Months</p>
+                    <div className="premium-card bg-sky-500/10 border-sky-500/20">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">AI Strategic Verdict</span>
+                        </div>
+                        {aiVerdict ? (
+                            <p className="text-xs text-slate-300 leading-relaxed italic">"{aiVerdict}"</p>
+                        ) : (
+                            <p className="text-xs text-slate-500 leading-relaxed">Adjust variables and run simulation to see AI-powered feasibility analysis.</p>
+                        )}
                     </div>
                 </div>
 
                 <div className="lg:col-span-2 premium-card">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold font-outfit">Projected Cash Balance</h3>
-                        <div className="flex gap-4">
-                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[var(--color-primary)]"></div><span className="text-[10px] font-bold text-[var(--text-muted)]">CASH</span></div>
-                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-rose-500"></div><span className="text-[10px] font-bold text-[var(--text-muted)]">BURN</span></div>
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="text-sm font-bold text-white font-outfit">Projected Cash: Scenario vs Baseline</h3>
+                        <div className="flex items-center gap-4 text-[10px] font-bold uppercase">
+                            <div className="flex items-center gap-1.5 text-slate-500">
+                                <div className="w-2 h-2 rounded-full bg-slate-700"></div> Baseline
+                            </div>
+                            <div className="flex items-center gap-1.5 text-sky-400">
+<div className="w-2 h-2 rounded-full bg-sky-400"></div> Strategy A
+                            </div>
                         </div>
                     </div>
                     <div className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={projectionData}>
+                            <AreaChart data={combinedData}>
+                                <defs>
+                                    <linearGradient id="colorScenario" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} tickFormatter={(v) => `$${v/1000}k`} />
-                                <Tooltip contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)'}} />
-                                <Line type="monotone" dataKey="Projected Cash" stroke="var(--color-primary)" strokeWidth={4} dot={{r: 6}} activeDot={{r: 8}} />
-                                <Line type="monotone" dataKey="Burn Rate" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                            </LineChart>
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 11}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 11}} tickFormatter={(v) => `$${v/1000}k`} />
+                                <Tooltip contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #1e293b', fontSize: '11px'}} />
+                                <Area type="monotone" dataKey="Baseline Cash" stroke="#334155" strokeWidth={2} fill="transparent" strokeDasharray="5 5" />
+                                <Area type="monotone" dataKey="Scenario Cash" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorScenario)" />
+                            </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
@@ -1543,49 +1659,86 @@ export const ScenarioPlanningPage: React.FC = () => {
     );
 };
 
-const SimulationSlider: React.FC<{ label: string; value: number; min: number; max: number; onChange: (v: number) => void; suffix: string }> = ({ label, value, min, max, onChange, suffix }) => (
+const SliderControl: React.FC<{ label: string; value: number; min: number; max: number; unit: string; onChange: (v: number) => void }> = ({ label, value, min, max, unit, onChange }) => (
     <div className="space-y-4">
         <div className="flex justify-between items-center">
-            <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">{label}</label>
-            <span className="text-sm font-black font-outfit text-[var(--color-primary)]">{value}{suffix}</span>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</label>
+            <span className={`text-sm font-black ${value >= 0 ? 'text-white' : 'text-rose-500'}`}>{value}{unit}</span>
         </div>
         <input 
-            type="range" 
-            min={min} 
-            max={max} 
-            value={value} 
+            type="range" min={min} max={max} value={value} 
             onChange={(e) => onChange(parseInt(e.target.value))}
-            className="w-full h-1.5 bg-[var(--border-color)] rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]"
+            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500"
         />
+        <div className="flex justify-between text-[8px] font-black text-slate-600 uppercase tracking-tighter">
+            <span>{min}{unit}</span>
+            <span>{max}{unit}</span>
+        </div>
     </div>
 );
 
 export const ESGReportingPage: React.FC = () => {
+    const { transactions } = useContext(DataContext) as DataContextType;
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [esgAudit, setEsgAudit] = useState<string | null>(null);
+
+    // Mock carbon calculation logic
+    const carbonFootprint = transactions.reduce((acc, t) => {
+        if (t.category === 'Travel' || t.category === 'Logistics') return acc + (t.amount * 0.0008);
+        if (t.category === 'Hosting' || t.category === 'Software') return acc + (t.amount * 0.00015);
+        return acc + (t.amount * 0.00005);
+    }, 0).toFixed(2);
+
+    const runEsgAudit = async () => {
+        setIsAnalyzing(true);
+        try {
+            const audit = await geminiService.getSustainabilityAudit(transactions);
+            setEsgAudit(audit);
+        } catch (err) {
+            setEsgAudit("ESG Audit failed. Please verify API configuration.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
     return (
         <div className="space-y-10 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit">Sustainability & Impact (ESG)</h2>
-                    <p className="text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold text-[10px]">Real-time Carbon Tracking Active</p>
+                    <h2 className="text-2xl font-black font-outfit text-white">Sustainability & Impact (ESG)</h2>
+                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Real-time Carbon Tracking & Social Audit</p>
                 </div>
-                <button className="btn-primary">Generate Workiva-Style Report</button>
+                <div className="flex gap-3">
+                    <button 
+                        onClick={runEsgAudit}
+                        disabled={isAnalyzing}
+                        className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-slate-700 transition-all flex items-center gap-2"
+                    >
+                        {isAnalyzing ? (
+                            <><div className="w-3 h-3 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div> Auditing...</>
+                        ) : (
+                            <><span className="text-sm">⚡</span> Run AI ESG Audit</>
+                        )}
+                    </button>
+                    <button className="btn-primary">Export Disclosure</button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <EsgCard 
                     label="Environmental (E)" 
-                    value="12.5 tCO2e" 
+                    value={`${carbonFootprint} tCO2e`} 
                     trend="-12%" 
                     color="text-emerald-500" 
-                    metric="Net Carbon Footprint"
+                    metric="Total Scope 1-3 Emissions"
                     icon="🌱"
                 />
                 <EsgCard 
                     label="Social (S)" 
                     value="42%" 
-                    trend="+4%" 
+                    trend="+4.2%" 
                     color="text-sky-500" 
-                    metric="Diversity & Inclusion Ratio"
+                    metric="Diversity & Vendor Equity"
                     icon="🤝"
                 />
                 <EsgCard 
@@ -1593,35 +1746,46 @@ export const ESGReportingPage: React.FC = () => {
                     value="88/100" 
                     trend="A+" 
                     color="text-amber-500" 
-                    metric="Internal Control Score"
+                    metric="Audit & Control Score"
                     icon="⚖️"
                 />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="premium-card">
-                    <h3 className="font-bold font-outfit mb-6">Carbon Intensity by Department</h3>
-                    <div className="space-y-4">
-                        <DepartmentImpact label="Manufacturing" percentage={65} />
-                        <DepartmentImpact label="Logistics" percentage={45} />
-                        <DepartmentImpact label="Headquarters" percentage={12} />
-                        <DepartmentImpact label="Data Centers" percentage={28} />
+                    <h3 className="text-sm font-bold text-white mb-6 font-outfit">Emissions Intensity by Department</h3>
+                    <div className="space-y-6">
+                        <DepartmentImpact label="Logistics & Delivery" percentage={65} color="bg-rose-500" />
+                        <DepartmentImpact label="Cloud Operations" percentage={45} color="bg-sky-500" />
+                        <DepartmentImpact label="Office Facilities" percentage={12} color="bg-emerald-500" />
+                        <DepartmentImpact label="Supply Chain" percentage={28} color="bg-amber-500" />
                     </div>
                 </div>
 
-                <div className="premium-card flex flex-col justify-between">
-                    <div>
-                        <h3 className="font-bold font-outfit mb-4">Regulatory Compliance Tracker</h3>
-                        <div className="space-y-3">
-                            <ComplianceRow label="SFDR Disclosure" status="Compliant" />
-                            <ComplianceRow label="UK Modern Slavery Act" status="Review Needed" isWarning />
-                            <ComplianceRow label="SOC2 Type II" status="Active" />
-                            <ComplianceRow label="GDPR Audit" status="Compliant" />
+                <div className="flex flex-col gap-8">
+                    <div className="premium-card bg-emerald-500/5 border-emerald-500/20">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040L3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622l-.382-3.016z"></path></svg>
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">AI Sustainability Audit Summary</span>
                         </div>
+                        {esgAudit ? (
+                            <div className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                {esgAudit}
+                            </div>
+                        ) : (
+                            <p className="text-xs text-slate-500 leading-relaxed">Run the ESG Audit to generate a strategic summary of your environmental and social impact based on expenditure data.</p>
+                        )}
                     </div>
-                    <div className="mt-6 p-4 bg-slate-900 rounded-2xl text-white">
-                        <p className="text-[10px] font-black uppercase text-slate-500 mb-2">AI Compliance Note</p>
-                        <p className="text-xs leading-relaxed text-slate-300">New EU sustainability directives (CSRD) take effect in 120 days. Your current data collection covers 85% of requirements.</p>
+
+                    <div className="premium-card border-slate-800">
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Regulatory Roadmap</h3>
+                        <div className="space-y-3">
+                            <ComplianceRow label="CSRD Directive" status="Pending Data" isWarning />
+                            <ComplianceRow label="SFDR Article 8" status="Compliant" />
+                            <ComplianceRow label="SOC2 Compliance" status="Active" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1641,14 +1805,14 @@ const EsgCard: React.FC<{ label: string; value: string; trend: string; color: st
     </div>
 );
 
-const DepartmentImpact: React.FC<{ label: string; percentage: number }> = ({ label, percentage }) => (
+const DepartmentImpact: React.FC<{ label: string; percentage: number; color?: string }> = ({ label, percentage, color = "bg-emerald-500" }) => (
     <div>
         <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest text-[var(--text-muted)]">
             <span>{label}</span>
             <span>{percentage}%</span>
         </div>
         <div className="w-full h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${percentage}%` }}></div>
+            <div className={`h-full ${color} rounded-full`} style={{ width: `${percentage}%` }}></div>
         </div>
     </div>
 );
@@ -1661,46 +1825,90 @@ const ComplianceRow: React.FC<{ label: string; status: string; isWarning?: boole
 );
 
 export const MarketIntelligencePage: React.FC = () => {
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [briefing, setBriefing] = useState<string | null>(null);
+
     const marketInsights = [
       { id: 1, type: 'Alert', title: 'Inflation Spike', description: 'Headline inflation rose to 4.2%. Projecting 12% increase in cloud hosting costs next quarter.', urgency: 'High' },
       { id: 2, type: 'Opportunity', title: 'Currency Fluctuation', description: 'USD/EUR rate is favorable for EU service expansion. Now is a strategic time for relocation of Euro-denominated debt.', urgency: 'Med' },
       { id: 3, type: 'Competitor', title: 'New Product Launch', description: 'Main competitor "FinFlow" launched a new payroll module. Customer sentiment indicates high interest in automated tax filing.', urgency: 'Low' },
     ];
 
+    const generateBriefing = async () => {
+        setIsGenerating(true);
+        try {
+            const summary = await geminiService.getMarketBriefing(marketInsights);
+            setBriefing(summary);
+        } catch (err) {
+            setBriefing("Failed to generate briefing. Please try again.");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div className="space-y-10 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit">Global Market Intelligence</h2>
-                    <p className="text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold text-[10px]">AlphaSense-Style Synthesis Active</p>
+                    <h2 className="text-2xl font-black font-outfit text-white">Global Market Intelligence</h2>
+                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">AlphaSense-Style AI Synthesis Active</p>
                 </div>
                 <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl text-xs font-bold hover:bg-[var(--bg-main)] transition-colors">Source Config</button>
-                    <button className="btn-primary">Generate Analyst Briefing</button>
+                    <button className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-700 transition-all">Source Config</button>
+                    <button 
+                        onClick={generateBriefing}
+                        disabled={isGenerating}
+                        className="btn-primary flex items-center gap-2"
+                    >
+                        {isGenerating ? (
+                            <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Synthesizing...</>
+                        ) : (
+                            "Generate Analyst Briefing"
+                        )}
+                    </button>
                 </div>
             </div>
+
+            {briefing && (
+                <div className="premium-card bg-indigo-500/5 border-indigo-500/20 animate-in slide-in-from-top duration-500">
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-bold text-white font-outfit">AI Strategic Briefing</h3>
+                                <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Confidential • For CFO Eyes Only</p>
+                            </div>
+                        </div>
+                        <button onClick={() => setBriefing(null)} className="text-slate-500 hover:text-white"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    </div>
+                    <div className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap max-w-4xl">
+                        {briefing}
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <div className="premium-card">
-                        <h3 className="font-bold font-outfit mb-6">Strategic News Synthesis</h3>
+                        <h3 className="text-sm font-bold text-white font-outfit mb-6">Strategic News Synthesis</h3>
                         <div className="space-y-6">
                             {marketInsights.map(insight => (
-                                <div key={insight.id} className="p-5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)] group hover:border-[var(--color-primary)] transition-all">
+                                <div key={insight.id} className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 group hover:border-sky-500/50 transition-all">
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="flex items-center gap-3">
                                             <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${insight.urgency === 'High' ? 'bg-rose-500 text-white' : 'bg-sky-500 text-white'}`}>
                                                 {insight.type}
                                             </span>
-                                            <span className="text-[10px] font-bold text-[var(--text-muted)]">Source: Financial Times • 2h ago</span>
+                                            <span className="text-[10px] font-bold text-slate-500">Source: Global Finance Wire • 2h ago</span>
                                         </div>
-                                        <button className="text-[var(--text-muted)] hover:text-[var(--color-primary)]"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
                                     </div>
-                                    <h4 className="text-lg font-bold mb-2">{insight.title}</h4>
-                                    <p className="text-sm text-[var(--text-muted)] leading-relaxed">{insight.description}</p>
-                                    <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex items-center gap-4">
-                                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">Bullish Impact</span>
-                                        <span className="text-[10px] font-bold text-[var(--text-muted)] underline cursor-pointer">Read Full Synthesis</span>
+                                    <h4 className="text-sm font-bold text-white mb-2">{insight.title}</h4>
+                                    <p className="text-xs text-slate-400 leading-relaxed">{insight.description}</p>
+                                    <div className="mt-4 pt-4 border-t border-slate-800 flex items-center gap-4">
+                                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">Bullish Exposure</span>
+                                        <span className="text-[10px] font-bold text-slate-500 underline cursor-pointer hover:text-sky-400 transition-colors">Read Full Synthesis</span>
                                     </div>
                                 </div>
                             ))}
@@ -1710,23 +1918,26 @@ export const MarketIntelligencePage: React.FC = () => {
 
                 <div className="space-y-8">
                     <div className="premium-card">
-                        <h3 className="font-bold font-outfit mb-6">Market Sentiment Heatmap</h3>
-                        <div className="space-y-5">
+                        <h3 className="text-sm font-bold text-white font-outfit mb-6">Market Sentiment Heatmap</h3>
+                        <div className="space-y-6">
                             <SentimentIndex label="Small Business Confidence" score={62} status="Bullish" color="text-emerald-500" />
-                            <SentimentIndex label="SaaS Sector Multiple" score={48} status="Neutral" color="text-amber-500" />
+                            <SentimentIndex label="SaaS Sector Multiples" score={48} status="Neutral" color="text-amber-500" />
                             <SentimentIndex label="Central Bank Stance" score={25} status="Hawkish" color="text-rose-500" />
                         </div>
                     </div>
 
-                    <div className="premium-card bg-gradient-to-br from-indigo-900 to-slate-900 text-white border-none shadow-2xl">
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-4">Competitor Edge</h3>
+                    <div className="premium-card bg-gradient-to-br from-indigo-900 to-slate-900 border-none shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
+                        </div>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-4">Competitor Edge</h3>
                         <div className="space-y-4">
-                            <div className="p-3 bg-white/5 rounded-xl">
-                                <p className="text-[10px] font-bold text-indigo-300 mb-1">FinFlow (Tier 1)</p>
-                                <p className="text-xs">Launched automated VAT filing. Current user sentiment is mixed due to latency.</p>
+                            <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                <p className="text-[10px] font-black text-indigo-300 mb-1">FinFlow (Tier 1)</p>
+                                <p className="text-xs text-indigo-100">Launched automated VAT filing. Current user sentiment is mixed due to latency.</p>
                             </div>
-                            <button className="w-full py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-400 transition-colors">
-                                View Full Intelligence Map
+                            <button className="w-full py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-400 transition-all">
+                                View Intelligence Map
                             </button>
                         </div>
                     </div>
@@ -1751,17 +1962,50 @@ const SentimentIndex: React.FC<{ label: string; score: number; status: string; c
 );
 
 export const ExecutiveInsightsPage: React.FC = () => {
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [aiSummary, setAiSummary] = useState<string | null>(null);
+
     const ssaData = [
-        { name: 'Jan', MRR: 45000, Churn: 2.1 },
-        { name: 'Feb', MRR: 48000, Churn: 1.9 },
-        { name: 'Mar', MRR: 52000, Churn: 2.3 },
-        { name: 'Apr', MRR: 58000, Churn: 1.5 },
-        { name: 'May', MRR: 65000, Churn: 1.2 },
-        { name: 'Jun', MRR: 72000, Churn: 1.0 },
+        { name: 'Jan', MRR: 45000, Churn: 2.1, LTV: 10200, CAC: 950 },
+        { name: 'Feb', MRR: 48000, Churn: 1.9, LTV: 10500, CAC: 920 },
+        { name: 'Mar', MRR: 52000, Churn: 2.3, LTV: 11000, CAC: 980 },
+        { name: 'Apr', MRR: 58000, Churn: 1.5, LTV: 11800, CAC: 890 },
+        { name: 'May', MRR: 65000, Churn: 1.2, LTV: 12100, CAC: 850 },
+        { name: 'Jun', MRR: 72000, Churn: 1.0, LTV: 12450, CAC: 840 },
     ];
+
+    const generateHealthCheck = async () => {
+        setIsAnalyzing(true);
+        try {
+            const summary = await geminiService.getExecutiveSummary(ssaData[ssaData.length - 1]);
+            setAiSummary(summary);
+        } catch (err) {
+            setAiSummary("Unable to perform health check.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-black font-outfit text-white">Executive Insights</h2>
+                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Unit Economics & High-Level Strategy</p>
+                </div>
+                <button 
+                    onClick={generateHealthCheck}
+                    disabled={isAnalyzing}
+                    className="px-6 py-2 bg-sky-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-400 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(14,165,233,0.3)]"
+                >
+                    {isAnalyzing ? (
+                        <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Running Check...</>
+                    ) : (
+                        "Run AI Strategic Health Check"
+                    )}
+                </button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <MetricCard 
                     title="Customer Lifetime Value (LTV)" 
@@ -1786,7 +2030,7 @@ export const ExecutiveInsightsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="premium-card">
-                    <h3 className="text-lg font-bold font-outfit mb-6">Revenue Growth (MRR)</h3>
+                    <h3 className="text-sm font-bold text-white font-outfit mb-6">Revenue Growth (MRR)</h3>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={ssaData}>
@@ -1797,9 +2041,9 @@ export const ExecutiveInsightsPage: React.FC = () => {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} tickFormatter={(v) => `$${v/1000}k`} />
-                                <Tooltip contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)'}} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 11}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 11}} tickFormatter={(v) => `$${v/1000}k`} />
+                                <Tooltip contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #1e293b', fontSize: '11px'}} />
                                 <Area type="monotone" dataKey="MRR" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorMrr)" />
                             </AreaChart>
                         </ResponsiveContainer>
@@ -1807,14 +2051,14 @@ export const ExecutiveInsightsPage: React.FC = () => {
                 </div>
 
                 <div className="premium-card">
-                    <h3 className="text-lg font-bold font-outfit mb-6">Monthly Churn Analysis</h3>
+                    <h3 className="text-sm font-bold text-white font-outfit mb-6">Monthly Churn Analysis</h3>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={ssaData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12}} tickFormatter={(v) => `${v}%`} />
-                                <Tooltip contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)'}} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 11}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 11}} tickFormatter={(v) => `${v}%`} />
+                                <Tooltip contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #1e293b', fontSize: '11px'}} />
                                 <Bar dataKey="Churn" fill="#f43f5e" radius={[6, 6, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
@@ -1822,20 +2066,29 @@ export const ExecutiveInsightsPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="premium-card bg-slate-900 text-white">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">💡</div>
+            <div className="premium-card bg-slate-900 border-sky-500/20 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <svg className="w-40 h-40" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 112 0v1a1 1 0 11-2 0zM13 16v-1a1 1 0 112 0v1a1 1 0 11-2 0zM14.5 9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
+                </div>
+                <div className="flex items-center gap-4 mb-6 relative">
+                    <div className="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center text-2xl">💡</div>
                     <div>
-                        <h3 className="text-xl font-bold font-outfit">AI Strategic Recommendation</h3>
-                        <p className="text-slate-400 text-sm">Based on LTV:CAC and Current Runway</p>
+                        <h3 className="text-lg font-bold text-white font-outfit">AI Strategic Recommendation</h3>
+                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Based on LTV:CAC and Current Runway</p>
                     </div>
                 </div>
-                <p className="text-slate-300 leading-relaxed max-w-3xl">
-                    Your LTV:CAC ratio of **14.8x** is significantly above the industry benchmark (3.0x). 
-                    This indicates an extremely efficient acquisition model. **Recommendation:** Aggressively scale marketing 
-                    spend by 25-30% in Q3. Current runway of 14 months allows for this expansion while maintaining 
-                    a 10-month safety buffer.
-                </p>
+                <div className="relative">
+                    {aiSummary ? (
+                        <p className="text-slate-300 leading-relaxed max-w-4xl text-sm italic">
+                            "{aiSummary}"
+                        </p>
+                    ) : (
+                        <p className="text-slate-400 leading-relaxed max-w-4xl text-sm">
+                            Your LTV:CAC ratio of **14.8x** is significantly above the industry benchmark (3.0x). 
+                            Click the health check button above for a detailed strategic synthesis of your business unit economics.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
