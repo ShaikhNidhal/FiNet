@@ -70,4 +70,14 @@ export interface TeamMember {
     email: string;
     role: UserRole;
     status: 'Active' | 'Invited' | 'Suspended';
-}
+}
+
+export interface ExpenseReport {
+    id: string;
+    submittedBy: string;
+    description: string;
+    amount: number;
+    date: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    category: string;
+}

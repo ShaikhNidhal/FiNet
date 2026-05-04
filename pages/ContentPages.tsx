@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext, DataContext } from '../App';
-import { ThemeContextType, DataContextType, ThemeName, Transaction, UserRole, TeamMember } from '../types';
+import { ThemeContextType, DataContextType, ThemeName, Transaction, UserRole, TeamMember, ExpenseReport } from '../types';
 import { THEMES } from '../constants';
 import { geminiService } from '../services/geminiService';
 import { mailService } from '../services/mailService';
@@ -1196,16 +1196,193 @@ export const SettingsPage: React.FC = () => {
 
 
 // The following are simple placeholder pages.
-export const ExpenseManagementPage: React.FC = () => (
-    <div className="premium-card space-y-4"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-white font-outfit font-bold">Expense Reports</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Submit New Report</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-400"><thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Report ID</th><th scope="col" className="px-6 py-3">Submitted By</th><th scope="col" className="px-6 py-3">Amount</th><th scope="col" className="px-6 py-3">Status</th><th scope="col" className="px-6 py-3 text-center">Action</th></tr></thead><tbody>
-        <tr className="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
-            <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">ER-2025-003</td><td className="px-6 py-4">Alice Johnson</td><td className="px-6 py-4">$450.50</td><td className="px-6 py-4"><span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 text-xs font-medium px-2.5 py-0.5 rounded-full">Approved</span></td><td className="px-6 py-4 text-center"><a href="#" className="font-medium text-[var(--color-primary)] hover:underline">View</a></td>
-        </tr>
-        <tr className="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
-            <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">ER-2025-002</td><td className="px-6 py-4">Bob Williams</td><td className="px-6 py-4">$1,200.00</td><td className="px-6 py-4"><span className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300 text-xs font-medium px-2.5 py-0.5 rounded-full">Pending Approval</span></td><td className="px-6 py-4 text-center"><a href="#" className="font-medium text-[var(--color-primary)] hover:underline">Review</a></td>
-        </tr>
-    </tbody></table></div></div>
-);
+export const ExpenseManagementPage: React.FC = () => {
+    const [reports, setReports] = useState<ExpenseReport[]>([
+        { id: 'ER-2025-003', submittedBy: 'Alice Johnson', description: 'Client Dinner - Q1 Strategy', amount: 450.50, date: '2025-05-01', status: 'Approved', category: 'Entertainment' },
+        { id: 'ER-2025-002', submittedBy: 'Bob Williams', description: 'AWS Monthly Infrastructure', amount: 1200.00, date: '2025-04-28', status: 'Pending', category: 'Software' },
+        { id: 'ER-2025-001', submittedBy: 'Nidhal Shaikh', description: 'Office Supplies & Ergonomic Chair', amount: 850.00, date: '2025-04-15', status: 'Rejected', category: 'Operations' },
+    ]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newReport, setNewReport] = useState({
+        description: '',
+        amount: '',
+        category: 'Travel',
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const report: ExpenseReport = {
+            id: `ER-2025-00${reports.length + 1}`,
+            submittedBy: 'Nidhal Shaikh', // Mock current user
+            description: newReport.description,
+            amount: parseFloat(newReport.amount),
+            date: new Date().toISOString().split('T')[0],
+            status: 'Pending',
+            category: newReport.category
+        };
+        setReports([report, ...reports]);
+        setIsModalOpen(false);
+        setNewReport({ description: '', amount: '', category: 'Travel' });
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-3xl font-black text-white font-outfit tracking-tight">Expense Intelligence</h2>
+                    <p className="text-slate-500 font-medium mt-1">Track, review, and approve organizational spending.</p>
+                </div>
+                <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="group relative px-6 py-3 bg-sky-500 hover:bg-sky-400 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)] overflow-hidden"
+                >
+                    <div className="relative z-10 flex items-center gap-2">
+                        <span className="text-xl">+</span>
+                        <span className="uppercase tracking-widest text-[10px] font-black">Submit New Report</span>
+                    </div>
+                </button>
+            </div>
+
+            {/* Main Content Card */}
+            <div className="premium-card overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-separate border-spacing-y-3">
+                        <thead>
+                            <tr className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                                <th className="px-8 py-4">Report Details</th>
+                                <th className="px-8 py-4">Category</th>
+                                <th className="px-8 py-4 text-right">Amount</th>
+                                <th className="px-8 py-4">Status</th>
+                                <th className="px-8 py-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {reports.map((report) => (
+                                <tr key={report.id} className="group hover:bg-slate-800/30 transition-colors">
+                                    <td className="px-8 py-5 bg-slate-800/40 rounded-l-2xl border-y border-l border-slate-700/50">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center font-bold text-sky-400 shadow-inner">
+                                                {report.id.split('-').pop()}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors">{report.description}</p>
+                                                <p className="text-[10px] text-slate-500 mt-0.5">{report.submittedBy} • {report.date}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 bg-slate-800/40 border-y border-slate-700/50">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-900/50 px-3 py-1 rounded-full border border-slate-700">
+                                            {report.category}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-5 bg-slate-800/40 border-y border-slate-700/50 text-right">
+                                        <span className="text-sm font-black text-white">
+                                            ${report.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-5 bg-slate-800/40 border-y border-slate-700/50">
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${
+                                                report.status === 'Approved' ? 'bg-emerald-500' : 
+                                                report.status === 'Pending' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'
+                                            }`}></div>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest ${
+                                                report.status === 'Approved' ? 'text-emerald-500' : 
+                                                report.status === 'Pending' ? 'text-amber-500' : 'text-rose-500'
+                                            }`}>
+                                                {report.status}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 bg-slate-800/40 rounded-r-2xl border-y border-r border-slate-700/50 text-center">
+                                        <button className="text-[10px] font-black text-sky-500 hover:text-sky-400 uppercase tracking-widest transition-colors">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Submission Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="w-full max-w-lg bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
+                        
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-xl font-black text-white font-outfit uppercase tracking-wider">New Expense Report</h3>
+                            <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Purpose / Description</label>
+                                <input 
+                                    required
+                                    value={newReport.description}
+                                    onChange={(e) => setNewReport({...newReport, description: e.target.value})}
+                                    placeholder="e.g., Client Lunch, AWS, Travel..."
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount ($)</label>
+                                    <input 
+                                        required
+                                        type="number"
+                                        step="0.01"
+                                        value={newReport.amount}
+                                        onChange={(e) => setNewReport({...newReport, amount: e.target.value})}
+                                        placeholder="0.00"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Category</label>
+                                    <select 
+                                        value={newReport.category}
+                                        onChange={(e) => setNewReport({...newReport, category: e.target.value})}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all appearance-none"
+                                    >
+                                        <option value="Travel">Travel</option>
+                                        <option value="Software">Software</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Operations">Operations</option>
+                                        <option value="Marketing">Marketing</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 flex gap-4">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="flex-1 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit"
+                                    className="flex-1 px-6 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-sky-500/20"
+                                >
+                                    Submit for Approval
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 export const InventoryPage: React.FC = () => (
     <div className="premium-card space-y-4"><div className="flex justify-between items-center mb-6"><h2 className="text-xl font-semibold text-white font-outfit font-bold">Inventory Management</h2><button className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg shadow hover:bg-[var(--color-primary-hover)] transition text-sm font-semibold">Add New Item</button></div><div className="overflow-x-auto"><table className="w-full text-sm text-left text-slate-400"><thead className="text-xs text-slate-200 font-semibold uppercase bg-slate-50 dark:bg-slate-700"><tr><th scope="col" className="px-6 py-3">Item Name</th><th scope="col" className="px-6 py-3">SKU</th><th scope="col" className="px-6 py-3">Stock Level</th><th scope="col" className="px-6 py-3">Reorder Point</th><th scope="col" className="px-6 py-3">Value</th></tr></thead><tbody>
