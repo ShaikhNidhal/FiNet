@@ -1128,13 +1128,6 @@ export const SettingsPage: React.FC = () => {
     const themeContext = useContext(ThemeContext) as ThemeContextType;
     const { themeName, isDarkMode, applyTheme, toggleDarkMode } = themeContext;
 
-    const teamMembers = [
-        { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'Admin', status: 'Active' },
-        { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Finance Manager', status: 'Active' },
-        { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Analyst', status: 'Invited' },
-        { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Employee', status: 'Suspended' },
-    ];
-
     return (
         <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-2xl max-w-5xl mx-auto space-y-12 border border-slate-200 dark:border-slate-800">
             <div>
@@ -1189,8 +1182,6 @@ export const SettingsPage: React.FC = () => {
                         </div>
                     </section>
                 </div>
-
-                </section>
             </div>
         </div>
     );
