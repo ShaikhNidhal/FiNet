@@ -1203,6 +1203,7 @@ export const ExpenseManagementPage: React.FC = () => {
         { id: 'ER-2025-001', submittedBy: 'Nidhal Shaikh', description: 'Office Supplies & Ergonomic Chair', amount: 850.00, date: '2025-04-15', status: 'Rejected', category: 'Operations' },
     ]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedReport, setSelectedReport] = useState<ExpenseReport | null>(null);
     const [newReport, setNewReport] = useState({
         description: '',
         amount: '',
@@ -1213,7 +1214,7 @@ export const ExpenseManagementPage: React.FC = () => {
         e.preventDefault();
         const report: ExpenseReport = {
             id: `ER-2025-00${reports.length + 1}`,
-            submittedBy: 'Nidhal Shaikh', // Mock current user
+            submittedBy: 'Nidhal Shaikh',
             description: newReport.description,
             amount: parseFloat(newReport.amount),
             date: new Date().toISOString().split('T')[0],
@@ -1225,9 +1226,15 @@ export const ExpenseManagementPage: React.FC = () => {
         setNewReport({ description: '', amount: '', category: 'Travel' });
     };
 
+    const handleStatusChange = (id: string, newStatus: ExpenseReport['status']) => {
+        setReports(reports.map(r => r.id === id ? { ...r, status: newStatus } : r));
+        if (selectedReport?.id === id) {
+            setSelectedReport(prev => prev ? { ...prev, status: newStatus } : null);
+        }
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-black text-white font-outfit tracking-tight">Expense Intelligence</h2>
@@ -1235,16 +1242,12 @@ export const ExpenseManagementPage: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => setIsModalOpen(true)}
-                    className="group relative px-6 py-3 bg-sky-500 hover:bg-sky-400 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)] overflow-hidden"
+                    className="group relative px-6 py-3 bg-sky-500 hover:bg-sky-400 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]"
                 >
-                    <div className="relative z-10 flex items-center gap-2">
-                        <span className="text-xl">+</span>
-                        <span className="uppercase tracking-widest text-[10px] font-black">Submit New Report</span>
-                    </div>
+                    <span className="uppercase tracking-widest text-[10px] font-black">+ Submit New Report</span>
                 </button>
             </div>
 
-            {/* Main Content Card */}
             <div className="premium-card overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-separate border-spacing-y-3">
@@ -1277,26 +1280,32 @@ export const ExpenseManagementPage: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-8 py-5 bg-slate-800/40 border-y border-slate-700/50 text-right">
-                                        <span className="text-sm font-black text-white">
-                                            ${report.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                        </span>
+                                        <span className="text-sm font-black text-white">${report.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </td>
                                     <td className="px-8 py-5 bg-slate-800/40 border-y border-slate-700/50">
-                                        <div className="flex items-center gap-2">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${
-                                                report.status === 'Approved' ? 'bg-emerald-500' : 
-                                                report.status === 'Pending' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'
-                                            }`}></div>
-                                            <span className={`text-[9px] font-black uppercase tracking-widest ${
-                                                report.status === 'Approved' ? 'text-emerald-500' : 
-                                                report.status === 'Pending' ? 'text-amber-500' : 'text-rose-500'
-                                            }`}>
-                                                {report.status}
-                                            </span>
+                                        <div className="relative group/status w-fit">
+                                            <select 
+                                                value={report.status}
+                                                onChange={(e) => handleStatusChange(report.id, e.target.value as any)}
+                                                className={`text-[9px] font-black uppercase tracking-widest bg-transparent border-none focus:ring-0 cursor-pointer appearance-none pr-4 ${
+                                                    report.status === 'Approved' ? 'text-emerald-500' : 
+                                                    report.status === 'Pending' ? 'text-amber-500' : 'text-rose-500'
+                                                }`}
+                                            >
+                                                <option value="Approved">Approved</option>
+                                                <option value="Pending">Pending</option>
+                                                <option value="Rejected">Rejected</option>
+                                            </select>
+                                            <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 scale-75">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-5 bg-slate-800/40 rounded-r-2xl border-y border-r border-slate-700/50 text-center">
-                                        <button className="text-[10px] font-black text-sky-500 hover:text-sky-400 uppercase tracking-widest transition-colors">
+                                        <button 
+                                            onClick={() => setSelectedReport(report)}
+                                            className="text-[10px] font-black text-sky-500 hover:text-sky-400 uppercase tracking-widest transition-colors"
+                                        >
                                             View Details
                                         </button>
                                     </td>
@@ -1312,71 +1321,99 @@ export const ExpenseManagementPage: React.FC = () => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-300">
                     <div className="w-full max-w-lg bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-8 relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
-                        
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-xl font-black text-white font-outfit uppercase tracking-wider">New Expense Report</h3>
-                            <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                            <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
-
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Purpose / Description</label>
-                                <input 
-                                    required
-                                    value={newReport.description}
-                                    onChange={(e) => setNewReport({...newReport, description: e.target.value})}
-                                    placeholder="e.g., Client Lunch, AWS, Travel..."
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all"
-                                />
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Description</label>
+                                <input required value={newReport.description} onChange={(e) => setNewReport({...newReport, description: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-sky-500/50" />
                             </div>
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount ($)</label>
-                                    <input 
-                                        required
-                                        type="number"
-                                        step="0.01"
-                                        value={newReport.amount}
-                                        onChange={(e) => setNewReport({...newReport, amount: e.target.value})}
-                                        placeholder="0.00"
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all"
-                                    />
+                                    <input required type="number" step="0.01" value={newReport.amount} onChange={(e) => setNewReport({...newReport, amount: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Category</label>
-                                    <select 
-                                        value={newReport.category}
-                                        onChange={(e) => setNewReport({...newReport, category: e.target.value})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all appearance-none"
-                                    >
-                                        <option value="Travel">Travel</option>
-                                        <option value="Software">Software</option>
-                                        <option value="Entertainment">Entertainment</option>
-                                        <option value="Operations">Operations</option>
-                                        <option value="Marketing">Marketing</option>
+                                    <select value={newReport.category} onChange={(e) => setNewReport({...newReport, category: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm">
+                                        <option value="Travel">Travel</option><option value="Software">Software</option><option value="Entertainment">Entertainment</option><option value="Operations">Operations</option>
                                     </select>
                                 </div>
                             </div>
-
                             <div className="pt-4 flex gap-4">
-                                <button 
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    type="submit"
-                                    className="flex-1 px-6 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-sky-500/20"
-                                >
-                                    Submit for Approval
-                                </button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-4 bg-slate-800 text-slate-300 rounded-2xl text-[10px] font-black uppercase tracking-widest">Cancel</button>
+                                <button type="submit" className="flex-1 px-6 py-4 bg-sky-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-sky-500/20">Submit</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* View Details Modal */}
+            {selectedReport && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-300">
+                    <div className="w-full max-w-2xl bg-slate-900 rounded-[3rem] border border-slate-800 shadow-2xl p-12 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 blur-[100px] rounded-full -mr-32 -mt-32"></div>
+                        
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-12">
+                                <div>
+                                    <span className="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em]">Report Details</span>
+                                    <h3 className="text-3xl font-black text-white font-outfit mt-2">{selectedReport.id}</h3>
+                                </div>
+                                <button onClick={() => setSelectedReport(null)} className="p-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-slate-400 hover:text-white transition-all">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-12 mb-12">
+                                <div className="space-y-8">
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Purpose</p>
+                                        <p className="text-lg font-bold text-white leading-relaxed">{selectedReport.description}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Submitted By</p>
+                                        <p className="text-white font-bold">{selectedReport.submittedBy}</p>
+                                        <p className="text-xs text-slate-500 font-medium">{selectedReport.date}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-8 text-right">
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Amount</p>
+                                        <p className="text-4xl font-black text-sky-500 font-outfit">${selectedReport.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Status</p>
+                                        <span className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                            selectedReport.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
+                                            selectedReport.status === 'Pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+                                        }`}>
+                                            {selectedReport.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 p-2 bg-slate-800/50 rounded-[2rem] border border-slate-700/50">
+                                <button 
+                                    onClick={() => handleStatusChange(selectedReport.id, 'Rejected')}
+                                    className="flex-1 py-4 bg-rose-500 hover:bg-rose-400 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-rose-500/20"
+                                >
+                                    Reject Report
+                                </button>
+                                <button 
+                                    onClick={() => handleStatusChange(selectedReport.id, 'Approved')}
+                                    className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-500/20"
+                                >
+                                    Approve Report
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
