@@ -1561,7 +1561,47 @@ export const ReconciliationPage: React.FC = () => {
 export const RiskDiscoveryPage: React.FC = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [aiInsights, setAiInsights] = useState<string | null>(null);
+    const [isExporting, setIsExporting] = useState(false);
     const dataContext = useContext(DataContext) as DataContextType;
+
+    const [anomalies, setAnomalies] = useState([
+        { id: 1, vendor: "AWS Infrastructure", date: "2026-05-12", amount: "$9,100", reason: "30% Price Drift vs Avg", level: "High", status: 'Pending' },
+        { id: 2, vendor: "Unknown: SV_PAY_LLC", date: "2026-05-10", amount: "$45,000", reason: "Unregistered Entity", level: "Critical", status: 'Pending' },
+        { id: 3, vendor: "Adobe Creative Cloud", date: "2026-05-08", amount: "$120", reason: "Possible Duplicate Seat", level: "Low", status: 'Pending' },
+        { id: 4, vendor: "Global Office Supplies", date: "2026-05-05", amount: "$5,200", reason: "Benford's Law Deviation", level: "Medium", status: 'Pending' },
+    ]);
+
+    const [selectedAnomaly, setSelectedAnomaly] = useState<any | null>(null);
+
+    const handleExportAuditLog = async () => {
+        setIsExporting(true);
+        const { default: jsPDF } = await import('jspdf');
+        const { default: autoTable } = await import('jspdf-autotable');
+
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text('FiNet Security Audit Log', 14, 22);
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+        const tableData = anomalies.map(a => [a.date, a.vendor, a.amount, a.reason, a.level]);
+        (autoTable as any)(doc, {
+            startY: 40,
+            head: [['Date', 'Vendor', 'Amount', 'Reason', 'Risk Level']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [14, 165, 233] }
+        });
+
+        doc.save(`FiNet_Audit_Log_${new Date().toISOString().split('T')[0]}.pdf`);
+        setIsExporting(false);
+    };
+
+    const handleReviewPost = (id: number) => {
+        setAnomalies(anomalies.map(a => a.id === id ? { ...a, status: 'Reviewed' } : a));
+        setSelectedAnomaly(null);
+    };
 
     const runAnalysis = async () => {
         setIsAnalyzing(true);
@@ -1582,13 +1622,6 @@ export const RiskDiscoveryPage: React.FC = () => {
         { label: "Shadow SaaS", risk: "Medium", value: 45, color: "bg-sky-500" },
     ];
 
-    const anomalies = [
-        { vendor: "AWS Infrastructure", date: "2026-05-12", amount: "$9,100", reason: "30% Price Drift vs Avg", level: "High" },
-        { vendor: "Unknown: SV_PAY_LLC", date: "2026-05-10", amount: "$45,000", reason: "Unregistered Entity", level: "Critical" },
-        { vendor: "Adobe Creative Cloud", date: "2026-05-08", amount: "$120", reason: "Possible Duplicate Seat", level: "Low" },
-        { vendor: "Global Office Supplies", date: "2026-05-05", amount: "$5,200", reason: "Benford's Law Deviation", level: "Medium" },
-    ];
-
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -1597,8 +1630,12 @@ export const RiskDiscoveryPage: React.FC = () => {
                     <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Continuous Intelligence Mode Active</p>
                 </div>
                 <div className="flex gap-4">
-                    <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all border border-slate-700">
-                        Export Audit Log
+                    <button 
+                        onClick={handleExportAuditLog}
+                        disabled={isExporting}
+                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all border border-slate-700 flex items-center gap-2"
+                    >
+                        {isExporting ? <div className="w-3 h-3 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div> : 'Export Audit Log'}
                     </button>
                     <button 
                         onClick={runAnalysis}
@@ -1626,7 +1663,7 @@ export const RiskDiscoveryPage: React.FC = () => {
                 </div>
                 <div className="premium-card bg-slate-900/50 border-slate-800">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Open Anomalies</p>
-                    <p className="text-3xl font-black text-white">12</p>
+                    <p className="text-3xl font-black text-white">{anomalies.filter(a => a.status === 'Pending').length}</p>
                     <div className="mt-4 flex items-center gap-2">
                         <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-500 rounded-full font-bold">+3 vs LAST MONTH</span>
                     </div>
@@ -1695,10 +1732,10 @@ export const RiskDiscoveryPage: React.FC = () => {
                     </div>
                     <div className="flex-grow overflow-y-auto custom-scrollbar">
                         {anomalies.map((anomaly, idx) => (
-                            <div key={idx} className="p-6 border-b border-slate-800 hover:bg-slate-800/30 transition-all cursor-pointer group">
+                            <div key={idx} className={`p-6 border-b border-slate-800 transition-all group ${anomaly.status === 'Reviewed' ? 'opacity-40 grayscale' : 'hover:bg-slate-800/30 cursor-pointer'}`}>
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-2 h-2 rounded-full ${anomaly.level === 'Critical' ? 'bg-rose-500 animate-ping' : anomaly.level === 'High' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                                        <div className={`w-2 h-2 rounded-full ${anomaly.level === 'Critical' && anomaly.status === 'Pending' ? 'bg-rose-500 animate-ping' : anomaly.level === 'Critical' ? 'bg-rose-500' : anomaly.level === 'High' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
                                         <h4 className="font-bold text-white text-sm">{anomaly.vendor}</h4>
                                     </div>
                                     <span className="text-[10px] font-black text-slate-500 uppercase">{anomaly.date}</span>
@@ -1707,12 +1744,21 @@ export const RiskDiscoveryPage: React.FC = () => {
                                     <div className="space-y-1">
                                         <p className="text-[11px] text-slate-400 font-medium">{anomaly.reason}</p>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-tighter px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded">Tag: AUDIT_REQUIRED</span>
+                                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-tighter px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded">
+                                                {anomaly.status === 'Reviewed' ? '✓ REVIEWED' : 'TAG: AUDIT_REQUIRED'}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-black text-white">{anomaly.amount}</p>
-                                        <button className="text-[10px] font-bold text-sky-500 opacity-0 group-hover:opacity-100 transition-all">Review & Post →</button>
+                                        {anomaly.status === 'Pending' && (
+                                            <button 
+                                                onClick={() => setSelectedAnomaly(anomaly)}
+                                                className="text-[10px] font-bold text-sky-500 opacity-0 group-hover:opacity-100 transition-all"
+                                            >
+                                                Review & Post →
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -1723,6 +1769,33 @@ export const RiskDiscoveryPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Review Modal */}
+            {selectedAnomaly && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="w-full max-w-lg bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-8 animate-in zoom-in-95 duration-200">
+                        <h3 className="text-xl font-black text-white font-outfit uppercase tracking-widest mb-4">Post Audit Entry</h3>
+                        <div className="p-5 bg-slate-800/50 rounded-2xl mb-8 space-y-4 border border-slate-700/50">
+                            <div className="flex justify-between">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Vendor</span>
+                                <span className="text-sm font-bold text-white">{selectedAnomaly.vendor}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Amount</span>
+                                <span className="text-sm font-black text-sky-500">{selectedAnomaly.amount}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Reason</span>
+                                <span className="text-xs text-slate-400">{selectedAnomaly.reason}</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <button onClick={() => setSelectedAnomaly(null)} className="flex-1 py-4 bg-slate-800 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all">Cancel</button>
+                            <button onClick={() => handleReviewPost(selectedAnomaly.id)} className="flex-1 py-4 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-all">Review & Post</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
