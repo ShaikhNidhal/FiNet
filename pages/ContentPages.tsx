@@ -5,6 +5,7 @@ import { ThemeContext, DataContext } from '../App';
 import { ThemeContextType, DataContextType, ThemeName, Transaction, UserRole, TeamMember } from '../types';
 import { THEMES } from '../constants';
 import { geminiService } from '../services/geminiService';
+import { mailService } from '../services/mailService';
 
 
 const NewKpiCard: React.FC<{ title: string; value: string; subtext: string; isPositive: boolean; icon: React.ReactNode }> = ({ title, value, subtext, isPositive, icon }) => (
@@ -2122,30 +2123,59 @@ export const UserManagementPage: React.FC = () => {
     const [formData, setFormData] = useState({ name: '', email: '', role: 'Employee' as UserRole });
     const [notification, setNotification] = useState<string | null>(null);
 
-    const handleAddUser = () => {
+    const handleAddUser = async () => {
         if (!formData.email || !formData.name) return;
         
-        // Simulating Backend Invitation
+        const setupLink = `http://localhost:3000/#/setup-password?token=${Math.random().toString(36).substr(2)}`;
+        
         const newUser: TeamMember = {
             id: Math.random().toString(36).substr(2, 9),
             name: formData.name,
             email: formData.email,
             role: formData.role,
-            status: 'Invited' // Changed to Invited initially
+            status: 'Invited'
         };
 
         setTeam([...team, newUser]);
         
-        // Show mock notification
-        setNotification(`Invitation email successfully queued for ${formData.email}. Secure setup link generated.`);
+        // Real Email Dispatch via Mailtrap
+        const sent = await mailService.sendInvitation({
+            to: formData.email,
+            name: formData.name,
+            role: formData.role,
+            setupLink
+        });
+
+        if (sent) {
+            setNotification(`Invitation sent to ${formData.email} via Mailtrap.`);
+        } else {
+            setNotification(`User added, but email failed (Check .env credentials).`);
+        }
+        
         setTimeout(() => setNotification(null), 5000);
 
         setFormData({ name: '', email: '', role: 'Employee' });
         setIsInviteOpen(false);
     };
 
-    const handleResendInvite = (email: string) => {
-        setNotification(`Reminder email resent to ${email}. Setup link remains valid for 24h.`);
+    const handleResendInvite = async (member: TeamMember) => {
+        const setupLink = `http://localhost:3000/#/setup-password?token=${Math.random().toString(36).substr(2)}`;
+        
+        setNotification(`Resending invite to ${member.email}...`);
+        
+        const sent = await mailService.sendInvitation({
+            to: member.email,
+            name: member.name,
+            role: member.role,
+            setupLink
+        });
+
+        if (sent) {
+            setNotification(`Reminder sent to ${member.email}.`);
+        } else {
+            setNotification(`Failed to resend email to ${member.email}.`);
+        }
+        
         setTimeout(() => setNotification(null), 5000);
     };
 
@@ -2306,7 +2336,7 @@ export const UserManagementPage: React.FC = () => {
                                     <td className="px-8 py-5 text-right flex items-center justify-end gap-4">
                                         {member.status === 'Invited' && (
                                             <button 
-                                                onClick={() => handleResendInvite(member.email)}
+                                                onClick={() => handleResendInvite(member)}
                                                 className="text-[9px] font-black text-sky-500 hover:text-sky-400 uppercase tracking-widest transition-colors"
                                             >
                                                 Resend Invite
