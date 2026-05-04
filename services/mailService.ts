@@ -7,14 +7,16 @@ export interface MailOptions {
 
 class MailService {
     private readonly API_TOKEN = import.meta.env.VITE_MAILTRAP_API_TOKEN;
-    private readonly SENDER_EMAIL = import.meta.env.VITE_MAILTRAP_SENDER_EMAIL || 'no-reply@finet.ai';
-    private readonly API_URL = 'https://send.api.mailtrap.io/api/send';
+    private readonly INBOX_ID = import.meta.env.VITE_MAILTRAP_INBOX_ID;
+    private readonly SENDER_EMAIL = 'no-reply@finet.ai'; // Sandbox allows any sender
 
     async sendInvitation({ to, name, role, setupLink }: MailOptions): Promise<boolean> {
-        if (!this.API_TOKEN) {
-            console.warn('Mailtrap API Token is missing. Email skipped.');
+        if (!this.API_TOKEN || !this.INBOX_ID) {
+            console.warn('Mailtrap API Token or Inbox ID is missing. Email skipped.');
             return false;
         }
+
+        const API_URL = `https://sandbox.api.mailtrap.io/api/send/${this.INBOX_ID}`;
 
         const html = `
             <div style="font-family: sans-serif; background-color: #0f172a; color: #ffffff; padding: 40px; border-radius: 20px;">
@@ -32,10 +34,10 @@ class MailService {
         `;
 
         try {
-            const response = await fetch(this.API_URL, {
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.API_TOKEN}`,
+                    'Api-Token': this.API_TOKEN,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
