@@ -2163,6 +2163,7 @@ export const UserManagementPage: React.FC = () => {
     const [team, setTeam] = useState<TeamMember[]>([
         { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'Admin', status: 'Active' },
         { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Finance Manager', status: 'Active' },
+    ]);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [formData, setFormData] = useState({ name: '', email: '', role: 'Employee' as UserRole });
     const [notification, setNotification] = useState<string | null>(null);
