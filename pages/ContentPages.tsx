@@ -1130,10 +1130,10 @@ export const SettingsPage: React.FC = () => {
     const { themeName, isDarkMode, applyTheme, toggleDarkMode } = themeContext;
 
     const teamMembers = [
-        { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'CFO', status: 'Active' },
-        { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Accountant', status: 'Active' },
-        { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Auditor', status: 'Invited' },
-        { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Viewer', status: 'Suspended' },
+        { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'Admin', status: 'Active' },
+        { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Finance Manager', status: 'Active' },
+        { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Analyst', status: 'Invited' },
+        { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Employee', status: 'Suspended' },
     ];
 
     return (
@@ -1225,7 +1225,12 @@ export const SettingsPage: React.FC = () => {
                             <span className="text-xl">🛡️</span>
                             <div>
                                 <p className="text-xs font-bold text-amber-600 dark:text-amber-400">Role-Based Access Control</p>
-                                <p className="text-[10px] text-slate-500 mt-1">Users with the **Auditor** role have read-only access to ledger logs and Benford's Law dashboards.</p>
+                                <div className="mt-2 space-y-2">
+                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Admin:</span> Full access + user management.</p>
+                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Finance Manager:</span> All modules + approval workflows.</p>
+                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Analyst:</span> Read-only reports & intelligence.</p>
+                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Employee:</span> Expenses & chat only.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

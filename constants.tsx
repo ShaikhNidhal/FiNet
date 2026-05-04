@@ -45,9 +45,10 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
 export const ALL_ROUTES = SIDEBAR_SECTIONS.flatMap(section => section.links.map(link => link.href.substring(1)));
 
 export const INITIAL_TEAM_MEMBERS: any[] = [
-    { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'CFO', status: 'Active' },
-    { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Accountant', status: 'Active' },
-    { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Auditor', status: 'Invited' },
-    { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Viewer', status: 'Suspended' },
+    { id: '1', name: 'Nidhal Shaikh', email: 'nidhal@finet.ai', role: 'Admin', status: 'Active' },
+    { id: '2', name: 'Alice Johnson', email: 'alice@finet.ai', role: 'Finance Manager', status: 'Active' },
+    { id: '3', name: 'Bob Williams', email: 'bob@partner-firm.com', role: 'Analyst', status: 'Invited' },
+    { id: '4', name: 'Sarah Miller', email: 'sarah@finet.ai', role: 'Employee', status: 'Suspended' },
 ];
+
 

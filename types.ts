@@ -61,7 +61,8 @@ export interface SubscriptionStatus {
     isPro: boolean;
 }
 
-export type UserRole = 'CFO' | 'Accountant' | 'SMB Owner' | 'Auditor' | 'Viewer';
+export type UserRole = 'Admin' | 'Finance Manager' | 'Analyst' | 'Employee';
+
 
 export interface TeamMember {
     id: string;
