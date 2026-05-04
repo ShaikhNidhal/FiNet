@@ -647,42 +647,10 @@ export const DataExtractionPage: React.FC = () => {
 };
 
 export const TransactionsPage: React.FC = () => {
+    const { transactions } = useContext(DataContext) as DataContextType;
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('All Types');
     const [categoryFilter, setCategoryFilter] = useState('All Categories');
-
-    const transactions = [
-        { date: '2026-05-14', description: 'Client Payment - InTech', category: 'Revenue', gl: '4000', amount: 72000, status: 'posted', anomaly: null },
-        { date: '2026-05-12', description: 'Interest Income', category: 'Interest', gl: '4500', amount: 2100, status: 'posted', anomaly: null },
-        { date: '2026-05-10', description: 'Marketing Campaign - Meta Ads', category: 'Marketing', gl: '6100', amount: -15000, status: 'posted', anomaly: null },
-        { date: '2026-05-07', description: 'Business Meals - Client Dinner', category: 'Meals & Entertainment', gl: '6400', amount: -5200, status: 'posted', anomaly: 'High' },
-        { date: '2026-05-03', description: 'Payroll - Engineering Team', category: 'Salaries', gl: '6600', amount: -92000, status: 'posted', anomaly: null },
-        { date: '2026-05-02', description: 'AWS Cloud Services', category: 'Software & SaaS', gl: '6200', amount: -9100, status: 'posted', anomaly: null },
-        { date: '2026-05-01', description: 'Client Payment - Acme Corp Q2', category: 'Revenue', gl: '4000', amount: 145000, status: 'posted', anomaly: null },
-        { date: '2026-04-30', description: 'Cash Transfer - Suspicious', category: 'Transfers', gl: '9000', amount: -45000, status: 'pending', anomaly: 'Critical' },
-        { date: '2026-04-25', description: 'Utilities', category: 'Utilities', gl: '6250', amount: -2300, status: 'posted', anomaly: null },
-        { date: '2026-04-15', description: 'License Revenue - SaaS Product', category: 'Revenue', gl: '4100', amount: 45000, status: 'posted', anomaly: null },
-        { date: '2026-04-10', description: 'Vendor Payment - Contractor A', category: 'Professional Services', gl: '6300', amount: -24000, status: 'posted', anomaly: null },
-        { date: '2026-04-05', description: 'Server Infrastructure', category: 'Software & SaaS', gl: '6200', amount: -7200, status: 'posted', anomaly: null },
-        { date: '2026-04-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
-        { date: '2026-04-01', description: 'Client Payment - TechVision LLC', category: 'Revenue', gl: '4000', amount: 138000, status: 'posted', anomaly: null },
-        { date: '2026-03-25', description: 'Duplicate Payment - Vendor B', category: 'Professional Services', gl: '6300', amount: -12000, status: 'pending', anomaly: 'Critical' },
-        { date: '2026-03-20', description: 'Office Equipment', category: 'Equipment', gl: '1500', amount: -13400, status: 'posted', anomaly: null },
-        { date: '2026-03-15', description: 'Vendor Payment - IT Services', category: 'Professional Services', gl: '6300', amount: -18000, status: 'posted', anomaly: null },
-        { date: '2026-03-08', description: 'Consulting Revenue - Beta Co', category: 'Revenue', gl: '4000', amount: 38000, status: 'posted', anomaly: null },
-        { date: '2026-03-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
-        { date: '2026-03-01', description: 'Client Payment - MegaCorp', category: 'Revenue', gl: '4000', amount: 230000, status: 'posted', anomaly: null },
-        { date: '2026-02-28', description: 'Q1 Tax Payment', category: 'Taxes', gl: '2600', amount: -35000, status: 'posted', anomaly: null },
-        { date: '2026-02-20', description: 'Google Workspace', category: 'Software & SaaS', gl: '6200', amount: -850, status: 'posted', anomaly: null },
-        { date: '2026-02-14', description: 'Insurance Premium - Annual', category: 'Insurance', gl: '6400', amount: -9000, status: 'posted', anomaly: null },
-        { date: '2026-02-10', description: 'Office Lease - Downtown HQ', category: 'Rent & Facilities', gl: '6700', amount: -12000, status: 'posted', anomaly: null },
-        { date: '2026-02-01', description: 'Client Payment - SpringBoard', category: 'Revenue', gl: '4000', amount: 88000, status: 'posted', anomaly: null },
-        { date: '2026-01-25', description: 'Office Supplies - Staples', category: 'Office Supplies', gl: '6100', amount: -425, status: 'posted', anomaly: null },
-        { date: '2026-01-20', description: 'Marketing Campaign - LinkedIn', category: 'Marketing', gl: '6100', amount: -12000, status: 'posted', anomaly: null },
-        { date: '2026-01-15', description: 'Travel Expenses - Sales Conference', category: 'Travel', gl: '6700', amount: -9000, status: 'posted', anomaly: null },
-        { date: '2026-01-03', description: 'Payroll - All Staff', category: 'Salaries', gl: '6600', amount: -148000, status: 'posted', anomaly: null },
-        { date: '2026-01-01', description: 'Client Payment - Globex Inc', category: 'Revenue', gl: '4000', amount: 62000, status: 'posted', anomaly: null },
-    ];
 
     const filteredTransactions = transactions.filter(tx => {
         const matchesSearch = tx.description.toLowerCase().includes(searchQuery.toLowerCase()) || tx.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -691,16 +659,25 @@ export const TransactionsPage: React.FC = () => {
         return matchesSearch && matchesType && matchesCategory;
     });
 
-    const spendCategories = [
-        { name: 'Salaries', amount: '$1,387,000', percent: '45.8%', fill: '90%' },
-        { name: 'Revenue', amount: '$1,593,100', percent: '44.5%', fill: '88%' },
-        { name: 'Professional Services', amount: '$65,500', percent: '2.4%', fill: '5%' },
-        { name: 'Taxes', amount: '$65,000', percent: '1.8%', fill: '4%' },
-        { name: 'Marketing', amount: '$59,000', percent: '1.7%', fill: '3.5%' },
-        { name: 'Transfers', amount: '$45,000', percent: '1.2%', fill: '2.5%' },
-        { name: 'Software & SaaS', amount: '$43,500', percent: '1.1%', fill: '2%' },
-        { name: 'Rent & Facilities', amount: '$24,000', percent: '0.7%', fill: '1%' },
-    ];
+    // Calculate dynamic KPIs
+    const totalCredits = transactions.reduce((acc, tx) => tx.amount > 0 ? acc + tx.amount : acc, 0);
+    const totalDebits = transactions.reduce((acc, tx) => tx.amount < 0 ? acc + Math.abs(tx.amount) : acc, 0);
+
+    // Calculate dynamic categories
+    const categoryTotals = transactions.reduce((acc: any, tx) => {
+        acc[tx.category] = (acc[tx.category] || 0) + Math.abs(tx.amount);
+        return acc;
+    }, {});
+
+    const totalVolume = Object.values(categoryTotals).reduce((a: any, b: any) => a + b, 0) as number;
+    const spendCategories = Object.entries(categoryTotals)
+        .map(([name, amount]: [string, any]) => ({
+            name,
+            amount: `$${amount.toLocaleString()}`,
+            percent: totalVolume > 0 ? `${((amount / totalVolume) * 100).toFixed(1)}%` : '0%',
+            fill: totalVolume > 0 ? `${(amount / totalVolume) * 100}%` : '0%'
+        }))
+        .sort((a, b) => parseFloat(b.percent) - parseFloat(a.percent));
 
     return (
         <div className="space-y-6 animate-in fade-in duration-700 w-full">
@@ -715,7 +692,7 @@ export const TransactionsPage: React.FC = () => {
                 <div className="premium-card p-6 flex items-center gap-4">
                     <div className="w-1 h-12 bg-emerald-500 rounded-full"></div>
                     <div>
-                        <p className="text-2xl font-black text-white">$1,593,100</p>
+                        <p className="text-2xl font-black text-white">${totalCredits.toLocaleString()}</p>
                         <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
                             <span className="text-emerald-500">↗</span> Total Credits
                         </p>
@@ -724,7 +701,7 @@ export const TransactionsPage: React.FC = () => {
                 <div className="premium-card p-6 flex items-center gap-4">
                     <div className="w-1 h-12 bg-rose-500 rounded-full"></div>
                     <div>
-                        <p className="text-2xl font-black text-white">$1,954,900</p>
+                        <p className="text-2xl font-black text-white">${totalDebits.toLocaleString()}</p>
                         <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
                             <span className="text-rose-500">↘</span> Total Debits
                         </p>
@@ -1226,8 +1203,32 @@ export const ExpenseManagementPage: React.FC = () => {
         setNewReport({ description: '', amount: '', category: 'Travel' });
     };
 
+    const { setTransactions } = useContext(DataContext) as DataContextType;
+
     const handleStatusChange = (id: string, newStatus: ExpenseReport['status']) => {
-        setReports(reports.map(r => r.id === id ? { ...r, status: newStatus } : r));
+        setReports(prev => {
+            const updated = prev.map(r => r.id === id ? { ...r, status: newStatus } : r);
+            
+            // If approved, add to global transactions
+            if (newStatus === 'Approved') {
+                const report = updated.find(r => r.id === id);
+                if (report) {
+                    setTransactions(prevTx => [
+                        {
+                            date: report.date,
+                            description: `Expense: ${report.description} (${report.submittedBy})`,
+                            amount: -report.amount, // Negative for expense
+                            type: 'expense',
+                            category: report.category
+                        },
+                        ...prevTx
+                    ]);
+                }
+            }
+            
+            return updated;
+        });
+
         if (selectedReport?.id === id) {
             setSelectedReport(prev => prev ? { ...prev, status: newStatus } : null);
         }
@@ -1562,7 +1563,7 @@ export const RiskDiscoveryPage: React.FC = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [aiInsights, setAiInsights] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
-    const dataContext = useContext(DataContext) as DataContextType;
+    const { transactions, setTransactions } = useContext(DataContext) as DataContextType;
 
     const [anomalies, setAnomalies] = useState([
         { id: 1, vendor: "AWS Infrastructure", date: "2026-05-12", amount: "$9,100", reason: "30% Price Drift vs Avg", level: "High", status: 'Pending' },
@@ -1599,6 +1600,19 @@ export const RiskDiscoveryPage: React.FC = () => {
     };
 
     const handleReviewPost = (id: number) => {
+        const anomaly = anomalies.find(a => a.id === id);
+        if (anomaly) {
+            // Update global transactions: Find matching tx and update it
+            setTransactions(prev => prev.map(tx => {
+                const amountMatches = Math.abs(tx.amount) === parseFloat(anomaly.amount.replace(/[^0-9.]/g, ''));
+                const descriptionMatches = tx.description.toLowerCase().includes(anomaly.vendor.toLowerCase());
+                if (amountMatches && descriptionMatches) {
+                    return { ...tx, status: 'posted' as any, anomaly: null as any };
+                }
+                return tx;
+            }));
+        }
+
         setAnomalies(anomalies.map(a => a.id === id ? { ...a, status: 'Reviewed' } : a));
         setSelectedAnomaly(null);
     };
@@ -1606,7 +1620,7 @@ export const RiskDiscoveryPage: React.FC = () => {
     const runAnalysis = async () => {
         setIsAnalyzing(true);
         try {
-            const insights = await geminiService.getRiskInsights(dataContext.transactions);
+            const insights = await geminiService.getRiskInsights(transactions);
             setAiInsights(insights);
         } catch (err) {
             setAiInsights("Failed to generate strategic insights. Ensure your transactions are loaded.");
