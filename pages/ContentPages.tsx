@@ -491,12 +491,15 @@ export const DataExtractionPage: React.FC = () => {
                                     <DetailField label="Vendor" value={extractedData.vendor} />
                                     <DetailField label="Date" value={extractedData.date} />
                                     <DetailField label="Amount" value={`$${extractedData.amount.toLocaleString()}`} isBold />
-                                    <div className="space-y-1">
+                                    <div className="space-y-1 relative">
                                         <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Category</p>
                                         <div className="flex items-center gap-2">
                                             <p className="text-xs text-white font-medium">{extractedData.category}</p>
                                             <button 
-                                                onClick={() => setIsRefining(!isRefining)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setIsRefining(!isRefining);
+                                                }}
                                                 className="p-1 hover:bg-slate-800 rounded transition-colors text-sky-500"
                                                 title="Correct AI categorization"
                                             >
@@ -504,11 +507,14 @@ export const DataExtractionPage: React.FC = () => {
                                             </button>
                                         </div>
                                         {isRefining && (
-                                            <div className="absolute z-50 mt-1 w-32 bg-slate-900 border border-slate-800 rounded-lg shadow-2xl p-1 animate-in fade-in zoom-in duration-200">
+                                            <div className="absolute z-[100] mt-1 w-32 bg-slate-900 border border-slate-800 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-1 animate-in fade-in zoom-in duration-200 left-0 top-full">
                                                 {['Software', 'Marketing', 'Office', 'Hosting', 'Revenue'].map(cat => (
                                                     <button 
                                                         key={cat}
-                                                        onClick={() => handleRefineCategory(cat)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRefineCategory(cat);
+                                                        }}
                                                         className="w-full text-left px-2 py-1.5 text-[10px] text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors"
                                                     >
                                                         {cat}
