@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext, DataContext } from '../App';
-import { ThemeContextType, DataContextType, ThemeName, Transaction } from '../types';
+import { ThemeContextType, DataContextType, ThemeName, Transaction, UserRole, TeamMember } from '../types';
 import { THEMES } from '../constants';
 import { geminiService } from '../services/geminiService';
 
