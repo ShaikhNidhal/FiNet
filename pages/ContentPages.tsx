@@ -244,6 +244,8 @@ export const DataExtractionPage: React.FC = () => {
     const [pastedText, setPastedText] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [history, setHistory] = useState<any[]>([]);
+    const [learnedRules, setLearnedRules] = useState<Record<string, string>>({});
+    const [isRefining, setIsRefining] = useState(false);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
     const dataContext = useContext(DataContext) as DataContextType;
@@ -279,9 +281,10 @@ export const DataExtractionPage: React.FC = () => {
         setExtractedData(null); // Reset results to show processing state
         
         // Mock data for demo - in a real app we'd send the file/text to the backend
+        const rulesString = Object.entries(learnedRules).map(([v, c]) => `Rule: For vendor '${v}', always use category '${c}'.`).join(' ');
         const mockDocText = activeInputTab === 'paste' 
             ? pastedText 
-            : `Analysis requested for document type: ${docType}. Filename: ${selectedFile?.name}.`;
+            : `Analysis requested for document type: ${docType}. Filename: ${selectedFile?.name}. User Preferences: ${rulesString}`;
         
         try {
             // Artificial delay to feel like AI is thinking
@@ -323,7 +326,19 @@ export const DataExtractionPage: React.FC = () => {
             type: 'expense', 
             category: extractedData.category 
         };
+        
+        const result = {
+            ...extractedData,
+            fileName: extractedData.fileName || selectedFile?.name || "Manual Entry",
+            docType: docType,
+            source: activeInputTab === 'upload' ? 'Upload' : 'Paste',
+            timestamp: new Date().toLocaleString()
+        };
+        
         dataContext.setTransactions(prev => [newTransaction, ...prev]);
+        setHistory(prev => [result, ...prev]);
+        setExtractedData(null);
+        setSelectedFile(null);
         navigate('/transactions');
     };
 
@@ -476,7 +491,32 @@ export const DataExtractionPage: React.FC = () => {
                                     <DetailField label="Vendor" value={extractedData.vendor} />
                                     <DetailField label="Date" value={extractedData.date} />
                                     <DetailField label="Amount" value={`$${extractedData.amount.toLocaleString()}`} isBold />
-                                    <DetailField label="Due Date" value={extractedData.dueDate} />
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Category</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-xs text-white font-medium">{extractedData.category}</p>
+                                            <button 
+                                                onClick={() => setIsRefining(!isRefining)}
+                                                className="p-1 hover:bg-slate-800 rounded transition-colors text-sky-500"
+                                                title="Correct AI categorization"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            </button>
+                                        </div>
+                                        {isRefining && (
+                                            <div className="absolute z-50 mt-1 w-32 bg-slate-900 border border-slate-800 rounded-lg shadow-2xl p-1 animate-in fade-in zoom-in duration-200">
+                                                {['Software', 'Marketing', 'Office', 'Hosting', 'Revenue'].map(cat => (
+                                                    <button 
+                                                        key={cat}
+                                                        onClick={() => handleRefineCategory(cat)}
+                                                        className="w-full text-left px-2 py-1.5 text-[10px] text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors"
+                                                    >
+                                                        {cat}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <button onClick={handleAddToTransactions} className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-colors">
                                     Approve & Sync to Ledger
@@ -512,9 +552,18 @@ export const DataExtractionPage: React.FC = () => {
 
             {/* Bottom Section: History */}
             <div className="premium-card p-0 overflow-hidden">
-                <div className="flex justify-between items-center p-6 border-b border-slate-800">
-                    <h3 className="text-sm font-bold font-outfit text-white">Extraction History</h3>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{history.length} documents</span>
+                <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900/10">
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-sm font-bold font-outfit text-white">Extraction History</h3>
+                        <span className="text-[10px] px-2 py-0.5 bg-slate-800 text-slate-500 rounded-full font-bold">{history.length} ITEMS</span>
+                    </div>
+                    <button 
+                        onClick={handleExportAudit}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 text-[10px] font-bold rounded-lg border border-slate-700/50 transition-all uppercase tracking-widest shadow-lg"
+                    >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Export Audit Trail
+                    </button>
                 </div>
                 {history.length > 0 ? (
                     <div className="overflow-x-auto">
