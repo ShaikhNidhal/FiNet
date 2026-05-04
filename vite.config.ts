@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          '/api/mailtrap': {
+            target: 'https://sandbox.api.mailtrap.io',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api\/mailtrap/, ''),
+          },
+        },
       },
       plugins: [react(), tailwindcss()],
       define: {

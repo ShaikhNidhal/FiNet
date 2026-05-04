@@ -16,7 +16,7 @@ class MailService {
             return false;
         }
 
-        const API_URL = `https://sandbox.api.mailtrap.io/api/send/${this.INBOX_ID}`;
+        const API_URL = `/api/mailtrap/api/send/${this.INBOX_ID}`;
 
         const html = `
             <div style="font-family: sans-serif; background-color: #0f172a; color: #ffffff; padding: 40px; border-radius: 20px;">
