@@ -1129,59 +1129,65 @@ export const SettingsPage: React.FC = () => {
     const { themeName, isDarkMode, applyTheme, toggleDarkMode } = themeContext;
 
     return (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-2xl max-w-5xl mx-auto space-y-12 border border-slate-200 dark:border-slate-800">
+        <div className="bg-white dark:bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-7xl mx-auto space-y-12 border border-slate-200 dark:border-slate-800">
             <div>
                 <h2 className="text-3xl font-black text-slate-800 dark:text-white font-outfit">Workspace Settings</h2>
                 <p className="text-slate-500 mt-2 font-medium">Manage your team, appearance, and organizational controls.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="space-y-8">
-                    <section className="space-y-6">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Personalization</h3>
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="space-y-12">
+                <section className="space-y-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Personalization</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
                             <div>
                                 <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Dark Mode</p>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase">Toggle high-contrast interface</p>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Toggle high-contrast interface</p>
                             </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} className="sr-only peer" />
-                                <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-sky-500"></div>
-                            </label>
+                            <button 
+                                onClick={toggleDarkMode}
+                                className={`w-14 h-7 rounded-full transition-all relative ${isDarkMode ? 'bg-sky-500' : 'bg-slate-300'}`}
+                            >
+                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${isDarkMode ? 'right-1' : 'left-1 shadow-md'}`}></div>
+                            </button>
                         </div>
 
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+                        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
                             <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Brand Color</p>
-                            <div className="flex items-center gap-3">
-                                {(Object.keys(THEMES) as ThemeName[]).map(name => (
+                            <div className="flex gap-4">
+                                {Object.keys(THEMES).map((name) => (
                                     <button
                                         key={name}
-                                        onClick={() => applyTheme(name)}
-                                        className={`w-10 h-10 rounded-xl transition-all flex items-center justify-center ${themeName === name ? 'ring-4 ring-sky-500/20 scale-110' : 'hover:scale-105'}`}
-                                        style={{ backgroundColor: THEMES[name].primary }}
+                                        onClick={() => applyTheme(name as ThemeName)}
+                                        className="w-10 h-10 rounded-xl transition-all hover:scale-110 flex items-center justify-center shadow-lg"
+                                        style={{ backgroundColor: THEMES[name as ThemeName].primary }}
                                     >
                                         {themeName === name && <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
                                     </button>
                                 ))}
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <section className="space-y-6">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Subscription</h3>
-                        <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
-                            </div>
-                            <div className="relative z-10">
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-sky-500 text-white px-2 py-1 rounded-md">Enterprise Pro</span>
-                                <h4 className="text-2xl font-black mt-4">$199<span className="text-sm font-normal text-slate-400">/mo</span></h4>
-                                <p className="text-xs text-slate-400 mt-2">Next billing cycle: **June 1, 2026**</p>
-                                <button className="mt-6 w-full py-3 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Manage Billing</button>
-                            </div>
+                <section className="space-y-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Subscription</h3>
+                    <div className="p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg className="w-48 h-48" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
                         </div>
-                    </section>
-                </div>
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-sky-500 text-white px-3 py-1.5 rounded-lg shadow-lg">Enterprise Pro Plan</span>
+                                <h4 className="text-5xl font-black mt-6">$199<span className="text-xl font-normal text-slate-400 ml-2">/ month</span></h4>
+                                <p className="text-sm text-slate-400 mt-4 font-medium italic">Active since January 2024 • Next billing cycle: **June 1, 2026**</p>
+                            </div>
+                            <button className="w-full md:w-auto px-12 py-5 bg-white text-slate-900 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-200 transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:-translate-y-1">
+                                Manage Billing & Invoices
+                            </button>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     );
