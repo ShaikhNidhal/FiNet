@@ -1190,49 +1190,6 @@ export const SettingsPage: React.FC = () => {
                     </section>
                 </div>
 
-                <section className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Team Management</h3>
-                        <button className="text-[10px] font-black text-sky-500 uppercase tracking-widest hover:underline">+ Invite Member</button>
-                    </div>
-                    <div className="space-y-3">
-                        {teamMembers.map(member => (
-                            <div key={member.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-black text-slate-500">
-                                        {member.name.split(' ').map(n => n[0]).join('')}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{member.name}</p>
-                                        <p className="text-[10px] text-slate-500 font-medium">{member.email}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md mb-1 block w-fit ml-auto ${
-                                        member.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500' : 
-                                        member.status === 'Invited' ? 'bg-sky-500/10 text-sky-500' : 'bg-rose-500/10 text-rose-500'
-                                    }`}>
-                                        {member.status}
-                                    </span>
-                                    <p className="text-[10px] font-bold text-slate-400 group-hover:text-slate-200 transition-colors">{member.role}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
-                        <div className="flex gap-3">
-                            <span className="text-xl">🛡️</span>
-                            <div>
-                                <p className="text-xs font-bold text-amber-600 dark:text-amber-400">Role-Based Access Control</p>
-                                <div className="mt-2 space-y-2">
-                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Admin:</span> Full access + user management.</p>
-                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Finance Manager:</span> All modules + approval workflows.</p>
-                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Analyst:</span> Read-only reports & intelligence.</p>
-                                    <p className="text-[10px] text-slate-500"><span className="font-black text-slate-400 uppercase">Employee:</span> Expenses & chat only.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </section>
             </div>
         </div>
