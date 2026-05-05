@@ -12,14 +12,14 @@ import { convertCurrency, SUPPORTED_CURRENCIES } from '../utils/currencyUtils';
 const NewKpiCard: React.FC<{ title: string; value: string; subtext: string; isPositive: boolean; icon: React.ReactNode }> = ({ title, value, subtext, isPositive, icon }) => (
     <div className="premium-card relative overflow-hidden flex flex-col justify-between p-5">
         <div className="flex justify-between items-start mb-2">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
-            <div className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.15)]">
+            <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{title}</h3>
+            <div className="w-8 h-8 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)] flex items-center justify-center text-sky-500 shadow-sm">
                 {icon}
             </div>
         </div>
         <div>
-            <p className="text-3xl font-black text-white mb-1">{value}</p>
-            <p className={`text-xs font-semibold ${isPositive ? 'text-emerald-500' : (subtext.includes('per month') ? 'text-slate-500' : 'text-rose-500')}`}>
+            <p className="text-3xl font-black text-[var(--text-main)] mb-1">{value}</p>
+            <p className={`text-xs font-semibold ${isPositive ? 'text-emerald-500' : (subtext.includes('per month') ? 'text-[var(--text-muted)]' : 'text-rose-500')}`}>
                 {subtext}
             </p>
         </div>
@@ -596,16 +596,16 @@ export const TransactionsPage: React.FC = () => {
     return (
         <div className="space-y-6 animate-in fade-in duration-700 w-full">
             <div>
-                <h2 className="text-xl font-bold font-outfit text-white">Transaction Ledger</h2>
-                <p className="text-slate-500 text-sm mt-1">Full audit trail with AI categorization and anomaly scoring</p>
+                <h2 className="text-xl font-bold font-outfit text-[var(--text-main)]">Transaction Ledger</h2>
+                <p className="text-[var(--text-muted)] text-sm mt-1">Full audit trail with AI categorization and anomaly scoring</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="premium-card p-6 flex items-center gap-4">
                     <div className="w-1 h-12 bg-emerald-500 rounded-full"></div>
                     <div>
-                        <p className="text-2xl font-black text-white">{baseCurrency} {totalCredits.toLocaleString()}</p>
-                        <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
+                        <p className="text-2xl font-black text-[var(--text-main)]">{baseCurrency} {totalCredits.toLocaleString()}</p>
+                        <p className="text-xs text-[var(--text-muted)] font-semibold flex items-center gap-1 mt-1">
                             <span className="text-emerald-500">↗</span> Total Credits
                         </p>
                     </div>
@@ -613,8 +613,8 @@ export const TransactionsPage: React.FC = () => {
                 <div className="premium-card p-6 flex items-center gap-4">
                     <div className="w-1 h-12 bg-rose-500 rounded-full"></div>
                     <div>
-                        <p className="text-2xl font-black text-white">{baseCurrency} {totalDebits.toLocaleString()}</p>
-                        <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
+                        <p className="text-2xl font-black text-[var(--text-main)]">{baseCurrency} {totalDebits.toLocaleString()}</p>
+                        <p className="text-xs text-[var(--text-muted)] font-semibold flex items-center gap-1 mt-1">
                             <span className="text-rose-500">↘</span> Total Debits
                         </p>
                     </div>
@@ -623,34 +623,34 @@ export const TransactionsPage: React.FC = () => {
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="relative w-full md:w-96">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[var(--text-muted)]">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                     <input 
                         type="text" 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block pl-10 p-2.5 text-white placeholder-slate-500" 
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block pl-10 p-2.5 text-[var(--text-main)] placeholder-[var(--text-muted)] outline-none" 
                         placeholder="Search transactions..." 
                     />
                 </div>
                 <div className="flex gap-4 w-full md:w-auto">
-                    <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg block p-2.5 w-full md:w-40">
+                    <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-lg block p-2.5 w-full md:w-40 outline-none">
                         <option>All Types</option>
                         <option>Credit</option>
                         <option>Debit</option>
                     </select>
-                    <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg block p-2.5 w-full md:w-40">
+                    <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-main)] text-sm rounded-lg block p-2.5 w-full md:w-40 outline-none">
                         <option>All Categories</option>
                         {Array.from(new Set(transactions.map(t => t.category))).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
                 </div>
             </div>
 
-            <div className="premium-card p-0 overflow-hidden">
+            <div className="premium-card p-0 overflow-hidden shadow-lg border-[var(--border-color)]">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left text-slate-400">
-                        <thead className="text-[10px] text-slate-500 uppercase font-bold border-b border-slate-800 tracking-wider">
+                    <table className="w-full text-xs text-left text-[var(--text-muted)]">
+                        <thead className="text-[10px] text-[var(--text-muted)] uppercase font-bold border-b border-[var(--border-color)] tracking-wider bg-[var(--bg-input)]">
                             <tr>
                                 <th className="px-6 py-4">DATE</th>
                                 <th className="px-6 py-4">DESCRIPTION</th>
@@ -661,14 +661,14 @@ export const TransactionsPage: React.FC = () => {
                                 <th className="px-6 py-4 text-center">ANOMALY</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/50">
+                        <tbody className="divide-y divide-[var(--border-color)]">
                             {filteredTransactions.map((tx, index) => (
-                                <tr key={index} className="hover:bg-slate-800/50 transition-colors">
+                                <tr key={index} className="hover:bg-[var(--bg-input)] transition-colors">
                                     <td className="px-6 py-3">{tx.date}</td>
-                                    <td className="px-6 py-3 font-semibold text-slate-200">{tx.description}</td>
+                                    <td className="px-6 py-3 font-semibold text-[var(--text-main)]">{tx.description}</td>
                                     <td className="px-6 py-3">{tx.category}</td>
-                                    <td className="px-6 py-3 text-slate-500">{tx.gl}</td>
-                                    <td className={`px-6 py-3 text-right font-bold ${tx.amount > 0 ? 'text-emerald-500' : 'text-white'}`}>
+                                    <td className="px-6 py-3 text-[var(--text-muted)]">{tx.gl}</td>
+                                    <td className={`px-6 py-3 text-right font-bold ${tx.amount > 0 ? 'text-emerald-500' : 'text-[var(--text-main)]'}`}>
                                         {tx.currency || baseCurrency} {tx.amount.toLocaleString()}
                                     </td>
                                     <td className="px-6 py-3 text-center">
@@ -677,7 +677,7 @@ export const TransactionsPage: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-3 text-center">
-                                        {tx.anomaly ? <span className="text-rose-500 text-[10px] font-bold">{tx.anomaly}</span> : <span className="text-slate-700">—</span>}
+                                        {tx.anomaly ? <span className="text-rose-500 text-[10px] font-bold">{tx.anomaly}</span> : <span className="text-[var(--border-color)]">—</span>}
                                     </td>
                                 </tr>
                             ))}

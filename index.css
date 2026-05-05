@@ -6,8 +6,11 @@
   --color-primary-light: rgba(14, 165, 233, 0.1);
   --bg-main: #f8fafc;
   --bg-card: #ffffff;
+  --bg-sidebar: #0f172a;
+  --bg-input: #f1f5f9;
   --text-main: #0f172a;
   --text-muted: #64748b;
+  --text-on-dark: #f8fafc;
   --border-color: #e2e8f0;
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(226, 232, 240, 0.8);
@@ -17,10 +20,13 @@
   --color-primary: #38bdf8;
   --color-primary-hover: #7dd3fc;
   --color-primary-light: rgba(56, 189, 248, 0.1);
-  --bg-main: #020617; /* Deep Space Navy */
+  --bg-main: #020617; 
   --bg-card: #0f172a;
+  --bg-sidebar: #020617;
+  --bg-input: #1e293b;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
+  --text-on-dark: #f8fafc;
   --border-color: #1e293b;
   --glass-bg: rgba(15, 23, 42, 0.7);
   --glass-border: rgba(30, 41, 59, 0.8);

@@ -11,7 +11,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const proLinks = ["/reconciliation", "/risk-discovery", "/scenario-planning", "/market-intelligence"];
 
   return (
-    <aside className="w-72 bg-[#020617] text-slate-300 flex flex-col p-6 flex-shrink-0 border-r border-slate-800/50">
+    <aside className="w-72 bg-[var(--bg-sidebar)] text-[var(--text-on-dark)] flex flex-col p-6 flex-shrink-0 border-r border-[var(--border-color)]">
       <div className="mb-10 pl-2">
         <h1 className="text-3xl font-extrabold font-outfit text-white tracking-tighter">
           Fi<span className="text-[var(--color-primary)]">Net</span>
@@ -59,12 +59,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           Logout Session
         </button>
-        <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-800/50">
+        <div className="bg-[var(--bg-input)] rounded-2xl p-4 border border-[var(--border-color)]">
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[var(--color-primary)] to-sky-400"></div>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[var(--color-primary)] to-sky-400 shadow-sm"></div>
                 <div>
-                    <p className="text-xs font-bold text-white">Nidhal Shaikh</p>
-                    <p className="text-[10px] text-slate-500 font-medium">CFO @ FiNet</p>
+                    <p className="text-xs font-bold text-[var(--text-main)]">Nidhal Shaikh</p>
+                    <p className="text-[10px] text-[var(--text-muted)] font-medium">CFO @ FiNet</p>
                 </div>
             </div>
         </div>
