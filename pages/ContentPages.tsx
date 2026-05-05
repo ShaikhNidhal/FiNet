@@ -68,8 +68,8 @@ export const DashboardPage: React.FC = () => {
                 <div className="xl:col-span-2 space-y-6">
                     {/* Header */}
                     <div>
-                        <h2 className="text-xl font-bold font-outfit text-white">Financial Dashboard</h2>
-                        <p className="text-slate-500 text-sm mt-1">Real-time overview of your financial position</p>
+                        <h2 className="text-xl font-bold font-outfit text-[var(--text-main)]">Financial Dashboard</h2>
+                        <p className="text-[var(--text-muted)] text-sm mt-1">Real-time overview of your financial position</p>
                     </div>
 
                     {/* KPIs */}
@@ -114,7 +114,6 @@ export const DashboardPage: React.FC = () => {
 
                     {/* Area Chart */}
                     <div className="premium-card">
-                        <h3 className="text-sm font-bold font-outfit mb-6 text-white">Cash Flow — Last 12 Months</h3>
                         <div className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -128,26 +127,27 @@ export const DashboardPage: React.FC = () => {
                                             <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
                                     <XAxis 
                                         dataKey="name" 
-                                        tick={{ fill: '#64748b', fontSize: 10 }} 
+                                        tick={{ fill: 'var(--text-muted)', fontSize: 10 }} 
                                         axisLine={false}
                                         tickLine={false}
                                         minTickGap={30}
                                     />
                                     <YAxis 
-                                        tick={{ fill: '#64748b', fontSize: 10 }} 
+                                        tick={{ fill: 'var(--text-muted)', fontSize: 10 }} 
                                         axisLine={false}
                                         tickLine={false}
                                         tickFormatter={(value) => `$${value/1000}K`}
                                     />
                                     <Tooltip 
                                         contentStyle={{ 
-                                            backgroundColor: '#0f172a', 
+                                            backgroundColor: 'var(--bg-card)', 
                                             borderRadius: '8px',
-                                            border: '1px solid #1e293b',
-                                            color: '#f8fafc'
+                                            border: '1px solid var(--border-color)',
+                                            color: 'var(--text-main)',
+                                            fontSize: '12px'
                                         }} 
                                     />
                                     <Area type="monotone" dataKey="Outflow" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#colorOutflow)" />
@@ -160,17 +160,17 @@ export const DashboardPage: React.FC = () => {
                     {/* Recent Transactions List */}
                     <div className="premium-card">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-sm font-bold font-outfit text-white">Recent Transactions</h3>
+                            <h3 className="text-sm font-bold font-outfit text-[var(--text-main)]">Recent Transactions</h3>
                             <button className="text-[10px] font-black text-sky-500 uppercase tracking-widest hover:text-sky-400">View All</button>
                         </div>
                         <div className="space-y-4">
                             {recentTransactions.map((tx, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2 border-b border-slate-800 last:border-0">
+                                <div key={idx} className="flex justify-between items-center py-2 border-b border-[var(--border-color)] last:border-0">
                                     <div>
-                                        <p className="font-semibold text-white text-sm">{tx.description}</p>
-                                        <p className="text-[11px] text-slate-500 mt-1">{tx.category} • {tx.date}</p>
+                                        <p className="font-semibold text-[var(--text-main)] text-sm">{tx.description}</p>
+                                        <p className="text-[11px] text-[var(--text-muted)] mt-1">{tx.category} • {tx.date}</p>
                                     </div>
-                                    <p className={`font-bold text-sm ${tx.amount > 0 ? 'text-emerald-500' : 'text-white'}`}>
+                                    <p className={`font-bold text-sm ${tx.amount > 0 ? 'text-emerald-500' : 'text-[var(--text-main)]'}`}>
                                         {tx.amount > 0 ? '+' : ''}${tx.amount.toLocaleString()}
                                     </p>
                                 </div>
@@ -184,21 +184,21 @@ export const DashboardPage: React.FC = () => {
                     {/* AI Strategic Insights */}
                     <div className="premium-card">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-sm font-bold font-outfit text-white">AI Strategic Insights</h3>
+                            <h3 className="text-sm font-bold font-outfit text-[var(--text-main)]">AI Strategic Insights</h3>
                             <span className="px-2 py-1 bg-sky-500/10 text-sky-500 text-[10px] font-bold rounded-lg uppercase tracking-wider">Live</span>
                         </div>
                         <div className="space-y-6">
                             <div className="group cursor-default">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold">↑</div>
-                                    <h4 className="font-semibold text-white text-sm">Revenue Acceleration</h4>
+                                    <h4 className="font-semibold text-[var(--text-main)] text-sm">Revenue Acceleration</h4>
                                 </div>
                                 <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">Month-over-month growth is exceeding projections by 15%. Recommend increasing marketing spend in Region A.</p>
                             </div>
                             <div className="group cursor-default">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 font-bold">!</div>
-                                    <h4 className="font-semibold text-white text-sm">Subscription Bloat</h4>
+                                    <h4 className="font-semibold text-[var(--text-main)] text-sm">Subscription Bloat</h4>
                                 </div>
                                 <p className="text-xs text-[var(--text-muted)] leading-relaxed pl-11">FiNet detected 3 overlapping SaaS subscriptions. Estimated savings: $420/month.</p>
                             </div>
@@ -215,7 +215,7 @@ export const DashboardPage: React.FC = () => {
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             </div>
                             <div>
-                                <p className="text-xl font-bold text-white leading-tight">10</p>
+                                <p className="text-xl font-bold text-[var(--text-main)] leading-tight">10</p>
                                 <p className="text-xs text-[var(--text-muted)]">Open Invoices</p>
                             </div>
                         </div>
@@ -224,7 +224,7 @@ export const DashboardPage: React.FC = () => {
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             </div>
                             <div>
-                                <p className="text-xl font-bold text-white leading-tight">{openAnomaliesCount}</p>
+                                <p className="text-xl font-bold text-[var(--text-main)] leading-tight">{openAnomaliesCount}</p>
                                 <p className="text-xs text-[var(--text-muted)]">Open Anomalies</p>
                             </div>
                         </div>
@@ -1350,7 +1350,7 @@ export const ReconciliationPage: React.FC = () => {
         <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit">AI Auto-Reconciliation</h2>
+                    <h2 className="text-2xl font-black font-outfit text-[var(--text-main)]">AI Auto-Reconciliation</h2>
                     <p className="text-[var(--text-muted)] mt-1">FiNet has automatically matched 142/145 bank transactions.</p>
                 </div>
                 <button className="btn-primary">Sync with Bank</button>
@@ -1516,14 +1516,14 @@ export const RiskDiscoveryPage: React.FC = () => {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit text-white">Risk & Audit Discovery</h2>
-                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Continuous Intelligence Mode Active</p>
+                    <h2 className="text-2xl font-black font-outfit text-[var(--text-main)]">Risk & Audit Discovery</h2>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold">Continuous Intelligence Mode Active</p>
                 </div>
                 <div className="flex gap-4">
                     <button 
                         onClick={handleExportAuditLog}
                         disabled={isExporting}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all border border-slate-700 flex items-center gap-2"
+                        className="px-4 py-2 bg-[var(--bg-input)] hover:bg-[var(--border-color)] text-[var(--text-main)] text-xs font-bold rounded-xl transition-all border border-[var(--border-color)] flex items-center gap-2"
                     >
                         {isExporting ? <div className="w-3 h-3 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div> : 'Export Audit Log'}
                     </button>
@@ -2174,8 +2174,8 @@ export const ExecutiveInsightsPage: React.FC = () => {
         <div className="space-y-10 animate-in fade-in duration-700">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-black font-outfit text-white">Executive Insights</h2>
-                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold">Unit Economics & High-Level Strategy</p>
+                    <h2 className="text-2xl font-black font-outfit text-[var(--text-main)]">Executive Insights</h2>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-1 uppercase tracking-widest font-bold">Unit Economics & High-Level Strategy</p>
                 </div>
                 <button 
                     onClick={generateHealthCheck}
