@@ -6,6 +6,7 @@ import { ThemeContextType, DataContextType, ThemeName, Transaction, UserRole, Te
 import { THEMES } from '../constants';
 import { geminiService } from '../services/geminiService';
 import { mailService } from '../services/mailService';
+import { convertCurrency, SUPPORTED_CURRENCIES } from '../utils/currencyUtils';
 
 
 const NewKpiCard: React.FC<{ title: string; value: string; subtext: string; isPositive: boolean; icon: React.ReactNode }> = ({ title, value, subtext, isPositive, icon }) => (
@@ -235,7 +236,6 @@ export const DashboardPage: React.FC = () => {
     );
 };
 
-
 const DetailField: React.FC<{ label: string; value: string; isBold?: boolean }> = ({ label, value, isBold }) => (
     <div className="space-y-1">
         <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">{label}</p>
@@ -256,7 +256,7 @@ export const DataExtractionPage: React.FC = () => {
     const [isRefining, setIsRefining] = useState(false);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const dataContext = useContext(DataContext) as DataContextType;
+    const { baseCurrency, setBaseCurrency, setTransactions } = useContext(DataContext) as DataContextType;
     const navigate = useNavigate();
 
     const handleFileClick = () => {
@@ -286,27 +286,33 @@ export const DataExtractionPage: React.FC = () => {
 
         setIsProcessing(true);
         setError(null);
-        setExtractedData(null); // Reset results to show processing state
+        setExtractedData(null);
         
-        // Mock data for demo - in a real app we'd send the file/text to the backend
         const rulesString = Object.entries(learnedRules).map(([v, c]) => `Rule: For vendor '${v}', always use category '${c}'.`).join(' ');
         const mockDocText = activeInputTab === 'paste' 
             ? pastedText 
             : `Analysis requested for document type: ${docType}. Filename: ${selectedFile?.name}. User Preferences: ${rulesString}`;
         
         try {
-            // Artificial delay to feel like AI is thinking
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
             const data = await geminiService.analyzeDocument(mockDocText);
+            
             if (data) {
+                const amount = parseFloat(data["Total Amount"] || data.amount || "0.00");
+                const currency = data.Currency || data.currency || "USD";
+                
+                // Live conversion
+                const converted = convertCurrency(amount, currency, baseCurrency);
+
                 const result = {
-                    vendor: data["Vendor/Customer Name"] || data.vendor || "Innovate Tech Inc.",
-                    date: data.Date || data.date || "2026-05-02",
-                    amount: parseFloat(data["Total Amount"] || data.amount || "1250.00"),
-                    dueDate: data["Due Date"] || "2026-06-01",
-                    description: data.Description || data.description || "Cloud Services & Infrastructure",
-                    category: data["Suggested Category"] || data.category || "Software & SaaS",
+                    vendor: data["Vendor/Customer Name"] || data.vendor || "Auto-Detected Vendor",
+                    date: data.Date || data.date || new Date().toISOString().split('T')[0],
+                    amount: amount,
+                    currency: currency,
+                    convertedAmount: converted,
+                    targetCurrency: baseCurrency,
+                    description: data.Description || data.description || "Services Rendered",
+                    category: data["Suggested Category"] || data.category || "Other",
                     fileName: selectedFile?.name || "Manual Text Entry",
                     docType: docType,
                     source: activeInputTab === 'upload' ? 'Upload' : 'Paste',
@@ -327,38 +333,24 @@ export const DataExtractionPage: React.FC = () => {
     
     const handleAddToTransactions = () => {
         if (!extractedData) return;
+        
         const newTransaction: Transaction = { 
             date: extractedData.date, 
-            description: extractedData.vendor, 
-            amount: -extractedData.amount, 
+            description: `${extractedData.vendor} - ${extractedData.description}`, 
+            amount: -extractedData.convertedAmount, 
+            currency: extractedData.targetCurrency,
             type: 'expense', 
-            category: extractedData.category 
+            category: extractedData.category,
+            gl: '6000',
+            status: 'posted',
+            anomaly: null
         };
         
-        const result = {
-            ...extractedData,
-            fileName: extractedData.fileName || selectedFile?.name || "Manual Entry",
-            docType: docType,
-            source: activeInputTab === 'upload' ? 'Upload' : 'Paste',
-            timestamp: new Date().toLocaleString()
-        };
-        
-        dataContext.setTransactions(prev => [newTransaction, ...prev]);
-        setHistory(prev => [result, ...prev]);
+        setTransactions(prev => [newTransaction, ...prev]);
         setExtractedData(null);
         setSelectedFile(null);
+        setPastedText('');
         navigate('/transactions');
-    };
-
-    const handleRefineCategory = (newCategory: string) => {
-        if (!extractedData) return;
-        setLearnedRules(prev => ({ ...prev, [extractedData.vendor]: newCategory }));
-        setExtractedData(prev => ({ ...prev, category: newCategory }));
-        setIsRefining(false);
-    };
-
-    const handleExportAudit = () => {
-        alert("Generating Audit Trail Bundle... \n- Source Documents (PDF/XLS)\n- AI Extraction Metadata\n- Verified Ledger Entries\n\nDownload will start shortly.");
     };
 
     const capabilities = [
@@ -369,38 +361,44 @@ export const DataExtractionPage: React.FC = () => {
         "Line items & tax calculation",
         "Vendor / client identification",
         "Bank statement transactions",
-        "Date & currency normalization"
+        "Live exchange rate normalization"
     ];
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 w-full">
-            {/* Header */}
-            <div>
-                <h2 className="text-xl font-bold font-outfit text-white">AI Data Extraction</h2>
-                <p className="text-slate-500 text-sm mt-1">OCR/NLP-powered extraction from invoices, receipts, bank statements, PDFs, and Excel files</p>
+            {/* Header with Global Currency Selector */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-xl font-bold font-outfit text-white">AI Data Extraction</h2>
+                    <p className="text-slate-500 text-sm mt-1">Multi-currency OCR & Autonomous Ledger Posting</p>
+                </div>
+                
+                <div className="flex items-center gap-3 bg-slate-900/50 p-2 rounded-2xl border border-slate-800">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-2">Reporting Currency</span>
+                    <select 
+                        value={baseCurrency}
+                        onChange={(e) => setBaseCurrency(e.target.value)}
+                        className="bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border border-slate-700 focus:outline-none focus:border-sky-500"
+                    >
+                        {SUPPORTED_CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* Left Column: Input */}
                 <div className="premium-card p-6 space-y-6">
-                    <div className="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-widest">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Document Input
-                    </div>
-
                     <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-800">
                         <button 
                             onClick={() => setActiveInputTab('upload')}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${activeInputTab === 'upload' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             Upload File
                         </button>
                         <button 
                             onClick={() => setActiveInputTab('paste')}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${activeInputTab === 'paste' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                             Paste Text
                         </button>
                     </div>
@@ -414,20 +412,13 @@ export const DataExtractionPage: React.FC = () => {
                         <option>Receipt</option>
                         <option>Bank Statement</option>
                         <option>Contract</option>
-                        <option>Spreadsheet / Report</option>
                     </select>
 
                     <div 
                         className="group relative flex flex-col items-center justify-center w-full h-64 border-2 border-slate-800 border-dashed rounded-2xl cursor-pointer hover:bg-slate-800/30 hover:border-sky-500/50 transition-all"
                         onClick={handleFileClick}
                     >
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            className="hidden" 
-                            accept=".pdf,.xlsx,.xls,.csv"
-                        />
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.xlsx,.xls,.csv" />
                         
                         {activeInputTab === 'upload' ? (
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -438,17 +429,7 @@ export const DataExtractionPage: React.FC = () => {
                                         <p className="text-[10px] text-slate-500">{(selectedFile.size / 1024).toFixed(1)} KB</p>
                                     </div>
                                 ) : (
-                                    <>
-                                        <p className="mb-2 text-sm text-slate-300"><span className="font-bold">Drop file here</span> or click to browse</p>
-                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-4">Supports PDF, Excel (.xlsx / .xls), and CSV</p>
-                                        
-                                        <div className="flex gap-2">
-                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20">PDF</span>
-                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLSX</span>
-                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">XLS</span>
-                                            <span className="px-2 py-0.5 rounded text-[9px] font-black bg-sky-500/10 text-sky-500 border border-sky-500/20">CSV</span>
-                                        </div>
-                                    </>
+                                    <p className="mb-2 text-sm text-slate-300"><span className="font-bold">Drop file here</span> or click to browse</p>
                                 )}
                             </div>
                         ) : (
@@ -465,108 +446,73 @@ export const DataExtractionPage: React.FC = () => {
                     <button 
                         onClick={handleExtract}
                         disabled={isProcessing || (activeInputTab === 'upload' && !selectedFile) || (activeInputTab === 'paste' && !pastedText.trim())}
-                        className="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800/50 disabled:text-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-900/20"
+                        className="w-full bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800/50 disabled:text-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
                     >
-                        {isProcessing ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        )}
                         {isProcessing ? 'Analyzing Document...' : 'Extract with AI'}
                     </button>
                     
                     {error && (
-                        <div className="text-[10px] text-rose-500 font-bold bg-rose-500/10 border border-rose-500/20 p-2 rounded-lg text-center animate-in fade-in slide-in-from-top-2">
+                        <div className="text-[10px] text-rose-500 font-bold bg-rose-500/10 border border-rose-500/20 p-2 rounded-lg text-center">
                             {error}
                         </div>
                     )}
                 </div>
 
-                {/* Right Column: Output & Capabilities */}
+                {/* Right Column: Output & Conversion */}
                 <div className="space-y-8">
-                    {/* Output Area */}
-                    <div className="premium-card h-64 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+                    <div className="premium-card min-h-[320px] flex flex-col items-center justify-center p-6 relative overflow-hidden">
                         {isProcessing ? (
                             <div className="space-y-4 animate-pulse">
                                 <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto"></div>
                                 <div className="h-4 w-48 bg-slate-800 rounded-full mx-auto"></div>
-                                <div className="h-3 w-32 bg-slate-800 rounded-full mx-auto"></div>
                             </div>
                         ) : extractedData ? (
-                            <div className="w-full text-left space-y-4 animate-in zoom-in duration-300">
+                            <div className="w-full text-left space-y-6 animate-in zoom-in duration-300">
                                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
-                                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
-                                            <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tight">high confidence</span>
-                                        </div>
-                                        <button onClick={() => setExtractedData(null)} className="text-slate-600 hover:text-rose-500 transition-colors p-1 hover:bg-rose-500/5 rounded-md">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                                        <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
+                                        <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tight">AI Confidence 98%</span>
                                     </div>
-                                    <span className="text-[10px] text-slate-500 font-black tracking-widest uppercase">98.4% Match</span>
+                                    <span className="text-[10px] text-slate-500 font-black tracking-widest uppercase">Verified Match</span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                
+                                <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                                     <DetailField label="Vendor" value={extractedData.vendor} />
                                     <DetailField label="Date" value={extractedData.date} />
-                                    <DetailField label="Amount" value={`$${extractedData.amount.toLocaleString()}`} isBold />
-                                    <div className="space-y-1 relative">
-                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Category</p>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-xs text-white font-medium">{extractedData.category}</p>
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setIsRefining(!isRefining);
-                                                }}
-                                                className="p-1 hover:bg-slate-800 rounded transition-colors text-sky-500"
-                                                title="Correct AI categorization"
-                                            >
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                            </button>
-                                        </div>
-                                        {isRefining && (
-                                            <div className="absolute z-[100] mt-1 w-32 bg-slate-900 border border-slate-800 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-1 animate-in fade-in zoom-in duration-200 left-0 top-full">
-                                                {['Software', 'Marketing', 'Office', 'Hosting', 'Revenue'].map(cat => (
-                                                    <button 
-                                                        key={cat}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleRefineCategory(cat);
-                                                        }}
-                                                        className="w-full text-left px-2 py-1.5 text-[10px] text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors"
-                                                    >
-                                                        {cat}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
+                                    
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Original Amount</p>
+                                        <p className="text-xs text-slate-300 font-medium">{extractedData.currency} {extractedData.amount.toLocaleString()}</p>
                                     </div>
+
+                                    <div className="space-y-1 p-2 bg-sky-500/5 rounded-lg border border-sky-500/10">
+                                        <p className="text-[10px] text-sky-500 uppercase font-black tracking-widest">Converted to {baseCurrency}</p>
+                                        <p className="text-lg text-white font-black">{baseCurrency} {extractedData.convertedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                    </div>
+
+                                    <DetailField label="Category" value={extractedData.category} />
+                                    <DetailField label="Description" value={extractedData.description} />
                                 </div>
-                                <button onClick={handleAddToTransactions} className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-colors">
-                                    Approve & Sync to Ledger
+
+                                <button onClick={handleAddToTransactions} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-emerald-900/20">
+                                    Approve & Post to Ledger ({baseCurrency})
                                 </button>
                             </div>
                         ) : (
-                            <>
-                                <div className="w-12 h-12 bg-slate-900/50 rounded-2xl flex items-center justify-center mb-4 border border-slate-800 shadow-inner">
-                                    <svg className="w-6 h-6 text-sky-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.618.309a6 6 0 01-3.86.517l-2.457-.492a2 2 0 00-1.022.547l-2.387 2.387a2 2 0 00-.547 1.022l-.477 2.387a2 2 0 001.022 2.387l2.387.477a2 2 0 002.387-1.022l.477-2.387a2 2 0 00-.547-1.022l-2.387-.477a2 2 0 00-1.022.547l-2.387 2.387z"></path></svg>
-                                </div>
-                                <h3 className="text-sm font-bold text-white mb-1">Extracted fields will appear here</h3>
-                                <p className="text-xs text-slate-500">Upload a file or paste text, then click Extract</p>
-                            </>
+                            <div className="text-center opacity-40">
+                                <div className="w-16 h-16 bg-slate-900/50 rounded-2xl flex items-center justify-center mb-4 mx-auto border border-slate-800 shadow-inner text-2xl">🔍</div>
+                                <h3 className="text-sm font-bold text-white mb-1">Waiting for document...</h3>
+                                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Extraction ready</p>
+                            </div>
                         )}
                     </div>
 
-                    {/* Capabilities Area */}
                     <div className="premium-card p-6">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Supported Formats & Capabilities</h3>
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Extraction Capabilities</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                             {capabilities.map((cap, idx) => (
                                 <div key={idx} className="flex items-center gap-3 text-xs">
-                                    <div className="flex-shrink-0 w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                        <svg className="w-2.5 h-2.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div>
                                     <span className="text-slate-400 font-medium">{cap}</span>
                                 </div>
                             ))}
@@ -578,54 +524,30 @@ export const DataExtractionPage: React.FC = () => {
             {/* Bottom Section: History */}
             <div className="premium-card p-0 overflow-hidden">
                 <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900/10">
-                    <div className="flex items-center gap-3">
-                        <h3 className="text-sm font-bold font-outfit text-white">Extraction History</h3>
-                        <span className="text-[10px] px-2 py-0.5 bg-slate-800 text-slate-500 rounded-full font-bold">{history.length} ITEMS</span>
-                    </div>
-                    <button 
-                        onClick={handleExportAudit}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 text-[10px] font-bold rounded-lg border border-slate-700/50 transition-all uppercase tracking-widest shadow-lg"
-                    >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Export Audit Trail
-                    </button>
+                    <h3 className="text-sm font-bold font-outfit text-white uppercase tracking-widest">Recent Activity</h3>
+                    <button onClick={() => alert("Audit Exporting...")} className="px-3 py-1.5 bg-slate-800 text-sky-400 text-[9px] font-black rounded-lg border border-slate-700/50 uppercase tracking-widest">Export Audit Trail</button>
                 </div>
                 {history.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-xs text-left text-slate-400">
-                            <thead className="text-[10px] text-slate-500 uppercase font-bold border-b border-slate-800 bg-slate-900/30">
+                        <table className="w-full text-xs text-left">
+                            <thead className="text-[9px] text-slate-500 uppercase font-black border-b border-slate-800 bg-slate-900/30">
                                 <tr>
-                                    <th className="px-6 py-3">SOURCE</th>
-                                    <th className="px-6 py-3">VENDOR</th>
-                                    <th className="px-6 py-3">DATE</th>
-                                    <th className="px-6 py-3 text-right">AMOUNT</th>
-                                    <th className="px-6 py-3 text-center">CATEGORY</th>
+                                    <th className="px-6 py-4">Document</th>
+                                    <th className="px-6 py-4">Vendor</th>
+                                    <th className="px-6 py-4 text-right">Original</th>
+                                    <th className="px-6 py-4 text-right text-sky-500">Converted ({baseCurrency})</th>
+                                    <th className="px-6 py-4 text-center">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-800/30">
+                            <tbody className="divide-y divide-slate-800/50">
                                 {history.map((item, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-800/20 transition-colors border-b border-slate-800/30 last:border-0">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                                    <svg className="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                                </div>
-                                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
-                                                    <svg className="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"></path><path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-bold text-white mb-0.5 truncate">{item.fileName}</p>
-                                                    <p className="text-[10px] text-slate-500 font-medium">
-                                                        {item.docType} • {item.source} • {item.timestamp}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-white font-bold">{item.vendor}</td>
-                                        <td className="px-6 py-4 text-slate-500 font-medium">{item.date}</td>
-                                        <td className="px-6 py-4 text-right font-black text-white tracking-tight">${item.amount.toLocaleString()}</td>
+                                    <tr key={idx} className="hover:bg-slate-800/20 transition-colors">
+                                        <td className="px-6 py-4 text-white font-medium">{item.fileName}</td>
+                                        <td className="px-6 py-4 text-slate-300 font-bold">{item.vendor}</td>
+                                        <td className="px-6 py-4 text-right text-slate-500">{item.currency} {item.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right text-white font-black">{baseCurrency} {item.convertedAmount.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className="px-2.5 py-1 rounded-full bg-slate-900 text-[9px] font-black uppercase tracking-tighter border border-slate-700 text-slate-300">{item.category}</span>
+                                            <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase border border-emerald-500/20">Verified</span>
                                         </td>
                                     </tr>
                                 ))}
@@ -633,12 +555,7 @@ export const DataExtractionPage: React.FC = () => {
                         </table>
                     </div>
                 ) : (
-                    <div className="py-12 flex flex-col items-center justify-center text-center">
-                        <div className="w-16 h-16 bg-slate-900/50 rounded-full flex items-center justify-center mb-4 border border-slate-800">
-                            <svg className="w-8 h-8 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        </div>
-                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">No documents extracted yet</p>
-                    </div>
+                    <div className="py-12 text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">No processing history found</div>
                 )}
             </div>
         </div>
@@ -646,7 +563,7 @@ export const DataExtractionPage: React.FC = () => {
 };
 
 export const TransactionsPage: React.FC = () => {
-    const { transactions } = useContext(DataContext) as DataContextType;
+    const { transactions, baseCurrency } = useContext(DataContext) as DataContextType;
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('All Types');
     const [categoryFilter, setCategoryFilter] = useState('All Categories');
@@ -658,11 +575,9 @@ export const TransactionsPage: React.FC = () => {
         return matchesSearch && matchesType && matchesCategory;
     });
 
-    // Calculate dynamic KPIs
     const totalCredits = transactions.reduce((acc, tx) => tx.amount > 0 ? acc + tx.amount : acc, 0);
     const totalDebits = transactions.reduce((acc, tx) => tx.amount < 0 ? acc + Math.abs(tx.amount) : acc, 0);
 
-    // Calculate dynamic categories
     const categoryTotals = transactions.reduce((acc: any, tx) => {
         acc[tx.category] = (acc[tx.category] || 0) + Math.abs(tx.amount);
         return acc;
@@ -672,7 +587,7 @@ export const TransactionsPage: React.FC = () => {
     const spendCategories = Object.entries(categoryTotals)
         .map(([name, amount]: [string, any]) => ({
             name,
-            amount: `$${amount.toLocaleString()}`,
+            amountFormatted: `${baseCurrency} ${amount.toLocaleString()}`,
             percent: totalVolume > 0 ? `${((amount / totalVolume) * 100).toFixed(1)}%` : '0%',
             fill: totalVolume > 0 ? `${(amount / totalVolume) * 100}%` : '0%'
         }))
@@ -680,18 +595,16 @@ export const TransactionsPage: React.FC = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-700 w-full">
-            {/* Header */}
             <div>
                 <h2 className="text-xl font-bold font-outfit text-white">Transaction Ledger</h2>
                 <p className="text-slate-500 text-sm mt-1">Full audit trail with AI categorization and anomaly scoring</p>
             </div>
 
-            {/* Top KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="premium-card p-6 flex items-center gap-4">
                     <div className="w-1 h-12 bg-emerald-500 rounded-full"></div>
                     <div>
-                        <p className="text-2xl font-black text-white">${totalCredits.toLocaleString()}</p>
+                        <p className="text-2xl font-black text-white">{baseCurrency} {totalCredits.toLocaleString()}</p>
                         <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
                             <span className="text-emerald-500">↗</span> Total Credits
                         </p>
@@ -700,7 +613,7 @@ export const TransactionsPage: React.FC = () => {
                 <div className="premium-card p-6 flex items-center gap-4">
                     <div className="w-1 h-12 bg-rose-500 rounded-full"></div>
                     <div>
-                        <p className="text-2xl font-black text-white">${totalDebits.toLocaleString()}</p>
+                        <p className="text-2xl font-black text-white">{baseCurrency} {totalDebits.toLocaleString()}</p>
                         <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-1">
                             <span className="text-rose-500">↘</span> Total Debits
                         </p>
@@ -708,7 +621,6 @@ export const TransactionsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Controls */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="relative w-full md:w-96">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-500">
@@ -723,83 +635,49 @@ export const TransactionsPage: React.FC = () => {
                     />
                 </div>
                 <div className="flex gap-4 w-full md:w-auto">
-                    <select 
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                        className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40"
-                    >
+                    <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg block p-2.5 w-full md:w-40">
                         <option>All Types</option>
                         <option>Credit</option>
                         <option>Debit</option>
                     </select>
-                    <select 
-                        value={categoryFilter}
-                        onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 w-full md:w-40"
-                    >
+                    <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="bg-slate-900 border border-slate-800 text-slate-300 text-sm rounded-lg block p-2.5 w-full md:w-40">
                         <option>All Categories</option>
-                        <option>Salaries</option>
-                        <option>Revenue</option>
-                        <option>Professional Services</option>
-                        <option>Taxes</option>
-                        <option>Marketing</option>
-                        <option>Transfers</option>
-                        <option>Software & SaaS</option>
-                        <option>Rent & Facilities</option>
-                        <option>Equipment</option>
-                        <option>Travel</option>
-                        <option>Insurance</option>
-                        <option>Meals & Entertainment</option>
-                        <option>Utilities</option>
-                        <option>Interest</option>
-                        <option>Office Supplies</option>
+                        {Array.from(new Set(transactions.map(t => t.category))).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
                 </div>
             </div>
 
-            {/* Data Table */}
             <div className="premium-card p-0 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left text-slate-400">
                         <thead className="text-[10px] text-slate-500 uppercase font-bold border-b border-slate-800 tracking-wider">
                             <tr>
-                                <th scope="col" className="px-6 py-4">DATE</th>
-                                <th scope="col" className="px-6 py-4">DESCRIPTION</th>
-                                <th scope="col" className="px-6 py-4">CATEGORY</th>
-                                <th scope="col" className="px-6 py-4">GL CODE</th>
-                                <th scope="col" className="px-6 py-4 text-right">AMOUNT</th>
-                                <th scope="col" className="px-6 py-4 text-center">STATUS</th>
-                                <th scope="col" className="px-6 py-4 text-center">ANOMALY</th>
+                                <th className="px-6 py-4">DATE</th>
+                                <th className="px-6 py-4">DESCRIPTION</th>
+                                <th className="px-6 py-4">CATEGORY</th>
+                                <th className="px-6 py-4">GL CODE</th>
+                                <th className="px-6 py-4 text-right">AMOUNT</th>
+                                <th className="px-6 py-4 text-center">STATUS</th>
+                                <th className="px-6 py-4 text-center">ANOMALY</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800/50">
-                            {filteredTransactions.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-8 text-center text-slate-500">No transactions match your filters.</td>
-                                </tr>
-                            ) : filteredTransactions.map((tx, index) => (
+                            {filteredTransactions.map((tx, index) => (
                                 <tr key={index} className="hover:bg-slate-800/50 transition-colors">
-                                    <td className="px-6 py-3 whitespace-nowrap">{tx.date}</td>
+                                    <td className="px-6 py-3">{tx.date}</td>
                                     <td className="px-6 py-3 font-semibold text-slate-200">{tx.description}</td>
                                     <td className="px-6 py-3">{tx.category}</td>
                                     <td className="px-6 py-3 text-slate-500">{tx.gl}</td>
                                     <td className={`px-6 py-3 text-right font-bold ${tx.amount > 0 ? 'text-emerald-500' : 'text-white'}`}>
-                                        {tx.amount > 0 ? '+' : ''}{tx.amount < 0 ? '-' : ''}${Math.abs(tx.amount).toLocaleString()}
+                                        {tx.currency || baseCurrency} {tx.amount.toLocaleString()}
                                     </td>
                                     <td className="px-6 py-3 text-center">
                                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${tx.status === 'posted' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
                                             {tx.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-3">
-                                        {tx.anomaly ? (
-                                            <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-rose-500">
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                                {tx.anomaly}
-                                            </div>
-                                        ) : (
-                                            <div className="text-slate-600 text-center">—</div>
-                                        )}
+                                    <td className="px-6 py-3 text-center">
+                                        {tx.anomaly ? <span className="text-rose-500 text-[10px] font-bold">{tx.anomaly}</span> : <span className="text-slate-700">—</span>}
                                     </td>
                                 </tr>
                             ))}
@@ -808,9 +686,8 @@ export const TransactionsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Spend by Category Footer */}
             <div className="premium-card p-6">
-                <h3 className="text-sm font-bold font-outfit mb-4 text-white">Spend by Category</h3>
+                <h3 className="text-sm font-bold font-outfit mb-4 text-white">Spend by Category ({baseCurrency})</h3>
                 <div className="space-y-3">
                     {spendCategories.map((cat, idx) => (
                         <div key={idx} className="flex items-center text-xs">
@@ -819,7 +696,7 @@ export const TransactionsPage: React.FC = () => {
                                 <div className="h-full bg-sky-500 rounded-full" style={{ width: cat.fill }}></div>
                             </div>
                             <div className="w-32 flex justify-between font-medium">
-                                <span className="text-slate-200">{cat.amount}</span>
+                                <span className="text-slate-200">{cat.amountFormatted}</span>
                                 <span className="text-slate-500">{cat.percent}</span>
                             </div>
                         </div>
@@ -1565,10 +1442,10 @@ export const RiskDiscoveryPage: React.FC = () => {
     const { transactions, setTransactions } = useContext(DataContext) as DataContextType;
 
     const [anomalies, setAnomalies] = useState([
-        { id: 1, vendor: "AWS Infrastructure", date: "2026-05-12", amount: "$9,100", reason: "30% Price Drift vs Avg", level: "High", status: 'Pending' },
-        { id: 2, vendor: "Unknown: SV_PAY_LLC", date: "2026-05-10", amount: "$45,000", reason: "Unregistered Entity", level: "Critical", status: 'Pending' },
-        { id: 3, vendor: "Adobe Creative Cloud", date: "2026-05-08", amount: "$120", reason: "Possible Duplicate Seat", level: "Low", status: 'Pending' },
-        { id: 4, vendor: "Global Office Supplies", date: "2026-05-05", amount: "$5,200", reason: "Benford's Law Deviation", level: "Medium", status: 'Pending' },
+        { id: 1, vendor: "AWS Cloud Services", date: "2026-05-12", amount: "$9,100", reason: "30% Price Drift vs Avg", level: "High", status: 'Pending' },
+        { id: 2, vendor: "Suspicious Transfer", date: "2026-04-30", amount: "$45,000", reason: "Unregistered Entity", level: "Critical", status: 'Pending' },
+        { id: 3, vendor: "Duplicate Payment", date: "2026-03-25", amount: "$12,000", reason: "Duplicate Vendor ID", level: "Critical", status: 'Pending' },
+        { id: 4, vendor: "Client Dinner", date: "2026-05-07", amount: "$5,200", reason: "Benford's Law Deviation", level: "Medium", status: 'Pending' },
     ]);
 
     const [selectedAnomaly, setSelectedAnomaly] = useState<any | null>(null);

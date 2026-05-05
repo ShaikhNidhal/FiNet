@@ -113,12 +113,20 @@ const App: React.FC = () => {
         themeColors: THEMES[themeName],
     }), [themeName, isDarkMode, applyTheme, toggleDarkMode]);
 
+    const [baseCurrency, setBaseCurrency] = useState(() => localStorage.getItem('finet_base_currency') || 'USD');
+    
+    useEffect(() => {
+        localStorage.setItem('finet_base_currency', baseCurrency);
+    }, [baseCurrency]);
+
     const dataContextValue = useMemo(() => ({
         transactions,
         setTransactions,
         apBills,
         arInvoices,
-    }), [transactions, apBills, arInvoices]);
+        baseCurrency,
+        setBaseCurrency,
+    }), [transactions, apBills, arInvoices, baseCurrency]);
 
     const handleLogin = () => setIsLoggedIn(true);
     const handleLogout = () => setIsLoggedIn(false);

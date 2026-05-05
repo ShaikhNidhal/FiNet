@@ -4,20 +4,26 @@ export interface Transaction {
   date: string;
   description: string;
   amount: number;
+  currency?: string;
   type: 'income' | 'expense';
   category: string;
+  gl?: string;
+  status?: 'posted' | 'pending';
+  anomaly?: 'Critical' | 'High' | 'Medium' | 'Low' | null;
 }
 
 export interface Bill {
   vendor: string;
   due: string;
   amount: number;
+  currency?: string;
 }
 
 export interface Invoice {
   customer: string;
   due: string;
   amount: number;
+  currency?: string;
 }
 
 export interface SidebarLink {
@@ -52,6 +58,8 @@ export interface DataContextType {
     setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
     apBills: Bill[];
     arInvoices: Invoice[];
+    baseCurrency: string;
+    setBaseCurrency: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export interface SubscriptionStatus {

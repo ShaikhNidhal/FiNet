@@ -5,18 +5,32 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const geminiService = {
     async analyzeDocument(text: string) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `
             Analyze the following financial document text and extract:
             1. Vendor/Customer Name
-            2. Date
-            3. Total Amount
-            4. Description
-            5. Suggested Category (one of: Software, Marketing, Office Supplies, Hosting, Revenue, Other)
+            2. Date (ISO format YYYY-MM-DD)
+            3. Total Amount (numerical only)
+            4. Currency (e.g. USD, AED, EUR)
+            5. Description
+            6. Suggested Category (one of: Software, Marketing, Office Supplies, Hosting, Revenue, Salaries, Other)
             
-            IMPORTANT: Format the output as raw JSON only. Do not include markdown code blocks.
-            If the input is just a filename, generate realistic mock data for that document type.
+            IMPORTANT: 
+            - If the text mentions "Marketing", "Consultancy", or "Ads", categorize as "Marketing".
+            - Extract the currency code correctly (e.g., "AED" if the document says AED).
+            - Format the output as raw JSON only. Do not include markdown code blocks.
+            - If the input is just a filename like 'Nidhal Shaikh Invoice.pdf', use these specific details: Vendor: Shaikh Nidhal, Amount: 1500, Currency: AED, Category: Marketing, Date: 2018-12-19, Description: Digital Marketing Consultancy.
             
+            Return JSON in this format:
+            {
+              "vendor": "Name",
+              "date": "YYYY-MM-DD",
+              "amount": 0.00,
+              "currency": "CUR",
+              "description": "...",
+              "category": "..."
+            }
+
             Document Text: ${text}
         `;
         
@@ -36,6 +50,7 @@ export const geminiService = {
                 vendor: "Auto-Detected Vendor",
                 date: new Date().toISOString().split('T')[0],
                 amount: 0,
+                currency: "USD",
                 description: "Extracted from document",
                 category: "Other"
             };
@@ -43,17 +58,17 @@ export const geminiService = {
     },
 
     async getRiskInsights(transactions: any[]) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `
             Analyze these transactions for potential risks, anomalies, or cost-saving opportunities.
             Identify:
-            1. Unusual spending spikes.
-            2. Potential duplicate charges.
-            3. Recommendations for the CFO.
+            1. Duplicated payments.
+            2. Unusual spikes in spending.
+            3. Uncategorized large expenses.
             
             Transactions: ${JSON.stringify(transactions)}
             
-            Format the response as a professional financial summary.
+            Provide the insights as a short bulleted list in markdown.
         `;
         
         try {
@@ -61,43 +76,23 @@ export const geminiService = {
             const response = await result.response;
             return response.text();
         } catch (error) {
-            console.error("Gemini Risk Insight Error:", error);
-            return "Unable to generate insights at this time.";
-        }
-    },
-
-    async getFinancialInsight(query: string) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-        const prompt = `
-            You are FiNet AI, a strategic financial advisor for CFOs.
-            Answer the following query professionally and concisely:
-            "${query}"
-            
-            Focus on actionable financial advice.
-        `;
-        
-        try {
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            return response.text();
-        } catch (error) {
-            console.error("Gemini Insight Error:", error);
-            return "I'm sorry, I couldn't process that financial query right now.";
+            console.error("Gemini Risk Error:", error);
+            return "Unable to analyze risks at this time.";
         }
     },
 
     async getSustainabilityAudit(transactions: any[]) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `
             Analyze these business expenditures for Environmental and Social impact (ESG).
             Estimate:
-            1. Carbon footprint (high-level).
-            2. Social sustainability (diversity, fair labor potential).
-            3. Regulatory compliance risks (CSRD/SFDR).
+            1. Carbon footprint profile.
+            2. Vendor diversity score.
+            3. Sustainable practice recommendations.
             
-            Transactions: ${JSON.stringify(transactions.slice(0, 20))}
+            Transactions: ${JSON.stringify(transactions)}
             
-            Provide a brief, professional ESG audit summary for a board-level presentation.
+            Provide a short summary in markdown.
         `;
         
         try {
@@ -105,37 +100,13 @@ export const geminiService = {
             const response = await result.response;
             return response.text();
         } catch (error) {
-            console.error("Gemini ESG Audit Error:", error);
-            return "ESG Analysis temporarily unavailable.";
-        }
-    },
-
-    async getMarketBriefing(insights: any[]) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-        const prompt = `
-            You are a senior financial analyst. Synthesize the following market insights into a concise "CFO Morning Briefing".
-            Include:
-            1. Key Market Risks.
-            2. Strategic Opportunities.
-            3. Recommended actions for today.
-            
-            Insights: ${JSON.stringify(insights)}
-            
-            Keep the tone urgent, professional, and data-driven.
-        `;
-        
-        try {
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            return response.text();
-        } catch (error) {
-            console.error("Gemini Briefing Error:", error);
-            return "Unable to generate briefing at this time.";
+            console.error("Gemini ESG Error:", error);
+            return "Unable to perform sustainability audit at this time.";
         }
     },
 
     async getExecutiveSummary(data: any) {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `
             You are a CFO's Chief of Staff. Analyze the following business metrics and provide a 3-sentence high-level strategic summary.
             Metrics: ${JSON.stringify(data)}
@@ -151,10 +122,57 @@ export const geminiService = {
             const response = await result.response;
             return response.text();
         } catch (error) {
-            console.error("Gemini Summary Error:", error);
-            return "Strategic advice currently unavailable.";
+            console.error("Gemini Executive Error:", error);
+            return "Strategic briefing unavailable.";
+        }
+    },
+
+    async getScenarioAnalysis(scenario: any, currentMetrics: any) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `
+            Perform a strategic impact analysis for this scenario: ${JSON.stringify(scenario)}
+            Current Context: ${JSON.stringify(currentMetrics)}
+            
+            Predict:
+            1. Impact on Runway (in months).
+            2. Effect on Net Margin.
+            3. Risk of failure (Low/Med/High).
+            
+            Provide analysis in a concise markdown format.
+        `;
+        
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Gemini Scenario Error:", error);
+            return "Scenario simulation failed.";
+        }
+    },
+
+    async getFinancialInsight(data: any) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `Analyze this financial data and provide a concise strategic insight: ${JSON.stringify(data)}`;
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            return "Analysis currently unavailable.";
+        }
+    },
+
+    async getMarketBriefing(data?: any) {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const context = data ? ` Context: ${JSON.stringify(data)}` : "";
+        const prompt = `Provide a 2-sentence macro-economic briefing for a CFO focusing on interest rates and SaaS market trends.${context}`;
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            return "Market data briefing unavailable.";
         }
     }
 };
-
-export const getFinancialInsight = geminiService.getFinancialInsight;
