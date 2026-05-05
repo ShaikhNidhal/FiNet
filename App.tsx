@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import SubscriptionBanner from './components/SubscriptionBanner';
 import LoginPage from './pages/LoginPage';
-import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage, ExecutiveInsightsPage, UserManagementPage } from './pages/ContentPages';
+import { DashboardPage, ReportsPage, TransactionsPage, DataExtractionPage, WorkflowsPage, ExpenseManagementPage, InventoryPage, ProjectsPage, FixedAssetsPage, BudgetingPage, TaxCenterPage, PayrollPage, IntegrationsPage, SettingsPage, ScenarioPlanningPage, ESGReportingPage, MarketIntelligencePage, ReconciliationPage, RiskDiscoveryPage, ExecutiveInsightsPage, UserManagementPage, AutonomousBookkeepingPage } from './pages/ContentPages';
 import { ThemeName, ThemeContextType, DataContextType, Transaction, Bill, Invoice } from './types';
 import { THEMES, INITIAL_TRANSACTIONS, INITIAL_AP_BILLS, INITIAL_AR_INVOICES, SIDEBAR_SECTIONS } from './constants';
 
@@ -29,6 +29,7 @@ const MainLayout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         <Route path="/executive-insights" element={<ExecutiveInsightsPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />
+                        <Route path="/autonomous-bookkeeping" element={<AutonomousBookkeepingPage />} />
                         <Route path="/reconciliation" element={<ReconciliationPage />} />
                         <Route path="/risk-discovery" element={<RiskDiscoveryPage />} />
                         <Route path="/data-extraction" element={<DataExtractionPage />} />

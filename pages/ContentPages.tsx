@@ -335,6 +335,7 @@ export const DataExtractionPage: React.FC = () => {
         if (!extractedData) return;
         
         const newTransaction: Transaction = { 
+            id: `tx_ext_${Date.now()}`,
             date: extractedData.date, 
             description: `${extractedData.vendor} - ${extractedData.description}`, 
             amount: -extractedData.convertedAmount, 
@@ -1091,11 +1092,13 @@ export const ExpenseManagementPage: React.FC = () => {
                 if (report) {
                     setTransactions(prevTx => [
                         {
+                            id: `tx_exp_${report.id}`,
                             date: report.date,
                             description: `Expense: ${report.description} (${report.submittedBy})`,
                             amount: -report.amount, // Negative for expense
                             type: 'expense',
-                            category: report.category
+                            category: report.category,
+                            status: 'posted'
                         },
                         ...prevTx
                     ]);
@@ -2584,4 +2587,139 @@ export const UserManagementPage: React.FC = () => {
             </div>
         </div>
     );
-};
+};
+export const AutonomousBookkeepingPage: React.FC = () => {
+    const { transactions, setTransactions, baseCurrency } = useContext(DataContext) as DataContextType;
+    const [isApproving, setIsApproving] = useState(false);
+    
+    // Filter for transactions that are "pending" or have AI flags
+    const pendingReview = transactions.filter(t => t.status === 'pending' || t.anomaly);
+    
+    const handleApproveAll = async () => {
+        setIsApproving(true);
+        await new Promise(r => setTimeout(r, 1500));
+        setTransactions(prev => prev.map(t => ({ ...t, status: 'posted' })));
+        setIsApproving(false);
+    };
+
+    const handleApproveSingle = (id?: string) => {
+        if (!id) return;
+        setTransactions(prev => prev.map(t => t.id === id ? { ...t, status: 'posted' } : t));
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in duration-700 w-full">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-xl font-bold font-outfit text-[var(--text-main)]">Autonomous AI Bookkeeping</h2>
+                    <p className="text-[var(--text-muted)] text-sm mt-1">AI-driven ledger verification and anomaly resolution</p>
+                </div>
+                <div className="flex gap-3">
+                    <button 
+                        onClick={handleApproveAll}
+                        disabled={pendingReview.length === 0 || isApproving}
+                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-[var(--bg-input)] disabled:text-[var(--text-muted)] text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-2"
+                    >
+                        {isApproving ? 'Verifying...' : `Approve All Proposals (${pendingReview.length})`}
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="premium-card flex flex-col justify-between p-6">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">AI Confidence Rate</p>
+                    <div className="flex items-end gap-2 mt-2">
+                        <span className="text-3xl font-black text-[var(--text-main)]">98.4%</span>
+                        <span className="text-[10px] text-emerald-500 font-bold mb-1">↑ 2.1%</span>
+                    </div>
+                </div>
+                <div className="premium-card flex flex-col justify-between p-6">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Auto-Categorizations</p>
+                    <div className="mt-2">
+                        <span className="text-3xl font-black text-[var(--text-main)]">{transactions.length}</span>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-1 font-medium">Items processed this month</p>
+                    </div>
+                </div>
+                <div className="premium-card flex flex-col justify-between p-6">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Human Verification</p>
+                    <div className="mt-2">
+                        <span className="text-3xl font-black text-amber-500">{pendingReview.length}</span>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-1 font-medium">Items awaiting approval</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="text-sm font-bold font-outfit text-[var(--text-main)] px-1">AI Proposal Queue</h3>
+                
+                {pendingReview.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                        {pendingReview.map((tx, idx) => (
+                            <div key={tx.id || idx} className={`premium-card p-6 border-l-4 ${tx.anomaly ? 'border-rose-500' : 'border-sky-500'} animate-in slide-in-from-bottom-2 duration-300 shadow-sm`} style={{ animationDelay: `${idx * 100}ms` }}>
+                                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                                    <div className="flex-1 space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-[9px] font-black px-2 py-0.5 rounded bg-[var(--bg-input)] text-[var(--text-muted)] uppercase tracking-widest">{tx.date}</span>
+                                            {tx.anomaly && (
+                                                <span className="text-[9px] font-black px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 uppercase tracking-widest border border-rose-500/20">Anomaly Detected</span>
+                                            )}
+                                        </div>
+                                        <h4 className="text-lg font-bold text-[var(--text-main)]">{tx.description}</h4>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] text-[var(--text-muted)]">Suggested GL:</span>
+                                                <span className="text-[10px] font-black text-sky-500">{tx.gl}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] text-[var(--text-muted)]">Category:</span>
+                                                <span className="text-[10px] font-black text-[var(--text-main)]">{tx.category}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-[var(--bg-input)] p-4 rounded-xl border border-[var(--border-color)] flex-1 w-full lg:max-w-md">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-sky-500"></div>
+                                            <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">AI Reasoning</p>
+                                        </div>
+                                        <p className="text-xs text-[var(--text-muted)] italic leading-relaxed">
+                                            {tx.anomaly 
+                                                ? `Caution: Transaction amount is 300% higher than historical average for '${tx.category}'. Requires manual sign-off.` 
+                                                : `Matched vendor signature against historical record. High confidence mapping to '${tx.category}' ledger.`}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full sm:w-auto">
+                                        <div className="text-right mb-2 lg:mb-4 pr-2">
+                                            <p className="text-2xl font-black text-[var(--text-main)]">{baseCurrency} {Math.abs(tx.amount).toLocaleString()}</p>
+                                            <p className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-tighter">{tx.amount < 0 ? 'Debit / Expense' : 'Credit / Revenue'}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => handleApproveSingle(tx.id)}
+                                                className="flex-1 sm:px-6 py-2 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all"
+                                            >
+                                                Approve
+                                            </button>
+                                            <button className="flex-1 sm:px-6 py-2 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all">
+                                                Adjust
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="premium-card py-20 flex flex-col items-center justify-center text-center space-y-4">
+                        <div className="w-16 h-16 bg-[var(--bg-input)] rounded-full flex items-center justify-center text-2xl">🎉</div>
+                        <div>
+                            <h4 className="text-lg font-bold text-[var(--text-main)]">Ledger is Fully Synchronized</h4>
+                            <p className="text-sm text-[var(--text-muted)] mt-1">No items currently require human verification.</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
